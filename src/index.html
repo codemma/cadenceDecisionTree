@@ -1,11 +1,411 @@
+
 <html>
   <head>
-    <meta name="viewport" content="width=500,initial-scale=1.0,user-scalable=yes">
-    <title>Hello ES2015</title>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+    <script src="https://d3js.org/d3.v5.js"></script>
+    <script src="https://dagrejs.github.io/project/dagre-d3/latest/dagre-d3.js"></script>
   </head>
+  <h1>D3js + Dagre </h1>
   <body>
-    <main>
-      <p>This is not very hej interesting</p>
-    </main>
-  </body>
+    <div id="tooltip_template"></div>
+  <svg id="canvas" width="800" height="600">
+    <g></g>
+  </svg>
+
+
+<style>
+  g.Decision-Task > rect {
+  fill: #00ffd0;
+}
+text {
+  font-weight: 300;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
+  font-size: 14px;
+}
+.node rect {
+  stroke: #999;
+  fill: #fff;
+  stroke-width: 1.5px;
+}
+.edgePath path {
+  stroke: #333;
+  stroke-width: 1.5px;
+}
+#tooltip_template {
+  position: "absolute";
+}
+</style>
+
+
+<script>
+
+var g = new dagreD3.graphlib.Graph()
+  .setGraph({align: 'DR'})
+  .setDefaultEdgeLabel(function() { return {}; });
+
+
+var nodes2 = [
+  {
+    "eventId": 1,
+    "timestamp": 1597047002316132600,
+    "eventType": "WorkflowExecutionStarted",
+    "version": -24,
+    "taskId": 1159075,
+    "workflowExecutionStartedEventAttributes": {
+      "workflowType": {
+        "name": "GreetingWorkflow::getGreeting"
+      },
+      "taskList": {
+        "name": "HelloAsync"
+      },
+      "input": "IldvcmxkIg==",
+      "executionStartToCloseTimeoutSeconds": 15,
+      "taskStartToCloseTimeoutSeconds": 10,
+      "originalExecutionRunId": "681cf927-446a-45bd-901e-5452cecf0485",
+      "identity": "",
+      "firstExecutionRunId": "681cf927-446a-45bd-901e-5452cecf0485",
+      "attempt": 0,
+      "firstDecisionTaskBackoffSeconds": 0
+    }
+  },
+  {
+    "eventId": 2,
+    "timestamp": 1597047002316221200,
+    "eventType": "DecisionTaskScheduled",
+    "version": -24,
+    "taskId": 1159076,
+    "decisionTaskScheduledEventAttributes": {
+      "taskList": {
+        "name": "HelloAsync"
+      },
+      "startToCloseTimeoutSeconds": 10,
+      "attempt": 0
+    }
+  },
+  {
+    "eventId": 3,
+    "timestamp": 1597047002333861700,
+    "eventType": "DecisionTaskStarted",
+    "version": -24,
+    "taskId": 1159081,
+    "decisionTaskStartedEventAttributes": {
+      "scheduledEventId": 2,
+      "identity": "71295@etysk-C02ZH2TXLVDQ",
+      "requestId": "96b35ff5-43a8-4181-a5d6-ff4ce105fd44"
+    }
+  },
+  {
+    "eventId": 4,
+    "timestamp": 1597047002477578800,
+    "eventType": "DecisionTaskCompleted",
+    "version": -24,
+    "taskId": 1159084,
+    "decisionTaskCompletedEventAttributes": {
+      "scheduledEventId": 2,
+      "startedEventId": 3,
+      "identity": "71295@etysk-C02ZH2TXLVDQ"
+    }
+  },
+  {
+    "eventId": 5,
+    "timestamp": 1597047002477618600,
+    "eventType": "ActivityTaskScheduled",
+    "version": -24,
+    "taskId": 1159085,
+    "activityTaskScheduledEventAttributes": {
+      "activityId": "0",
+      "activityType": {
+        "name": "GreetingActivities::composeGreeting"
+      },
+      "taskList": {
+        "name": "HelloAsync"
+      },
+      "input": "WyJIZWxsbyIsIldvcmxkIl0=",
+      "scheduleToCloseTimeoutSeconds": 10,
+      "scheduleToStartTimeoutSeconds": 10,
+      "startToCloseTimeoutSeconds": 10,
+      "heartbeatTimeoutSeconds": 10,
+      "decisionTaskCompletedEventId": 4
+    }
+  },
+  {
+    "eventId": 6,
+    "timestamp": 1597047002477692900,
+    "eventType": "ActivityTaskScheduled",
+    "version": -24,
+    "taskId": 1159086,
+    "activityTaskScheduledEventAttributes": {
+      "activityId": "1",
+      "activityType": {
+        "name": "GreetingActivities::composeGreeting"
+      },
+      "taskList": {
+        "name": "HelloAsync"
+      },
+      "input": "WyJCeWUiLCJXb3JsZCJd",
+      "scheduleToCloseTimeoutSeconds": 10,
+      "scheduleToStartTimeoutSeconds": 10,
+      "startToCloseTimeoutSeconds": 10,
+      "heartbeatTimeoutSeconds": 10,
+      "decisionTaskCompletedEventId": 4
+    }
+  },
+  {
+    "eventId": 7,
+    "timestamp": 1597047002493358500,
+    "eventType": "ActivityTaskStarted",
+    "version": -24,
+    "taskId": 1159091,
+    "activityTaskStartedEventAttributes": {
+      "scheduledEventId": 5,
+      "identity": "71295@etysk-C02ZH2TXLVDQ",
+      "requestId": "2a7f8563-0802-4542-8cef-21d1b7da7463",
+      "attempt": 0,
+      "lastFailureReason": ""
+    }
+  },
+  {
+    "eventId": 8,
+    "timestamp": 1597047002513293000,
+    "eventType": "ActivityTaskStarted",
+    "version": -24,
+    "taskId": 1159094,
+    "activityTaskStartedEventAttributes": {
+      "scheduledEventId": 6,
+      "identity": "71295@etysk-C02ZH2TXLVDQ",
+      "requestId": "39bcf92e-6934-4cd3-a1dc-3b8f03f5e213",
+      "attempt": 0,
+      "lastFailureReason": ""
+    }
+  },
+  {
+    "eventId": 9,
+    "timestamp": 1597047002521926300,
+    "eventType": "ActivityTaskCompleted",
+    "version": -24,
+    "taskId": 1159096,
+    "activityTaskCompletedEventAttributes": {
+      "result": "IkhlbGxvIFdvcmxkISI=",
+      "scheduledEventId": 5,
+      "startedEventId": 7,
+      "identity": "71295@etysk-C02ZH2TXLVDQ"
+    }
+  },
+  {
+    "eventId": 10,
+    "timestamp": 1597047002522029400,
+    "eventType": "DecisionTaskScheduled",
+    "version": -24,
+    "taskId": 1159098,
+    "decisionTaskScheduledEventAttributes": {
+      "taskList": {
+        "name": "etysk-C02ZH2TXLVDQ:5a99e773-cbf9-4b30-9fb4-f003ecd2255f"
+      },
+      "startToCloseTimeoutSeconds": 10,
+      "attempt": 0
+    }
+  },
+  {
+    "eventId": 11,
+    "timestamp": 1597047002530731900,
+    "eventType": "ActivityTaskCompleted",
+    "version": -24,
+    "taskId": 1159103,
+    "activityTaskCompletedEventAttributes": {
+      "result": "IkJ5ZSBXb3JsZCEi",
+      "scheduledEventId": 6,
+      "startedEventId": 8,
+      "identity": "71295@etysk-C02ZH2TXLVDQ"
+    }
+  },
+  {
+    "eventId": 12,
+    "timestamp": 1597047002541360700,
+    "eventType": "DecisionTaskStarted",
+    "version": -24,
+    "taskId": 1159105,
+    "decisionTaskStartedEventAttributes": {
+      "scheduledEventId": 10,
+      "identity": "5a99e773-cbf9-4b30-9fb4-f003ecd2255f",
+      "requestId": "340b5f56-1162-4cf7-ba64-1036e6318b17"
+    }
+  },
+  {
+    "eventId": 13,
+    "timestamp": 1597047002566628200,
+    "eventType": "DecisionTaskCompleted",
+    "version": -24,
+    "taskId": 1159108,
+    "decisionTaskCompletedEventAttributes": {
+      "scheduledEventId": 10,
+      "startedEventId": 12,
+      "identity": "71295@etysk-C02ZH2TXLVDQ"
+    }
+  },
+  {
+    "eventId": 14,
+    "timestamp": 1597047002568242200,
+    "eventType": "WorkflowExecutionCompleted",
+    "version": -24,
+    "taskId": 1159109,
+    "workflowExecutionCompletedEventAttributes": {
+      "result": "IkhlbGxvIFdvcmxkIVxuQnllIFdvcmxkISI=",
+      "decisionTaskCompletedEventId": 13
+    }
+  }
+]
+
+//Create nodes
+nodes2.forEach(function(node) {
+   g.setNode(node.eventId, { label: node.eventType, shape: "rect", class: [node.type], hovertext: node.eventType });  //style: 'fill: red'
+});
+
+function isEmpty(obj) {
+    return Object.keys(obj).length === 0;
+}
+
+nodes2.forEach(function(node) {
+   var eventType = node.eventType
+   var firstChar =  eventType.charAt(0)
+
+   if(node.eventId ===1) {
+     return; // Special cases which always occur
+   }
+   if (firstChar=='A') {
+    //If we have a scheduled event ID
+    if(node.activityTaskScheduledEventAttributes !== undefined) {
+      let schedEventId = node.activityTaskScheduledEventAttributes.decisionTaskCompletedEventId
+      g.setEdge(schedEventId , node.eventId)
+    }
+    //If we have a started event ID
+    else if (node.activityTaskStartedEventAttributes !== undefined){
+      let startedEventId = node.activityTaskStartedEventAttributes.scheduledEventId
+      g.setEdge(startedEventId, node.eventId);
+    }
+    // Completed event ID
+    else if (node.activityTaskCompletedEventAttributes !== undefined){
+      let schedEventId = node.activityTaskCompletedEventAttributes.startedEventId
+      g.setEdge(schedEventId, node.eventId);
+      g.setEdge(node.eventId,node.eventId+1);
+    }
+   }
+   if (firstChar=='D') {
+      //If we have a scheduled event ID
+    if(eventType === 'DecisionTaskScheduled') {
+      g.setEdge(node.eventId-1, node.eventId)
+    }
+    //If we have a started event ID
+    else if (node.decisionTaskStartedEventAttributes !== undefined){
+      let startedEventId = node.decisionTaskStartedEventAttributes.scheduledEventId
+      g.setEdge(startedEventId, node.eventId);
+    }
+    // Completed event ID
+    else if (node.decisionTaskCompletedEventAttributes !== undefined){
+      let schedEventId = node.decisionTaskCompletedEventAttributes.startedEventId
+      g.setEdge(schedEventId, node.eventId);
+    }
+  }
+
+});
+
+
+/*   var nodes = [
+{'id':"0", 'label': 'This is Workflow', 'type': 'workflow',  'hovertext': 'workflow'},
+{'id':"1", 'label': 'This is Decision Task', 'type': 'dtask', 'hovertext': 'dtask'},
+{'id':"2", 'label': 'This is Decision Task2', 'type': 'dtask','hovertext': 'dtask'},
+];
+
+nodes.forEach(function(node) {
+    g.setNode(node.id, { label: node.label, shape: "rect", class: [node.type], hovertext: node.hovertext  });  //style: 'fill: red'
+}); */
+
+// Here we"re setting nodeclass, which is used by our custom drawNodes function
+// below.
+/* g.setNode(0,  { label: "Workflow",       class: "Workflow" });
+g.setNode(1,  { label: "DecisionTaskScheduled",         class: "Decision-Task"});
+g.setNode(2,  { label: "DecisionTaskStarted",         class: "Decision-Task"}); */
+/* g.setNode(3,  { label: "DecisionTaskCompleted",         class: "Decision-Task" });
+g.setNode(4,  { label: "ActivityTaskScheduled",        class: "Activity", rank:'1' });
+g.setNode(5,  { label: "ActivityTaskScheduled",        class: "Activity",rank:'1'  });
+g.setNode(6,  { label: "ActivityTaskStarted",        class: "Activity" });
+g.setNode(7,  { label: "ActivityTaskStarted",        class: "Activity" });
+g.setNode(8,  { label: "ActivityTaskCompleted",        class: "Activity" });
+g.setNode(9,  { label: "DecisionTaskScheduled",         class: "Decision-Task" });
+g.setNode(10,  { label: "ActivityTaskCompleted",        class: "Activity" });
+g.setNode(11,  { label: "DecisionTaskStarted",         class: "Decision-Task" });
+g.setNode(12,  { label: "DecisionTaskCompleted",         class: "Decision-Task" });
+g.setNode(13,  { label: "WorkExecutionCompleted",         class: "Workflow" }); */
+
+
+g.nodes().forEach(function(v) {
+  var node = g.node(v);
+  // Round the corners of the nodes
+  node.rx = node.ry = 5;
+});
+
+// Set up edges, no special attributes.
+/*  g.setEdge(1, 2, { label: 'Workflow started'});
+g.setEdge(2, 3); */
+/* g.setEdge(2, 3);
+g.setEdge(3, 4);
+g.setEdge(3, 5);
+g.setEdge(4,6);
+g.setEdge(5,7);
+g.setEdge(6,8);
+g.setEdge(8,9);
+g.setEdge(7,10);
+g.setEdge(10,11);
+g.setEdge(9,11);
+g.setEdge(11,12);
+g.setEdge(12,13); */
+
+var svg = d3.select("svg"),
+    inner = svg.select("g");
+// Create the renderer
+var render = new dagreD3.render();
+
+// Set up an SVG group so that we can translate the final graph.
+var svg = d3.select("svg"),
+    zoom = d3.zoom().on("zoom", function() {
+      inner.attr("transform", d3.event.transform);
+      inner.attr("transform", d3.event.transform);
+    });
+svg.call(zoom);
+
+var node = inner.selectAll('g.node');
+
+node.on("click", function(){return tooltip.style("visibility", "visible");})
+
+// Run the renderer. This is what draws the final graph.
+render(inner, g);
+
+var tooltip = d3.select("body")
+	.append("div")
+	.style("position", "absolute")
+	.style("background-color", "white")
+  .style("border", "solid")
+  .style("border-width", "2px")
+  .style("border-radius", "5px")
+  .style("padding", "5px")
+	.style("z-index", "10")
+	.style("visibility", "hidden")
+  .text("Simple Tooltip...");
+
+//Select all nodes and add click event
+inner.selectAll('g.node')
+  .attr("data-hovertext", function(v) {
+ 		return g.node(v).hovertext
+	})
+	.on("click", function(){return tooltip.style("visibility", "visible");})
+	.on("mousemove", function(){
+    tooltip.text( this.dataset.hovertext)
+    	.style("top", (event.pageY-10)+"px")
+    	.style("left",(event.pageX+10)+"px");
+  })
+	.on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+
+//svg.attr("height", g.graph().height + 50);
+</script>
+
+</body>
 </html>
