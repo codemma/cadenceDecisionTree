@@ -13,7 +13,7 @@
   </svg>
 
   <div id="tooltip" class="hidden">
-    <p><strong>Circle information</strong></p>
+    <p><strong>Event information</strong></p>
     <p><span id="info"></span></p>
   </div>
 
@@ -25,16 +25,16 @@
 
     #tooltip {
       position: absolute;
-      width: 200px;
+      border: 2px solid #999;
+      width: fit-content;
       height: auto;
-      padding: 10px;
-      background-color: rgba(128, 128, 128, 0.4);
-      -webkit-border-radius: 10px;
-      -moz-border-radius: 10px;
-      border-radius: 10px;
-      -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-      -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
-      box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+      padding: 20px;
+      background-color: #fff;
+      border: "solid";
+      border-width: "2px";
+      border-radius: "5px";
+      padding: "5px";
+      box-shadow: 4px 4px 10px rgba(156, 156, 156, 0.4);
       pointer-events: none;
     }
 

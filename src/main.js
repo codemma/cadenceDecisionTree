@@ -61,12 +61,13 @@ g.nodes().forEach(function (v) {
   node.rx = node.ry = 5;
 });
 
+// Set up an SVG group so that we can translate the final graph.
 var svg = d3.select("svg"),
   inner = svg.select("g");
 // Create the renderer
 var render = new dagreD3.render();
 
-// Set up an SVG group so that we can translate the final graph.
+// Set up zoom
 var zoom = d3.zoom().on("zoom", function () {
   inner.attr("transform", d3.event.transform);
   inner.attr("transform", d3.event.transform);
@@ -100,31 +101,22 @@ function tooltipText(d) {
 //Select all nodes and add click event
 //ALso trying out mouseover and mouseout
 inner.selectAll('g.node')
+  //To access the node hovertext
   .attr("data-hovertext", function (v) {
     return g.node(v).hovertext
   })
-  /* .on("click", function () {
-    tooltip.text(this.dataset.hovertext)
-      .style("top", (event.pageY - 10) + "px")
-      .style("left", (event.pageX + 10) + "px");
-    return tooltip.style("visibility", "visible");
-  }) */
-  /* .on('mousemove', function () {
-    d3.select('#tooltip')
-      .style('left', d3.event.pageX + 'px')
-      .style('top', d3.event.pageY + 'px')
-  }) */
   .on("click", function () {
+    console.log(this.dataset)
+    //Show tooltip
     d3.select("#tooltip").classed("hidden", false);
   })
   .on('mousemove', function (d) {
-    let coordinates = d3.mouse(this);
     d3.select("#tooltip")
       .style("left", (event.pageX - 10) + "px")
       .style("top", (event.pageY + 10) + "px")
       .select("#info")
       .text(this.dataset.hovertext);
   })
-  //.on("mouseout", function () { return tooltip.style("visibility", "hidden"); });
+  .on("mouseout", function () { d3.select("#tooltip").classed("hidden", true); });
 
 //svg.attr("height", g.graph().height + 50);
