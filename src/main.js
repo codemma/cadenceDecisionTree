@@ -2,7 +2,7 @@ import * as workflow from '../data.json';
 
 var g = new dagreD3.graphlib.Graph()
   .setGraph({ align: 'DR' })
-  .setDefaultEdgeLabel(function () { return {}; });
+  .setDefaultEdgeLabel(function () { return {}; }); //Neccessary to display arrows between nodes
 
 //Create nodes
 workflow.forEach(function (node) {
@@ -77,27 +77,6 @@ svg.call(zoom);
 // Run the renderer. This is what draws the final graph.
 render(inner, g);
 
-// Define the div for the tooltip
-/* var tooltip = d3.select("body")
-  .append("div").attr("class", "tooltip") */
-
-/* d3.select("body")
-  .append("div")
-  .attr('id', 'tooltip')
-  .attr('style', 'position: absolute; opacity: 0;'); */
-/*  .style("background-color", "white")
- .style("border", "solid")
- .style("border-width", "2px")
- .style("border-radius", "5px")
- .style("padding", "5px")
- .style("z-index", "10")
- .style("visibility", "hidden")
- .text("Simple Tooltip..."); */
-
-function tooltipText(d) {
-  return 'Color base: ' + Math.round(d[2] * 100) / 100 + ', Position: ' + Math.round(d[0] * 100) / 100 + ';' + Math.round(d[1] * 100) / 100;
-}
-
 //Select all nodes and add click event
 //ALso trying out mouseover and mouseout
 inner.selectAll('g.node')
@@ -106,17 +85,19 @@ inner.selectAll('g.node')
     return g.node(v).hovertext
   })
   .on("click", function () {
-    console.log(this.dataset)
     //Show tooltip
     d3.select("#tooltip").classed("hidden", false);
   })
   .on('mousemove', function (d) {
+    //Update coordinates for the tooltip
     d3.select("#tooltip")
       .style("left", (event.pageX - 10) + "px")
       .style("top", (event.pageY + 10) + "px")
       .select("#info")
       .text(this.dataset.hovertext);
   })
-  .on("mouseout", function () { d3.select("#tooltip").classed("hidden", true); });
+  .on("mouseout", function () {
+    d3.select("#tooltip").classed("hidden", true);
+  });
 
 //svg.attr("height", g.graph().height + 50);
