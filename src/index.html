@@ -1,40 +1,46 @@
-
 <html>
-  <head>
-    <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
-    <script src="https://d3js.org/d3.v5.js"></script>
-    <script src="https://dagrejs.github.io/project/dagre-d3/latest/dagre-d3.js"></script>
-  </head>
-  <h1>D3js + Dagre - click on nodes to display more info, panning and zoomin is enabled</h1>
-  <body>
-    <div id="tooltip_template"></div>
-    <svg id="canvas" width="800" height="600" style="border: 1px solid black;">
-     <g></g>
-    </svg>
+
+<head>
+  <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+  <script src="https://d3js.org/d3.v5.js"></script>
+  <script src="https://dagrejs.github.io/project/dagre-d3/latest/dagre-d3.js"></script>
+</head>
+<h1>D3js + Dagre - click on nodes to display more info, panning and zoomin is enabled</h1>
+
+<body>
+  <div id="tooltip_template"></div>
+  <svg id="canvas" width="800" height="600" style="border: 1px solid black;">
+    <g></g>
+  </svg>
 
 
-<style>
-  g.Decision-Task > rect {
-  fill: #00ffd0;
-}
-text {
-  font-weight: 300;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
-  font-size: 14px;
-}
-.node rect {
-  stroke: #999;
-  fill: #fff;
-  stroke-width: 1.5px;
-}
-.edgePath path {
-  stroke: #333;
-  stroke-width: 1.5px;
-}
-#tooltip_template {
-  position: "absolute";
-}
-</style>
+  <style>
+    g.Decision-Task>rect {
+      fill: #00ffd0;
+    }
+
+    text {
+      font-weight: 300;
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
+      font-size: 14px;
+    }
+
+    .node rect {
+      stroke: #999;
+      fill: #fff;
+      stroke-width: 1.5px;
+    }
+
+    .edgePath path {
+      stroke: #333;
+      stroke-width: 1.5px;
+    }
+
+    #tooltip_template {
+      position: "absolute";
+    }
+  </style>
 
 </body>
+
 </html>
