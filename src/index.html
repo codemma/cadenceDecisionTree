@@ -8,15 +8,45 @@
 <h1>D3js + Dagre - click on nodes to display more info, panning and zoomin is enabled</h1>
 
 <body>
-  <div id="tooltip_template"></div>
   <svg id="canvas" width="800" height="600" style="border: 1px solid black;">
     <g></g>
   </svg>
+
+  <div id="tooltip" class="hidden">
+    <p><strong>Circle information</strong></p>
+    <p><span id="info"></span></p>
+  </div>
 
 
   <style>
     g.Decision-Task>rect {
       fill: #00ffd0;
+    }
+
+    #tooltip {
+      position: absolute;
+      width: 200px;
+      height: auto;
+      padding: 10px;
+      background-color: rgba(128, 128, 128, 0.4);
+      -webkit-border-radius: 10px;
+      -moz-border-radius: 10px;
+      border-radius: 10px;
+      -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+      -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+      box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+      pointer-events: none;
+    }
+
+    #tooltip.hidden {
+      display: none;
+    }
+
+    #tooltip p {
+      margin: 0;
+      font-family: sans-serif;
+      font-size: 16px;
+      line-height: 20px;
     }
 
     text {
@@ -31,14 +61,26 @@
       stroke-width: 1.5px;
     }
 
+    .node.tooltip {
+      stroke: rgb(196, 141, 141);
+      fill: #fff;
+      stroke-width: 1.5px;
+    }
+
     .edgePath path {
       stroke: #333;
       stroke-width: 1.5px;
     }
 
-    #tooltip_template {
+    /*  #tooltip_template {
       position: "absolute";
-    }
+      background-color: "white";
+      border: "solid";
+      border-width: "2px";
+      border-radius: "5px";
+      padding: "5px";
+      z-index: "1000";
+    } */
   </style>
 
 </body>
