@@ -6,8 +6,8 @@ npm install
 
 then:
 
-npm run dev       //running dev script. 
-npm run build    //running build script. 
-npm run start     //running Start script. 
+npm run dev       //running dev script.<br/> 
+npm run build    //running build script.<br/> 
+npm run start     //running Start script.<br/> 
 
 
