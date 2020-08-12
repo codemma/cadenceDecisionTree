@@ -8,12 +8,24 @@ module.exports = {
     filename: 'js/bundle.js'
   },
   devServer: {
-    contentBase: './dist' //where contents are served from
+    contentBase: './dist'
   },
   plugins: [
     new HtmlWebpackPlugin({
-       filename: 'index.html', // name of html file to be created
-       template: './src/index.html' // source from which html file would be created
+      filename: 'index.html',
+      template: './src/index.html'
     })
-]
+  ],
+  module: {
+    rules: [
+      {
+        test: /\.js$/, //using regex to tell babel exactly what files to transcompile
+        exclude: /node_modules/, // files to be ignored
+        use: {
+          loader: 'babel-loader' // specify the loader
+        },
+      },
+
+    ]
+  }
 }
