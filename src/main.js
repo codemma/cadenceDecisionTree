@@ -1,4 +1,4 @@
-import * as workflow from '../data/single_activity.json';
+import * as workflow from '../data/data.json';
 
 var g = new dagreD3.graphlib.Graph()
   .setGraph({ align: 'DR' })
@@ -18,10 +18,13 @@ let map = new Map();
 
 workflow.forEach(function (node) {
   if (node.eventId === 1) {
-    return; // Special cases which always occur
+    return; // The first workflow node, will always have a child
   }
-
-  let parentId;
+  //Edge case when no node has this as a parent, TODO: find a better way to solve this
+  if (node.eventType === 'ActivityTaskCompleted') {
+    g.setEdge(node.eventId, node.eventId + 1)
+  }
+  let finalParentId = -1;
 
   //get all keys for each node
   var getAllKeys = Object.keys(node);
@@ -33,142 +36,19 @@ workflow.forEach(function (node) {
   var getEventAttributeKeys = Object.keys(node[objRes]);
   let parentID = getEventAttributeKeys.filter(cls => cls.includes('EventId'))
 
-  console.log('Found eventIds ' + parentID)
-
-  let maxA = -1;
+  //TODO: ParenID should be renamed and check as a non empty list
   if (parentID != 0) {
-    maxA = parentID.reduce((max, p) => node[objRes][p] > max ? node[objRes][p] : max, node[objRes][parentID[0]]);
-    //maxA = parentID.reduce((a, b) => node[objRes][a] > node[objRes][b] ? a : b).y;
+    finalParentId = parentID.reduce((max, p) => node[objRes][p] > max ? node[objRes][p] : max, node[objRes][parentID[0]]);
   }
+  if (finalParentId == -1) g.setEdge(node.eventId - 1, node.eventId)
 
-  console.log('MAX ' + maxA)
-
-  if (maxA = -1) {
-
+  else {
+    g.setEdge(finalParentId, node.eventId)
   }
-
-  /* let searchTerms = ['started', 'scheduled', 'decision'];
-  let result = [];
-  searchTerms.forEach((searchTerm, i) => {
-    result[i] = parentID.filter(cls => cls.includes(searchTerm))
-  })
-
-  console.log("result" + result) */
-
-
-  //If we have started ID it is the latest, scheduled comes second.
-  //Found started ID
-  let started = parentID.filter(cls => cls.includes('started'))
-  //Found scheduled ID
-  let scheduled = parentID.filter(cls => cls.includes('scheduled'))
-  //Found decisionTaskCompletedEventId
-  let decision = parentID.filter(cls => cls.includes('decision'))
-
-  //if (started.length != 0) console.log('found started' + node[objRes][started[0]], parentID = node[objRes][started[0]])
-  //else if (scheduled.length != 0) console.log('found scheduled' + node[objRes][scheduled[0]], parentID = node[objRes][started[0]])
-
-  //let parentID = node[objRes].filter(cls => cls.includes('scheduledEventId'))
-  //console.log("FOUND STARTED, SCHEDULED ", started[0], scheduled)
-
-
-  //console.log('EXISTS' + scheduled, started)
-  /*  //If we have started ID it is the latest, scheduled comes second.
-   if (Object.values(parentID).includes('started')) {
-     console.log('found started ID')
-   } */
-
-  //let string = getAllKeys.includes('EventAttributes')
-  //console.log("found key" + string)
-  map.set(node.eventId, node.eventType);
-
 })
-
-console.log(map)
-
-
-/* const arrayOfObject = [{
-  name: 'Paul',
-  country: 'Canada',
-}, {
-  name: 'Lea',
-  country: 'Italy',
-}, {
-  name: 'John',
-  country: 'Italy',
-},]; */
-
-/* let lea = workflow[0].entries(function (obj) {
-  //loop through each object
-  for (key in obj) {
-    //check if object value contains value you are looking for
-    if (obj[key].includes('eventAttributes')) {
-      //add this object to the filtered array
-      return obj;
-    }
-  }
-}); */
-/*
-var resultObj = {};
-// get all the keys from the object
-var getAllKeys = Object.keys(workflow[0]);
-arr.forEach(function (item) {
-  // looping through first object
-  getAllKeys.forEach(function (keyName) {
-    // using index of to check if the object key name have a matched string
-    if (keyName.indexOf(item) !== -1) {
-      resultObj[keyName] = obj_arr[keyName];
-    }
-  })
-})
-
-console.log(workflow[0]); */
-
 
 let keys = Object.keys(workflow[0])
 
-//let obj = workflow[0].find(o => o.name.contains('event'));
-//console.log(keys);
-
-//Set edges
-//This method is just a test to get a simple tree working, should definitely be improved
-//TODO: implement child workflow
-workflow.forEach(function (node) {
-  var eventType = node.eventType
-
-  if (node.eventId === 1) {
-    return; // Special cases which always occur
-  }
-  //If we have a scheduled activity
-  if (node.activityTaskScheduledEventAttributes !== undefined) {
-    let schedEventId = node.activityTaskScheduledEventAttributes.decisionTaskCompletedEventId
-    g.setEdge(schedEventId, node.eventId)
-  }
-  //If we have a started activity
-  else if (node.activityTaskStartedEventAttributes !== undefined) {
-    let startedEventId = node.activityTaskStartedEventAttributes.scheduledEventId
-    g.setEdge(startedEventId, node.eventId);
-  }
-  // Completed activity
-  else if (node.activityTaskCompletedEventAttributes !== undefined) {
-    let schedEventId = node.activityTaskCompletedEventAttributes.startedEventId
-    g.setEdge(schedEventId, node.eventId);
-    g.setEdge(node.eventId, node.eventId + 1);
-  }
-  //If we have a scheduled decision
-  if (eventType === 'DecisionTaskScheduled') {
-    g.setEdge(node.eventId - 1, node.eventId)
-  }
-  //If we have a started decision
-  else if (node.decisionTaskStartedEventAttributes !== undefined) {
-    let startedEventId = node.decisionTaskStartedEventAttributes.scheduledEventId
-    g.setEdge(startedEventId, node.eventId);
-  }
-  // Completed decision
-  else if (node.decisionTaskCompletedEventAttributes !== undefined) {
-    let schedEventId = node.decisionTaskCompletedEventAttributes.startedEventId
-    g.setEdge(schedEventId, node.eventId);
-  }
-});
 
 g.nodes().forEach(function (v) {
   var node = g.node(v);
