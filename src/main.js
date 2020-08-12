@@ -1,4 +1,4 @@
-import * as workflow from '../data.json';
+import * as workflow from '../data/single_activity.json';
 
 var g = new dagreD3.graphlib.Graph()
   .setGraph({ align: 'DR' })
@@ -13,6 +13,49 @@ workflow.forEach(function (node) {
     hovertext: node.eventType
   });
 });
+
+const arrayOfObject = [{
+  name: 'Paul',
+  country: 'Canada',
+}, {
+  name: 'Lea',
+  country: 'Italy',
+}, {
+  name: 'John',
+  country: 'Italy',
+},];
+
+/* let lea = workflow[0].entries(function (obj) {
+  //loop through each object
+  for (key in obj) {
+    //check if object value contains value you are looking for
+    if (obj[key].includes('eventAttributes')) {
+      //add this object to the filtered array
+      return obj;
+    }
+  }
+}); */
+
+var resultObj = {};
+// get all the keys from the object
+var getAllKeys = Object.keys(workflow[0]);
+arr.forEach(function (item) {
+  // looping through first object
+  getAllKeys.forEach(function (keyName) {
+    // using index of to check if the object key name have a matched string
+    if (keyName.indexOf(item) !== -1) {
+      resultObj[keyName] = obj_arr[keyName];
+    }
+  })
+})
+
+console.log(workflow[0]);
+
+
+let keys = Object.keys(workflow[0])
+
+//let obj = workflow[0].find(o => o.name.contains('event'));
+console.log(keys);
 
 //Set edges
 //This method is just a test to get a simple tree working, should definitely be improved
