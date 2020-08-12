@@ -14,7 +14,25 @@ workflow.forEach(function (node) {
   });
 });
 
-const arrayOfObject = [{
+let map = new Map();
+
+workflow.forEach(function (node) {
+  var getAllKeys = Object.keys(node);
+
+  let objRes = getAllKeys.filter(cls => cls.includes('EventAttributes'))
+
+  console.log("string res " + objRes)
+  console.log("Object res " + node[objRes].input)
+
+  let string = getAllKeys.includes('EventAttributes')
+  console.log("found key" + string)
+  map.set(node.eventId, node.eventType);
+})
+
+console.log(map)
+
+
+/* const arrayOfObject = [{
   name: 'Paul',
   country: 'Canada',
 }, {
@@ -23,7 +41,7 @@ const arrayOfObject = [{
 }, {
   name: 'John',
   country: 'Italy',
-},];
+},]; */
 
 /* let lea = workflow[0].entries(function (obj) {
   //loop through each object
@@ -35,7 +53,7 @@ const arrayOfObject = [{
     }
   }
 }); */
-
+/*
 var resultObj = {};
 // get all the keys from the object
 var getAllKeys = Object.keys(workflow[0]);
@@ -49,13 +67,13 @@ arr.forEach(function (item) {
   })
 })
 
-console.log(workflow[0]);
+console.log(workflow[0]); */
 
 
 let keys = Object.keys(workflow[0])
 
 //let obj = workflow[0].find(o => o.name.contains('event'));
-console.log(keys);
+//console.log(keys);
 
 //Set edges
 //This method is just a test to get a simple tree working, should definitely be improved
