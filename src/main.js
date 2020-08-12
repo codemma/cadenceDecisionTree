@@ -17,37 +17,60 @@ workflow.forEach(function (node) {
 let map = new Map();
 
 workflow.forEach(function (node) {
+  if (node.eventId === 1) {
+    return; // Special cases which always occur
+  }
+
+  let parentId;
+
+  //get all keys for each node
   var getAllKeys = Object.keys(node);
 
-
-  //Find the object which contains eventID to parent
+  //Find the object which contains the EventAttributes (and such the parent ID)
   let objRes = getAllKeys.filter(cls => cls.includes('EventAttributes'))
 
-  //let eventID = objRes.filter(cls => cls.includes('EventID'))
-
-  //console.log("string res " + objRes)
-
+  //Create a list of strings which contains 'eventID', ie the parent ID
   var getEventAttributeKeys = Object.keys(node[objRes]);
-  //console.log('object keys ', getEventAttributeKeys)
-
   let parentID = getEventAttributeKeys.filter(cls => cls.includes('EventId'))
 
-  //console.log('eventIds' + parentID)
+  console.log('Found eventIds ' + parentID)
+
+  let maxA = -1;
+  if (parentID != 0) {
+    maxA = parentID.reduce((max, p) => node[objRes][p] > max ? node[objRes][p] : max, node[objRes][parentID[0]]);
+    //maxA = parentID.reduce((a, b) => node[objRes][a] > node[objRes][b] ? a : b).y;
+  }
+
+  console.log('MAX ' + maxA)
+
+  if (maxA = -1) {
+
+  }
+
+  /* let searchTerms = ['started', 'scheduled', 'decision'];
+  let result = [];
+  searchTerms.forEach((searchTerm, i) => {
+    result[i] = parentID.filter(cls => cls.includes(searchTerm))
+  })
+
+  console.log("result" + result) */
+
 
   //If we have started ID it is the latest, scheduled comes second.
   //Found started ID
-  //let started = parentID.filter(cls => cls.includes('started'))
   let started = parentID.filter(cls => cls.includes('started'))
   //Found scheduled ID
   let scheduled = parentID.filter(cls => cls.includes('scheduled'))
-  //Found scheduled ID
+  //Found decisionTaskCompletedEventId
+  let decision = parentID.filter(cls => cls.includes('decision'))
 
-  if (started.length != 0) console.log('found started' + node[objRes][started[0]])
+  //if (started.length != 0) console.log('found started' + node[objRes][started[0]], parentID = node[objRes][started[0]])
+  //else if (scheduled.length != 0) console.log('found scheduled' + node[objRes][scheduled[0]], parentID = node[objRes][started[0]])
 
   //let parentID = node[objRes].filter(cls => cls.includes('scheduledEventId'))
-  console.log("FOUND STARTED, SCHEDULED ", started[0], scheduled)
+  //console.log("FOUND STARTED, SCHEDULED ", started[0], scheduled)
 
-  let exists = Object.keys(parentID).includes('started')
+
   //console.log('EXISTS' + scheduled, started)
   /*  //If we have started ID it is the latest, scheduled comes second.
    if (Object.values(parentID).includes('started')) {
@@ -57,6 +80,7 @@ workflow.forEach(function (node) {
   //let string = getAllKeys.includes('EventAttributes')
   //console.log("found key" + string)
   map.set(node.eventId, node.eventType);
+
 })
 
 console.log(map)
