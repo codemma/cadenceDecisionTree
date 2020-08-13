@@ -10,7 +10,7 @@ let parentMap = new Map();
 parentMap.set(1, 0)
 
 //Helper function to check if map contains a value
-let mapContainsChild = (map, val) => [...map.values()].includes(val)
+let mapContainsValue = (map, val) => [...map.values()].includes(val)
 
 buildTree()
 
@@ -19,7 +19,7 @@ function buildTree() {
   workflow.forEach(function (node) {
     g.setNode(node.eventId, {
       label: node.eventType,
-      shape: "rect",
+      shape: 'rect',
       class: [node.type],
       hovertext: node.eventId
     });
@@ -41,7 +41,7 @@ function setEdge(node) {
     g.setEdge(nodeId - 1, nodeId)
   }
   //Edge case when an event has no children, but should be linked back to the workflow
-  if (!mapContainsChild(parentMap, nodeId) && nodeId != parentMap.size) {
+  if (!mapContainsValue(parentMap, nodeId) && nodeId != parentMap.size) {
     g.setEdge(nodeId, nodeId + 1)
   }
   g.setEdge(parentId, nodeId)
