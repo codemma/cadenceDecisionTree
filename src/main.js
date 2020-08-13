@@ -4,23 +4,51 @@ var g = new dagreD3.graphlib.Graph()
   .setGraph({ align: 'DR' })
   .setDefaultEdgeLabel(function () { return {}; }); //Neccessary to display arrows between nodes
 
-//Create nodes
-workflow.forEach(function (node) {
-  g.setNode(node.eventId, {
-    label: node.eventType,
-    shape: "rect",
-    class: [node.type],
-    hovertext: node.eventId
-  });
-});
-
 //Create a map to store parent and child eventID's as key value pairs.
 // The first workflow node will never have a parent - we set it to 0 in the map
 let parentMap = new Map();
 parentMap.set(1, 0)
 
+//Helper function to check if map contains a value
+let mapContainsChild = (map, val) => [...map.values()].includes(val)
 
-function findParent(node) {
+buildTree()
+
+function buildTree() {
+  //Create nodes and set their parents in map
+  workflow.forEach(function (node) {
+    g.setNode(node.eventId, {
+      label: node.eventType,
+      shape: "rect",
+      class: [node.type],
+      hovertext: node.eventId
+    });
+    setParent(node)
+  });
+
+  //Set edges between the nodes
+  workflow.forEach(function (node) {
+    if (node.eventId === 1) return;
+    setEdge(node)
+  })
+}
+
+function setEdge(node) {
+  let parentId = parentMap.get(node.eventId)
+  let nodeId = node.eventId
+  //Edge case when a childworkflow returns a signal, it has two parents.
+  if (node.eventType === 'ChildWorkflowExecutionCompleted') {
+    g.setEdge(nodeId - 1, nodeId)
+  }
+  //Edge case when an event has no children, but should be linked back to the workflow
+  if (!mapContainsChild(parentMap, nodeId) && nodeId != parentMap.size) {
+    g.setEdge(nodeId, nodeId + 1)
+  }
+  g.setEdge(parentId, nodeId)
+}
+
+
+function findParentId(node) {
   let parentId;
   //Get the object which contains 'EventAttributes' - has information about parent node
   let nodeKeys = Object.keys(node)
@@ -31,50 +59,20 @@ function findParent(node) {
 
   if (relativeKeys.length != 0) {
     parentId = relativeKeys.reduce((max, p) =>
-      node[attributesKey][p] > max ? node[attributesKey][p] : max, node[attributesKey][relativeKeys[0]]);
+      node[attributesKey][p] > max ? node[attributesKey][p]
+        : max, node[attributesKey][relativeKeys[0]]);
   }
-
   return parentId
 }
 
-
 function setParent(node) {
-
-}
-
-workflow.forEach(function (node) {
   // Skip first workflow node
   if (node.eventId === 1) return;
-
-  //Edge case when a childworkflow returns a signal, it has two parents.
-  if (node.eventType === 'ChildWorkflowExecutionCompleted') {
-    g.setEdge(node.eventId - 1, node.eventId)
-  }
-
-  let parentId = findParent(node)
-
-  if (parentId) {
-    g.setEdge(parentId, node.eventId)
-    parentMap.set(node.eventId, parentId)
-  }
-  //If we haven't found a parent ID, the event should be linked to the event before it.
-  else {
-    g.setEdge(node.eventId - 1, node.eventId)
-    parentMap.set(node.eventId, node.eventId - 1)
-  }
-})
-
-//Helper function to check if map contains a value
-const mapContainsChild = (map, val) => [...map.values()].includes(val)
-
-//Set edges
-workflow.forEach(function (node) {
-
-
-  if (!mapContainsChild(parentMap, node.eventId) && node.eventId != parentMap.size) {
-    g.setEdge(node.eventId, node.eventId + 1)
-  }
-})
+  let parentId = findParentId(node)
+  if (parentId) parentMap.set(node.eventId, parentId)
+  //No parent ID => linked event to the one before it.
+  else parentMap.set(node.eventId, node.eventId - 1)
+}
 
 g.nodes().forEach(function (v) {
   var node = g.node(v);
