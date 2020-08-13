@@ -1,4 +1,4 @@
-import * as workflow from '../data/parent_failed.json';
+import * as workflow from '../data/unknown-large4.json';
 
 var g = new dagreD3.graphlib.Graph()
   .setGraph({ align: 'DR' })
@@ -47,7 +47,14 @@ function setEdge(node) {
   g.setEdge(parentId, nodeId)
 }
 
-
+function setParent(node) {
+  // Skip first workflow node
+  if (node.eventId === 1) return;
+  let parentId = findParentId(node)
+  if (parentId) parentMap.set(node.eventId, parentId)
+  //No parent ID => linked event to the one before it.
+  else parentMap.set(node.eventId, node.eventId - 1)
+}
 function findParentId(node) {
   let parentId;
   //Get the object which contains 'EventAttributes' - has information about parent node
@@ -64,16 +71,6 @@ function findParentId(node) {
   }
   return parentId
 }
-
-function setParent(node) {
-  // Skip first workflow node
-  if (node.eventId === 1) return;
-  let parentId = findParentId(node)
-  if (parentId) parentMap.set(node.eventId, parentId)
-  //No parent ID => linked event to the one before it.
-  else parentMap.set(node.eventId, node.eventId - 1)
-}
-
 g.nodes().forEach(function (v) {
   var node = g.node(v);
   // Round the corners of the nodes
