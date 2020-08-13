@@ -1,4 +1,4 @@
-import * as workflow from '../data/data.json';
+import * as workflow from '../data/parent_failed.json';
 
 var g = new dagreD3.graphlib.Graph()
   .setGraph({ align: 'DR' })
@@ -10,49 +10,53 @@ workflow.forEach(function (node) {
     label: node.eventType,
     shape: "rect",
     class: [node.type],
-    hovertext: node.eventType
+    hovertext: node.eventId
   });
 });
 
-let map = new Map();
+//Create a map to store parent and child eventID's as key value pairs.
+// The first workflow node will never have a parent - we set it to 0 in the map
+let parentMap = new Map();
+parentMap.set(1, 0)
 
 workflow.forEach(function (node) {
-  let parentId = -1;
+  let parentId;
 
-  if (node.eventId === 1) {
-    return; // The first workflow node, will always have a child
-  }
-  //Edge case when no node has this as a parent, TODO: find a better way to solve this.
-  //Perhaps a function which scans for children ?
-  if (node.eventType === 'ActivityTaskCompleted') {
-    g.setEdge(node.eventId, node.eventId + 1)
-  }
-  if (node.eventType === 'ChildWorkflowExecutionCompleted') {
-    console.log('edge set')
-    g.setEdge(node.eventId - 1, node.eventId)
-  }
+  // Skip first workflow node
+  if (node.eventId === 1) return;
+
+  //Edge case when a childworkflow returns a signal, it has two parents.
+  //TODO - could this be improved somehow?
+  if (node.eventType === 'ChildWorkflowExecutionCompleted') g.setEdge(node.eventId - 1, node.eventId)
 
   //Get the object which contains 'EventAttributes' - has information about parent node
+  //TODO: these two lines below are too complex - should be simplified
   let eventAttrObj = Object.keys(node).filter(cls => cls.includes('EventAttributes'))
-
   //Get an array of all  keys to object which contains 'EventID' (can be several)
-  let parentsKeyList = Object.keys(node[eventAttrObj]).filter(cls => cls.includes('EventId'))
+  let relativesKeyList = Object.keys(node[eventAttrObj]).filter(cls => cls.includes('EventId'))
 
-  //TODO: ParenID should be renamed and check as a non empty list
-  if (parentsKeyList.length != 0) {
-    parentId = parentsKeyList.reduce((max, p) => node[eventAttrObj][p] > max ? node[eventAttrObj][p] : max, node[eventAttrObj][parentsKeyList[0]]);
-  }
-  if (parentId == -1) {
-    g.setEdge(node.eventId - 1, node.eventId)
-  }
-
-  else {
+  //If we find several relatives, we know the highest eventID is the parent. We find this and set this as parent ID to node.
+  if (relativesKeyList.length != 0) {
+    parentId = relativesKeyList.reduce((max, p) => node[eventAttrObj][p] > max ? node[eventAttrObj][p] : max, node[eventAttrObj][relativesKeyList[0]]);
     g.setEdge(parentId, node.eventId)
+    parentMap.set(node.eventId, parentId)
+  }
+  //If we haven't found a parent ID, the event should be linked to the event before it.
+  else {
+    g.setEdge(node.eventId - 1, node.eventId)
+    parentMap.set(node.eventId, node.eventId - 1)
   }
 })
 
-let keys = Object.keys(workflow[0])
+//Helper function to check if map contains a value
+const mapContainsElement = (map, val) => [...map.values()].includes(val)
 
+//To get rid of dangling nodes which have no children to connect them back to the graph
+workflow.forEach(function (node) {
+  if (!mapContainsElement(parentMap, node.eventId) && node.eventId != parentMap.size) {
+    g.setEdge(node.eventId, node.eventId + 1)
+  }
+})
 
 g.nodes().forEach(function (v) {
   var node = g.node(v);
