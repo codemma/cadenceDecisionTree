@@ -59,15 +59,16 @@ function findParentId(node) {
   let parentId;
   //Get the object which contains 'EventAttributes' - has information about parent node
   let nodeKeys = Object.keys(node)
-  let attributesKey = nodeKeys.filter(cls => cls.includes('EventAttributes'))
+  let eventAttrKey = nodeKeys.filter(cls => cls.includes('EventAttributes'))
+  let eventAttrObj = node[eventAttrKey]
   //Get an array of all  keys to object which contains 'EventID' (can be several)
-  let eventKeys = Object.keys(node[attributesKey])
+  let eventKeys = Object.keys(eventAttrObj)
   let relativeKeys = eventKeys.filter(cls => cls.includes('EventId'))
 
   if (relativeKeys.length != 0) {
     parentId = relativeKeys.reduce((max, p) =>
-      node[attributesKey][p] > max ? node[attributesKey][p]
-        : max, node[attributesKey][relativeKeys[0]]);
+      eventAttrObj[p] > max ? eventAttrObj[p]
+        : max, eventAttrObj[relativeKeys[0]]);
   }
   return parentId
 }
