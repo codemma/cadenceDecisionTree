@@ -17,33 +17,37 @@ workflow.forEach(function (node) {
 let map = new Map();
 
 workflow.forEach(function (node) {
+  let parentId = -1;
+
   if (node.eventId === 1) {
     return; // The first workflow node, will always have a child
   }
-  //Edge case when no node has this as a parent, TODO: find a better way to solve this
+  //Edge case when no node has this as a parent, TODO: find a better way to solve this.
+  //Perhaps a function which scans for children ?
   if (node.eventType === 'ActivityTaskCompleted') {
     g.setEdge(node.eventId, node.eventId + 1)
   }
-  let finalParentId = -1;
+  if (node.eventType === 'ChildWorkflowExecutionCompleted') {
+    console.log('edge set')
+    g.setEdge(node.eventId - 1, node.eventId)
+  }
 
-  //get all keys for each node
-  var getAllKeys = Object.keys(node);
+  //Get the object which contains 'EventAttributes' - has information about parent node
+  let eventAttrObj = Object.keys(node).filter(cls => cls.includes('EventAttributes'))
 
-  //Find the object which contains the EventAttributes (and such the parent ID)
-  let objRes = getAllKeys.filter(cls => cls.includes('EventAttributes'))
-
-  //Create a list of strings which contains 'eventID', ie the parent ID
-  var getEventAttributeKeys = Object.keys(node[objRes]);
-  let parentID = getEventAttributeKeys.filter(cls => cls.includes('EventId'))
+  //Get an array of all  keys to object which contains 'EventID' (can be several)
+  let parentsKeyList = Object.keys(node[eventAttrObj]).filter(cls => cls.includes('EventId'))
 
   //TODO: ParenID should be renamed and check as a non empty list
-  if (parentID != 0) {
-    finalParentId = parentID.reduce((max, p) => node[objRes][p] > max ? node[objRes][p] : max, node[objRes][parentID[0]]);
+  if (parentsKeyList.length != 0) {
+    parentId = parentsKeyList.reduce((max, p) => node[eventAttrObj][p] > max ? node[eventAttrObj][p] : max, node[eventAttrObj][parentsKeyList[0]]);
   }
-  if (finalParentId == -1) g.setEdge(node.eventId - 1, node.eventId)
+  if (parentId == -1) {
+    g.setEdge(node.eventId - 1, node.eventId)
+  }
 
   else {
-    g.setEdge(finalParentId, node.eventId)
+    g.setEdge(parentId, node.eventId)
   }
 })
 
