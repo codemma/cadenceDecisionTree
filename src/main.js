@@ -19,25 +19,41 @@ workflow.forEach(function (node) {
 let parentMap = new Map();
 parentMap.set(1, 0)
 
-workflow.forEach(function (node) {
-  let parentId;
 
+function findParent(node) {
+  let parentId;
+  //Get the object which contains 'EventAttributes' - has information about parent node
+  let nodeKeys = Object.keys(node)
+  let attributesKey = nodeKeys.filter(cls => cls.includes('EventAttributes'))
+  //Get an array of all  keys to object which contains 'EventID' (can be several)
+  let eventKeys = Object.keys(node[attributesKey])
+  let relativeKeys = eventKeys.filter(cls => cls.includes('EventId'))
+
+  if (relativeKeys.length != 0) {
+    parentId = relativeKeys.reduce((max, p) =>
+      node[attributesKey][p] > max ? node[attributesKey][p] : max, node[attributesKey][relativeKeys[0]]);
+  }
+
+  return parentId
+}
+
+
+function setParent(node) {
+
+}
+
+workflow.forEach(function (node) {
   // Skip first workflow node
   if (node.eventId === 1) return;
 
   //Edge case when a childworkflow returns a signal, it has two parents.
-  //TODO - could this be improved somehow?
-  if (node.eventType === 'ChildWorkflowExecutionCompleted') g.setEdge(node.eventId - 1, node.eventId)
+  if (node.eventType === 'ChildWorkflowExecutionCompleted') {
+    g.setEdge(node.eventId - 1, node.eventId)
+  }
 
-  //Get the object which contains 'EventAttributes' - has information about parent node
-  //TODO: these two lines below are too complex - should be simplified
-  let eventAttrObj = Object.keys(node).filter(cls => cls.includes('EventAttributes'))
-  //Get an array of all  keys to object which contains 'EventID' (can be several)
-  let relativesKeyList = Object.keys(node[eventAttrObj]).filter(cls => cls.includes('EventId'))
+  let parentId = findParent(node)
 
-  //If we find several relatives, we know the highest eventID is the parent. We find this and set this as parent ID to node.
-  if (relativesKeyList.length != 0) {
-    parentId = relativesKeyList.reduce((max, p) => node[eventAttrObj][p] > max ? node[eventAttrObj][p] : max, node[eventAttrObj][relativesKeyList[0]]);
+  if (parentId) {
     g.setEdge(parentId, node.eventId)
     parentMap.set(node.eventId, parentId)
   }
@@ -49,11 +65,13 @@ workflow.forEach(function (node) {
 })
 
 //Helper function to check if map contains a value
-const mapContainsElement = (map, val) => [...map.values()].includes(val)
+const mapContainsChild = (map, val) => [...map.values()].includes(val)
 
-//To get rid of dangling nodes which have no children to connect them back to the graph
+//Set edges
 workflow.forEach(function (node) {
-  if (!mapContainsElement(parentMap, node.eventId) && node.eventId != parentMap.size) {
+
+
+  if (!mapContainsChild(parentMap, node.eventId) && node.eventId != parentMap.size) {
     g.setEdge(node.eventId, node.eventId + 1)
   }
 })
