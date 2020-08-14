@@ -1,4 +1,7 @@
-import * as workflow from '../data/unknown-large4.json';
+import * as workflow from '../data/unknown-large.json';
+
+
+var nodeTemplate = Handlebars.compile($('#node-template').html());
 
 var g = new dagreD3.graphlib.Graph()
   .setGraph({ align: 'DR' })
@@ -18,8 +21,9 @@ function buildTree() {
   //Create nodes and set their parents in map
   workflow.forEach(function (node) {
     g.setNode(node.eventId, {
-      label: node.eventType,
-      shape: 'rect',
+      label: nodeTemplate({ label: node.eventType }),
+      labelType: "html",
+      id: node.eventId,
       class: [node.type],
       hovertext: node.eventId
     });
@@ -80,7 +84,8 @@ g.nodes().forEach(function (v) {
 
 // Set up an SVG group so that we can translate the final graph.
 var svg = d3.select("svg"),
-  inner = svg.select("g");
+  inner = svg.select("g"),
+  innerInner = inner.selectAll(".node");
 // Create the renderer
 var render = new dagreD3.render();
 
@@ -106,7 +111,6 @@ inner.selectAll('g.node')
     d3.select("#tooltip").classed("hidden", false);
   })
   .on('mousemove', function (d) {
-    //Update coordinates for the tooltip
     d3.select("#tooltip")
       .style("left", (event.pageX - 10) + "px")
       .style("top", (event.pageY + 10) + "px")
