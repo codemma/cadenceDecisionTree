@@ -1,60 +1,81 @@
-import * as workflow from '../data.json';
+import * as workflow from '../data/unknown-large.json';
+
+
+var nodeTemplate = Handlebars.compile($('#node-template').html());
 
 var g = new dagreD3.graphlib.Graph()
   .setGraph({ align: 'DR' })
   .setDefaultEdgeLabel(function () { return {}; }); //Neccessary to display arrows between nodes
 
-//Create nodes
-workflow.forEach(function (node) {
-  g.setNode(node.eventId, {
-    label: node.eventType,
-    shape: "rect",
-    class: [node.type],
-    hovertext: node.eventType
+//Create a map to store parent and child eventID's as key value pairs.
+// The first workflow node will never have a parent - we set it to 0 in the map
+let parentMap = new Map();
+parentMap.set(1, 0)
+
+//Helper function to check if map contains a value
+let mapContainsValue = (map, val) => [...map.values()].includes(val)
+
+buildTree()
+
+function buildTree() {
+  //Create nodes and set their parents in map
+  workflow.forEach(function (node) {
+    g.setNode(node.eventId, {
+      label: nodeTemplate({ label: node.eventType }),
+      labelType: "html",
+      id: node.eventId,
+      class: [node.type],
+      hovertext: node.eventId
+    });
+    setParent(node)
   });
-});
 
-//Set edges
-//This method is just a test to get a simple tree working, should definitely be improved
-//TODO: implement child workflow
-workflow.forEach(function (node) {
-  var eventType = node.eventType
+  //Set edges between the nodes
+  workflow.forEach(function (node) {
+    if (node.eventId === 1) return;
+    setEdge(node)
+  })
+}
 
-  if (node.eventId === 1) {
-    return; // Special cases which always occur
+function setEdge(node) {
+  let parentId = parentMap.get(node.eventId)
+  let nodeId = node.eventId
+  //Edge case when a childworkflow returns a signal, it has two parents.
+  if (node.eventType === 'ChildWorkflowExecutionCompleted') {
+    g.setEdge(nodeId - 1, nodeId)
   }
-  //If we have a scheduled activity
-  if (node.activityTaskScheduledEventAttributes !== undefined) {
-    let schedEventId = node.activityTaskScheduledEventAttributes.decisionTaskCompletedEventId
-    g.setEdge(schedEventId, node.eventId)
+  //Edge case when an event has no children, but should be linked back to the workflow
+  if (!mapContainsValue(parentMap, nodeId) && nodeId != parentMap.size) {
+    g.setEdge(nodeId, nodeId + 1)
   }
-  //If we have a started activity
-  else if (node.activityTaskStartedEventAttributes !== undefined) {
-    let startedEventId = node.activityTaskStartedEventAttributes.scheduledEventId
-    g.setEdge(startedEventId, node.eventId);
-  }
-  // Completed activity
-  else if (node.activityTaskCompletedEventAttributes !== undefined) {
-    let schedEventId = node.activityTaskCompletedEventAttributes.startedEventId
-    g.setEdge(schedEventId, node.eventId);
-    g.setEdge(node.eventId, node.eventId + 1);
-  }
-  //If we have a scheduled decision
-  if (eventType === 'DecisionTaskScheduled') {
-    g.setEdge(node.eventId - 1, node.eventId)
-  }
-  //If we have a started decision
-  else if (node.decisionTaskStartedEventAttributes !== undefined) {
-    let startedEventId = node.decisionTaskStartedEventAttributes.scheduledEventId
-    g.setEdge(startedEventId, node.eventId);
-  }
-  // Completed decision
-  else if (node.decisionTaskCompletedEventAttributes !== undefined) {
-    let schedEventId = node.decisionTaskCompletedEventAttributes.startedEventId
-    g.setEdge(schedEventId, node.eventId);
-  }
-});
+  g.setEdge(parentId, nodeId)
+}
 
+function setParent(node) {
+  // Skip first workflow node
+  if (node.eventId === 1) return;
+  let parentId = findParentId(node)
+  if (parentId) parentMap.set(node.eventId, parentId)
+  //No parent ID => linked event to the one before it.
+  else parentMap.set(node.eventId, node.eventId - 1)
+}
+function findParentId(node) {
+  let parentId;
+  //Get the object which contains 'EventAttributes' - has information about parent node
+  let nodeKeys = Object.keys(node)
+  let eventAttrKey = nodeKeys.filter(cls => cls.includes('EventAttributes'))
+  let eventAttrObj = node[eventAttrKey]
+  //Get an array of all  keys to object which contains 'EventID' (can be several)
+  let eventKeys = Object.keys(eventAttrObj)
+  let relativeKeys = eventKeys.filter(cls => cls.includes('EventId'))
+
+  if (relativeKeys.length != 0) {
+    parentId = relativeKeys.reduce((max, p) =>
+      eventAttrObj[p] > max ? eventAttrObj[p]
+        : max, eventAttrObj[relativeKeys[0]]);
+  }
+  return parentId
+}
 g.nodes().forEach(function (v) {
   var node = g.node(v);
   // Round the corners of the nodes
@@ -63,7 +84,8 @@ g.nodes().forEach(function (v) {
 
 // Set up an SVG group so that we can translate the final graph.
 var svg = d3.select("svg"),
-  inner = svg.select("g");
+  inner = svg.select("g"),
+  innerInner = inner.selectAll(".node");
 // Create the renderer
 var render = new dagreD3.render();
 
@@ -89,7 +111,6 @@ inner.selectAll('g.node')
     d3.select("#tooltip").classed("hidden", false);
   })
   .on('mousemove', function (d) {
-    //Update coordinates for the tooltip
     d3.select("#tooltip")
       .style("left", (event.pageX - 10) + "px")
       .style("top", (event.pageY + 10) + "px")
