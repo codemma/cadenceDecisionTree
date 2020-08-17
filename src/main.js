@@ -1,4 +1,4 @@
-import * as workflow from '../data/data.json';
+import * as workflow from '../data/marker-event.json';
 import { getNodeInfo } from './eventFunctionMap.ts';
 
 

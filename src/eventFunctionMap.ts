@@ -99,7 +99,10 @@ let eventTypeMap = {
     return node.eventId
   },
   'MarkerRecorded': function (node) {
-    return node.eventId
+    const nodeInfo: nodeInfo = {
+      parent: node.markerRecordedEventAttributes.decisionTaskCompletedEventId
+    }
+    return nodeInfo
   },
   'RequestCancelActivityTaskFailed': function (node) {
     return node.eventId
@@ -123,13 +126,23 @@ let eventTypeMap = {
     return node.eventId
   },
   'TimerCanceled': function (node) {
-    return node.eventId
+    //TODO
+    const nodeInfo: nodeInfo = {
+      parent: node.timerStartedEventAttributes.decisionTaskCompletedEventId
+    }
+    return nodeInfo
   },
   'TimerFired': function (node) {
-    return node.eventId
+    const nodeInfo: nodeInfo = {
+      parent: node.timerFiredEventAttributes.startedEventId
+    }
+    return nodeInfo
   },
   'TimerStarted': function (node) {
-    return node.eventId
+    const nodeInfo: nodeInfo = {
+      parent: node.timerStartedEventAttributes.decisionTaskCompletedEventId
+    }
+    return nodeInfo
   },
   'UpsertWorkflowSearchAttributes': function (node) {
     return node.eventId
@@ -147,7 +160,10 @@ let eventTypeMap = {
     return nodeInfo
   },
   'WorkflowExecutionContinuedAsNew': function (node) {
-    return node.eventId
+    const nodeInfo: nodeInfo = {
+      parent: node.workflowExecutionContinuedAsNewEventAttributes.decisionTaskCompletedEventId
+    }
+    return nodeInfo
   },
   'WorkflowExecutionFailed': function (node) {
     return node.eventId
