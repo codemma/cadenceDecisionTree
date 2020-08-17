@@ -1,3 +1,8 @@
+interface nodeInfo {
+  parent: number;
+  child: number;
+}
+
 
 let parentMap = new Map();
 parentMap.set(1, 0)
@@ -9,7 +14,7 @@ function printMap() {
 //Helper function to check if map contains a value
 let mapContainsValue = (map, val) => [...map.values()].includes(val)
 
-function setParent(node) {
+/* function setParent(node) {
   // Skip first workflow node
   if (node.eventId === 1) return;
   let parentId = findParentId(node)
@@ -35,24 +40,9 @@ function findParentId(node) {
   }
   if (relativeKeys == 0) console.log('parent not found ' + node.eventType)
   return parentId
-}
+} */
 
-function setEdges(node) {
-  let eventId = node.eventId;
-  let parentId = parentMap.get(eventId);
-  let containsChild = mapContainsValue(parentMap, eventId);
-  let childId;
 
-  if (parentMap.get(eventId) != null) {
-    nodeInfo.edges.push({ parentId, eventId })
-  }
-  if (!containsChild) {
-    childId = eventId + 1;
-    nodeInfo.edges.push({ eventId, childId })
-  }
-
-  return nodeInfo
-}
 
 let nodeMap = {
   'WorkflowExecutionStarted': function (node) {
@@ -69,12 +59,11 @@ let nodeMap = {
 
     console.log('in completed act ')
 
-    let nodeInfo;
-
-    return nodeInfo = {
-      parentId: node['activityTaskCompletedEventAttributes']['startedEventId'],
-      childId: childId
+    const nodeInfo: nodeInfo = {
+      parent: node['activityTaskCompletedEventAttributes']['startedEventId'],
+      child: childId
     }
+    return nodeInfo
   },
   'ActivityTaskFailed': function (node) {
     return node.eventId;
@@ -88,35 +77,35 @@ let nodeMap = {
     return parentId
   },
   'ActivityTaskTimedOut': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'CancelTimerFailed': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'ChildWorkflowExecutionCanceled': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'ChildWorkflowExecutionCompleted': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'ChildWorkflowExecutionFailed': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'ChildWorkflowExecutionStarted': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'ChildWorkflowExecutionTerminated': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'ChildWorkflowExecutionTimedOut': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'DecisionTaskCompleted': function (node) {
     let parentId = node['decisionTaskCompletedEventAttributes']['startedEventId']
     return parentId
   },
   'DecisionTaskFailed': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'DecisionTaskScheduled': function (node) {
     return node.eventId - 1;
@@ -126,76 +115,73 @@ let nodeMap = {
     return parentId
   },
   'DecisionTaskTimedOut': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'ExternalWorkflowExecutionCancelRequested': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'ExternalWorkflowExecutionSignaled': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'MarkerRecorded': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'RequestCancelActivityTaskFailed': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'RequestCancelExternalWorkflowExecutionFailed': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'RequestCancelExternalWorkflowExecutionInitiated': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'SignalExternalWorkflowExecutionFailed': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'SignalExternalWorkflowExecutionInitiated': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'StartChildWorkflowExecutionFailed': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'StartChildWorkflowExecutionInitiated': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'TimerCanceled': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'TimerFired': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'TimerStarted': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'UpsertWorkflowSearchAttributes': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'WorkflowExecutionCanceled': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'WorkflowExecutionCancelRequested': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'WorkflowExecutionCompleted': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'WorkflowExecutionContinuedAsNew': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'WorkflowExecutionFailed': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'WorkflowExecutionSignaled': function (node) {
-    return findParentId(node);
-  },
-  'WorkflowExecutionStarted': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'WorkflowExecutionTerminated': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
   'WorkflowExecutionTimedOut': function (node) {
-    return findParentId(node);
+    return node.eventId
   },
 }
 
@@ -205,4 +191,4 @@ function callNodeMap(node) {
 
 
 // Exporting variables and functions
-export { callNodeMap, setParent, printMap };
+export { callNodeMap, printMap };

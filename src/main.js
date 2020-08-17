@@ -1,5 +1,5 @@
 import * as workflow from '../data/data.json';
-import { callNodeMap, setParent, printMap } from './eventFunctionMap.js';
+import { callNodeMap, setParent, printMap } from './eventFunctionMap.ts';
 
 
 var nodeTemplate = Handlebars.compile($('#node-template').html());
@@ -28,7 +28,7 @@ function buildTree() {
       class: [node.type],
       hovertext: node.eventId
     });
-    setParent(node)
+    // setParent(node)
   });
 
   printMap()
