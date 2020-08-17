@@ -163,6 +163,5 @@ let eventTypeMap = {
   },
 }
 
-
 // Exporting variables and functions
 export { getNodeInfo };
