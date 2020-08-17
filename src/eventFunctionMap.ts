@@ -2,8 +2,8 @@ interface nodeInfo {
   parent?: number;
   child?: number;
 }
-function getNodeInfo(node) {
-  return eventTypeMap[node.eventType](node)
+function getNodeInfo(node, workflow) {
+  return eventTypeMap[node.eventType](node, workflow)
 }
 let eventTypeMap = {
   'WorkflowExecutionStarted': function (node) {
@@ -168,8 +168,12 @@ let eventTypeMap = {
   'WorkflowExecutionFailed': function (node) {
     return node.eventId
   },
-  'WorkflowExecutionSignaled': function (node) {
-    return node.eventId
+  'WorkflowExecutionSignaled': function (node, workflow) {
+    console.log('get next ' + getNextNode(node, workflow, 'WorkflowExecutionSignaled'), node.eventId)
+    const nodeInfo: nodeInfo = {
+      child: getNextNode(node, workflow, 'WorkflowExecutionSignaled')
+    }
+    return nodeInfo
   },
   'WorkflowExecutionTerminated': function (node) {
     return node.eventId
@@ -178,6 +182,34 @@ let eventTypeMap = {
     return node.eventId
   },
 }
+function getNextNode(node, workflow, string): number {
+  console.log('workflow in event' + workflow.slice(node.eventId)[3].eventType)
+  let childId = 0;
+
+  let newWorkflow = workflow.slice(node.eventId)
+
+  for (let targetNode of newWorkflow) {
+    if (targetNode.eventType !== string && index > node.eventId) {
+      console.log('found child' + targetNode.eventType)
+      childId = targetNode.eventId
+      break
+    }
+  }
+  return childId;
+}
+
+var data = [{ "name": "placeHolder", "section": "right" }, { "name": "Overview", "section": "left" }, { "name": "ByFunction", "section": "left" }, { "name": "Time", "section": "left" }, { "name": "allFit", "section": "left" }, { "name": "allbMatches", "section": "left" }, { "name": "allOffers", "section": "left" }, { "name": "allInterests", "section": "left" }, { "name": "allResponses", "section": "left" }, { "name": "divChanged", "section": "right" }];
+var index = -1;
+var val = "allInterests"
+var filteredObj = data.find(function (item, i) {
+  if (item.name === val) {
+    index = i;
+    return i;
+  }
+});
+console.log(index, filteredObj);
+
+
 
 // Exporting variables and functions
 export { getNodeInfo };

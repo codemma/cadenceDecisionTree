@@ -1,6 +1,5 @@
-import * as workflow from '../data/marker-event.json';
+import * as workflow from '../data/signal';
 import { getNodeInfo } from './eventFunctionMap.ts';
-
 
 var nodeTemplate = Handlebars.compile($('#node-template').html());
 
@@ -28,9 +27,10 @@ function buildTree() {
 }
 
 function setEdge(node) {
+  console.log('mainjs workflow ' + typeof workflow)
   let nodeId = node.eventId
 
-  let { parent, child } = getNodeInfo(node)
+  let { parent, child } = getNodeInfo(node, workflow)
 
   if (parent) {
     g.setEdge(parent, nodeId)
