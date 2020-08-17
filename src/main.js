@@ -31,11 +31,8 @@ function buildTree() {
     // setParent(node)
   });
 
-  printMap()
-
   //Set edges between the nodes
   workflow.forEach(function (node) {
-    if (node.eventId === 1) return;
     setEdge(node)
   })
 }

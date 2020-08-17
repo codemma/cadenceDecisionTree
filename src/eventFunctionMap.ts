@@ -1,5 +1,5 @@
 interface nodeInfo {
-  parent: number;
+  parent?: number;
   child?: number;
 }
 let parentMap = new Map();
@@ -44,7 +44,10 @@ function findParentId(node) {
 
 let nodeMap = {
   'WorkflowExecutionStarted': function (node) {
-    return 0;
+    const nodeInfo: nodeInfo = {
+      child: node.eventId + 1
+    }
+    return nodeInfo
   },
   'ActivityTaskCanceled': function (node) {
     return node.eventId;
@@ -175,7 +178,10 @@ let nodeMap = {
     return node.eventId
   },
   'WorkflowExecutionCompleted': function (node) {
-    return node.eventId
+    const nodeInfo: nodeInfo = {
+      parent: node.eventId - 1
+    }
+    return nodeInfo
   },
   'WorkflowExecutionContinuedAsNew': function (node) {
     return node.eventId
