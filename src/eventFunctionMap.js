@@ -1,7 +1,13 @@
-let NodeInfo = {
-  edges: [],
-  parendId: 0
+
+let parentMap = new Map();
+parentMap.set(1, 0)
+
+function printMap() {
+  console.log(...parentMap)
 }
+
+//Helper function to check if map contains a value
+let mapContainsValue = (map, val) => [...map.values()].includes(val)
 
 function setParent(node) {
   // Skip first workflow node
@@ -11,6 +17,7 @@ function setParent(node) {
   //No parent ID => linked event to the one before it.
   else parentMap.set(node.eventId, node.eventId - 1)
 }
+
 function findParentId(node) {
   let parentId;
   //Get the object which contains 'EventAttributes' - has information about parent node
@@ -26,9 +33,25 @@ function findParentId(node) {
       eventAttrObj[p] > max ? eventAttrObj[p]
         : max, eventAttrObj[relativeKeys[0]]);
   }
-
   if (relativeKeys == 0) console.log('parent not found ' + node.eventType)
   return parentId
+}
+
+function setEdges(node) {
+  let eventId = node.eventId;
+  let parentId = parentMap.get(eventId);
+  let containsChild = mapContainsValue(parentMap, eventId);
+  let childId;
+
+  if (parentMap.get(eventId) != null) {
+    nodeInfo.edges.push({ parentId, eventId })
+  }
+  if (!containsChild) {
+    childId = eventId + 1;
+    nodeInfo.edges.push({ eventId, childId })
+  }
+
+  return nodeInfo
 }
 
 let nodeMap = {
@@ -42,17 +65,27 @@ let nodeMap = {
     return node.eventId;
   },
   'ActivityTaskCompleted': function (node) {
-    return findParentId(node);
+    let childId = node.eventId + 1;
+
+    console.log('in completed act ')
+
+    let nodeInfo;
+
+    return nodeInfo = {
+      parentId: node['activityTaskCompletedEventAttributes']['startedEventId'],
+      childId: childId
+    }
   },
   'ActivityTaskFailed': function (node) {
-    console.log('helloheee')
     return node.eventId;
   },
   'ActivityTaskScheduled': function (node) {
-    return findParentId(node);
+    let parentId = node['activityTaskScheduledEventAttributes']['decisionTaskCompletedEventId']
+    return parentId
   },
   'ActivityTaskStarted': function (node) {
-    return findParentId(node);
+    let parentId = node['activityTaskStartedEventAttributes']['scheduledEventId']
+    return parentId
   },
   'ActivityTaskTimedOut': function (node) {
     return findParentId(node);
@@ -79,7 +112,8 @@ let nodeMap = {
     return findParentId(node);
   },
   'DecisionTaskCompleted': function (node) {
-    return findParentId(node);
+    let parentId = node['decisionTaskCompletedEventAttributes']['startedEventId']
+    return parentId
   },
   'DecisionTaskFailed': function (node) {
     return findParentId(node);
@@ -88,7 +122,8 @@ let nodeMap = {
     return node.eventId - 1;
   },
   'DecisionTaskStarted': function (node) {
-    return findParentId(node);
+    let parentId = node['decisionTaskStartedEventAttributes']['scheduledEventId']
+    return parentId
   },
   'DecisionTaskTimedOut': function (node) {
     return findParentId(node);
@@ -170,4 +205,4 @@ function callNodeMap(node) {
 
 
 // Exporting variables and functions
-export { callNodeMap };
+export { callNodeMap, setParent, printMap };

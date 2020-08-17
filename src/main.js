@@ -1,5 +1,5 @@
 import * as workflow from '../data/data.json';
-import { callNodeMap } from './eventFunctionMap.js';
+import { callNodeMap, setParent, printMap } from './eventFunctionMap.js';
 
 
 var nodeTemplate = Handlebars.compile($('#node-template').html());
@@ -10,11 +10,11 @@ var g = new dagreD3.graphlib.Graph()
 
 //Create a map to store parent and child eventID's as key value pairs.
 // The first workflow node will never have a parent - we set it to 0 in the map
-let parentMap = new Map();
+/* let parentMap = new Map();
 parentMap.set(1, 0)
 
 //Helper function to check if map contains a value
-let mapContainsValue = (map, val) => [...map.values()].includes(val)
+let mapContainsValue = (map, val) => [...map.values()].includes(val) */
 
 buildTree()
 
@@ -28,8 +28,10 @@ function buildTree() {
       class: [node.type],
       hovertext: node.eventId
     });
-    //setParent(node)
+    setParent(node)
   });
+
+  printMap()
 
   //Set edges between the nodes
   workflow.forEach(function (node) {
@@ -40,7 +42,7 @@ function buildTree() {
 
 function setEdge(node) {
   console.log('eventID' + node.eventType)
-
+  console.log(callNodeMap(node))
   let parentId = callNodeMap(node)
   let nodeId = node.eventId
   //Edge case when a childworkflow returns a signal, it has two parents.
@@ -51,7 +53,7 @@ function setEdge(node) {
   /* if (!mapContainsValue(parentMap, nodeId) && nodeId != parentMap.size) {
     g.setEdge(nodeId, nodeId + 1)
   } */
-  g.setEdge(parentId, nodeId)
+  //g.setEdge(parentId, nodeId)
 }
 
 /* function setParent(node) {
