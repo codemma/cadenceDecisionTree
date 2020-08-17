@@ -22,7 +22,7 @@ let eventTypeMap = {
     let childId = node.eventId + 1;
 
     const nodeInfo: nodeInfo = {
-      parent: node['activityTaskCompletedEventAttributes']['startedEventId'],
+      parent: node.activityTaskCompletedEventAttributes.startedEventId,
       child: childId
     }
     return nodeInfo
@@ -33,13 +33,13 @@ let eventTypeMap = {
   },
   'ActivityTaskScheduled': function (node) {
     const nodeInfo: nodeInfo = {
-      parent: node['activityTaskScheduledEventAttributes']['decisionTaskCompletedEventId']
+      parent: node.activityTaskScheduledEventAttributes.decisionTaskCompletedEventId
     }
     return nodeInfo
   },
   'ActivityTaskStarted': function (node) {
     const nodeInfo: nodeInfo = {
-      parent: node['activityTaskStartedEventAttributes']['scheduledEventId']
+      parent: node.activityTaskStartedEventAttributes.scheduledEventId
     }
     return nodeInfo
   },
@@ -69,7 +69,7 @@ let eventTypeMap = {
   },
   'DecisionTaskCompleted': function (node) {
     const nodeInfo: nodeInfo = {
-      parent: node['decisionTaskCompletedEventAttributes']['startedEventId']
+      parent: node.decisionTaskCompletedEventAttributes.startedEventId
     }
     return nodeInfo
   },
@@ -85,7 +85,7 @@ let eventTypeMap = {
   },
   'DecisionTaskStarted': function (node) {
     const nodeInfo: nodeInfo = {
-      parent: node['decisionTaskStartedEventAttributes']['scheduledEventId']
+      parent: node.decisionTaskStartedEventAttributes.scheduledEventId
     }
     return nodeInfo
   },
