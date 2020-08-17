@@ -1,4 +1,5 @@
 import * as workflow from '../data/unknown-large.json';
+import { nodeMap } from './eventFunctionMap.js';
 
 
 var nodeTemplate = Handlebars.compile($('#node-template').html());
