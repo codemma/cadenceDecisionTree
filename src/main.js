@@ -41,10 +41,23 @@ function buildTree() {
 }
 
 function setEdge(node) {
-  console.log('eventID' + node.eventType)
-  console.log(callNodeMap(node))
-  let parentId = callNodeMap(node)
   let nodeId = node.eventId
+  console.log('eventID' + node.eventType)
+
+  let { parent, child } = callNodeMap(node)
+
+  if (parent) {
+    console.log('parent')
+    g.setEdge(parent, nodeId)
+  }
+  if (child) {
+    console.log('child ' + node.eventType)
+    g.setEdge(nodeId, child)
+  }
+
+
+  //let parentId = callNodeMap(node)
+  // let nodeId = node.eventId
   //Edge case when a childworkflow returns a signal, it has two parents.
   /* if (node.eventType === 'ChildWorkflowExecutionCompleted') {
     g.setEdge(nodeId - 1, nodeId)

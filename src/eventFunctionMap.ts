@@ -1,9 +1,7 @@
 interface nodeInfo {
   parent: number;
-  child: number;
+  child?: number;
 }
-
-
 let parentMap = new Map();
 parentMap.set(1, 0)
 
@@ -57,24 +55,27 @@ let nodeMap = {
   'ActivityTaskCompleted': function (node) {
     let childId = node.eventId + 1;
 
-    console.log('in completed act ')
-
     const nodeInfo: nodeInfo = {
       parent: node['activityTaskCompletedEventAttributes']['startedEventId'],
       child: childId
     }
     return nodeInfo
   },
+
   'ActivityTaskFailed': function (node) {
     return node.eventId;
   },
   'ActivityTaskScheduled': function (node) {
-    let parentId = node['activityTaskScheduledEventAttributes']['decisionTaskCompletedEventId']
-    return parentId
+    const nodeInfo: nodeInfo = {
+      parent: node['activityTaskScheduledEventAttributes']['decisionTaskCompletedEventId']
+    }
+    return nodeInfo
   },
   'ActivityTaskStarted': function (node) {
-    let parentId = node['activityTaskStartedEventAttributes']['scheduledEventId']
-    return parentId
+    const nodeInfo: nodeInfo = {
+      parent: node['activityTaskStartedEventAttributes']['scheduledEventId']
+    }
+    return nodeInfo
   },
   'ActivityTaskTimedOut': function (node) {
     return node.eventId
@@ -101,18 +102,26 @@ let nodeMap = {
     return node.eventId
   },
   'DecisionTaskCompleted': function (node) {
-    let parentId = node['decisionTaskCompletedEventAttributes']['startedEventId']
-    return parentId
+    const nodeInfo: nodeInfo = {
+      parent: node['decisionTaskCompletedEventAttributes']['startedEventId']
+    }
+    return nodeInfo
   },
   'DecisionTaskFailed': function (node) {
     return node.eventId
   },
   'DecisionTaskScheduled': function (node) {
-    return node.eventId - 1;
+    //Special case: Decision task is started by an event before it, use it as parent
+    const nodeInfo: nodeInfo = {
+      parent: node.eventId - 1
+    }
+    return nodeInfo
   },
   'DecisionTaskStarted': function (node) {
-    let parentId = node['decisionTaskStartedEventAttributes']['scheduledEventId']
-    return parentId
+    const nodeInfo: nodeInfo = {
+      parent: node['decisionTaskStartedEventAttributes']['scheduledEventId']
+    }
+    return nodeInfo
   },
   'DecisionTaskTimedOut': function (node) {
     return node.eventId
