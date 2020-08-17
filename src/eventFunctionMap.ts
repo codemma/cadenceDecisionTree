@@ -2,47 +2,10 @@ interface nodeInfo {
   parent?: number;
   child?: number;
 }
-let parentMap = new Map();
-parentMap.set(1, 0)
-
-function printMap() {
-  console.log(...parentMap)
+function getNodeInfo(node) {
+  return eventTypeMap[node.eventType](node)
 }
-
-//Helper function to check if map contains a value
-let mapContainsValue = (map, val) => [...map.values()].includes(val)
-
-/* function setParent(node) {
-  // Skip first workflow node
-  if (node.eventId === 1) return;
-  let parentId = findParentId(node)
-  if (parentId) parentMap.set(node.eventId, parentId)
-  //No parent ID => linked event to the one before it.
-  else parentMap.set(node.eventId, node.eventId - 1)
-}
-
-function findParentId(node) {
-  let parentId;
-  //Get the object which contains 'EventAttributes' - has information about parent node
-  let nodeKeys = Object.keys(node)
-  let eventAttrKey = nodeKeys.filter(cls => cls.includes('EventAttributes'))
-  let eventAttrObj = node[eventAttrKey]
-  //Get an array of all  keys to object which contains 'EventID' (can be several)
-  let eventKeys = Object.keys(eventAttrObj)
-  let relativeKeys = eventKeys.filter(cls => cls.includes('EventId'))
-
-  if (relativeKeys.length != 0) {
-    parentId = relativeKeys.reduce((max, p) =>
-      eventAttrObj[p] > max ? eventAttrObj[p]
-        : max, eventAttrObj[relativeKeys[0]]);
-  }
-  if (relativeKeys == 0) console.log('parent not found ' + node.eventType)
-  return parentId
-} */
-
-
-
-let nodeMap = {
+let eventTypeMap = {
   'WorkflowExecutionStarted': function (node) {
     const nodeInfo: nodeInfo = {
       child: node.eventId + 1
@@ -200,10 +163,6 @@ let nodeMap = {
   },
 }
 
-function callNodeMap(node) {
-  return nodeMap[node.eventType](node)
-}
-
 
 // Exporting variables and functions
-export { callNodeMap, printMap };
+export { getNodeInfo };

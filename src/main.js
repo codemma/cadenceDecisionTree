@@ -1,5 +1,5 @@
 import * as workflow from '../data/data.json';
-import { callNodeMap, setParent, printMap } from './eventFunctionMap.ts';
+import { getNodeInfo } from './eventFunctionMap.ts';
 
 
 var nodeTemplate = Handlebars.compile($('#node-template').html());
@@ -39,16 +39,13 @@ function buildTree() {
 
 function setEdge(node) {
   let nodeId = node.eventId
-  console.log('eventID' + node.eventType)
 
-  let { parent, child } = callNodeMap(node)
+  let { parent, child } = getNodeInfo(node)
 
   if (parent) {
-    console.log('parent')
     g.setEdge(parent, nodeId)
   }
   if (child) {
-    console.log('child ' + node.eventType)
     g.setEdge(nodeId, child)
   }
 
