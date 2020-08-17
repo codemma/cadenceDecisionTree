@@ -3,150 +3,169 @@ let NodeInfo = {
   parendId: 0
 }
 
+function setParent(node) {
+  // Skip first workflow node
+  if (node.eventId === 1) return;
+  let parentId = findParentId(node)
+  if (parentId) parentMap.set(node.eventId, parentId)
+  //No parent ID => linked event to the one before it.
+  else parentMap.set(node.eventId, node.eventId - 1)
+}
+function findParentId(node) {
+  let parentId;
+  //Get the object which contains 'EventAttributes' - has information about parent node
+  let nodeKeys = Object.keys(node)
+  let eventAttrKey = nodeKeys.filter(cls => cls.includes('EventAttributes'))
+  let eventAttrObj = node[eventAttrKey]
+  //Get an array of all  keys to object which contains 'EventID' (can be several)
+  let eventKeys = Object.keys(eventAttrObj)
+  let relativeKeys = eventKeys.filter(cls => cls.includes('EventId'))
+
+  if (relativeKeys.length != 0) {
+    parentId = relativeKeys.reduce((max, p) =>
+      eventAttrObj[p] > max ? eventAttrObj[p]
+        : max, eventAttrObj[relativeKeys[0]]);
+  }
+
+  if (relativeKeys == 0) console.log('parent not found ' + node.eventType)
+  return parentId
+}
+
 let nodeMap = {
   'WorkflowExecutionStarted': function (node) {
-    return node.eventId;
+    return 0;
   },
   'ActivityTaskCanceled': function (node) {
-    console.log('helloheee')
     return node.eventId;
   },
   'ActivityTaskCancelRequested': function (node) {
-    console.log('helloheee')
     return node.eventId;
   },
   'ActivityTaskCompleted': function (node) {
-    console.log('helloheee')
-    return node.eventId;
+    return findParentId(node);
   },
   'ActivityTaskFailed': function (node) {
     console.log('helloheee')
     return node.eventId;
   },
   'ActivityTaskScheduled': function (node) {
-    console.log('helloheee')
-    return node.eventId;
+    return findParentId(node);
   },
   'ActivityTaskStarted': function (node) {
-    console.log('helloheee')
-    return node.eventId;
+    return findParentId(node);
   },
   'ActivityTaskTimedOut': function (node) {
-    console.log('helloheee')
-    return node.eventId;
+    return findParentId(node);
   },
   'CancelTimerFailed': function (node) {
-    console.log('helloheee')
-    return node.eventId;
+    return findParentId(node);
   },
   'ChildWorkflowExecutionCanceled': function (node) {
-    console.log('helloheee')
-    return node.eventId;
+    return findParentId(node);
   },
   'ChildWorkflowExecutionCompleted': function (node) {
-    console.log('helloheee')
-    return node.eventId;
+    return findParentId(node);
   },
   'ChildWorkflowExecutionFailed': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'ChildWorkflowExecutionStarted': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'ChildWorkflowExecutionTerminated': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'ChildWorkflowExecutionTimedOut': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'DecisionTaskCompleted': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'DecisionTaskFailed': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'DecisionTaskScheduled': function (node) {
-    return node.eventId;
+    return node.eventId - 1;
   },
   'DecisionTaskStarted': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'DecisionTaskTimedOut': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'ExternalWorkflowExecutionCancelRequested': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'ExternalWorkflowExecutionSignaled': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'MarkerRecorded': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'RequestCancelActivityTaskFailed': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'RequestCancelExternalWorkflowExecutionFailed': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'RequestCancelExternalWorkflowExecutionInitiated': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'SignalExternalWorkflowExecutionFailed': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'SignalExternalWorkflowExecutionInitiated': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'StartChildWorkflowExecutionFailed': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'StartChildWorkflowExecutionInitiated': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'TimerCanceled': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'TimerFired': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'TimerStarted': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'UpsertWorkflowSearchAttributes': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'WorkflowExecutionCanceled': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'WorkflowExecutionCancelRequested': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'WorkflowExecutionCompleted': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'WorkflowExecutionContinuedAsNew': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'WorkflowExecutionFailed': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'WorkflowExecutionSignaled': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'WorkflowExecutionStarted': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'WorkflowExecutionTerminated': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
   'WorkflowExecutionTimedOut': function (node) {
-    return node.eventId;
+    return findParentId(node);
   },
 }
 
 function callNodeMap(node) {
-  console.log('nodeMap' + nodeMap[node.eventType](node))
+  return nodeMap[node.eventType](node)
 }
 
 

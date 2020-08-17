@@ -1,5 +1,5 @@
-import * as workflow from '../data/unknown-large.json';
-import { nodeMap } from './eventFunctionMap.js';
+import * as workflow from '../data/data.json';
+import { callNodeMap } from './eventFunctionMap.js';
 
 
 var nodeTemplate = Handlebars.compile($('#node-template').html());
@@ -28,7 +28,7 @@ function buildTree() {
       class: [node.type],
       hovertext: node.eventId
     });
-    setParent(node)
+    //setParent(node)
   });
 
   //Set edges between the nodes
@@ -39,28 +39,30 @@ function buildTree() {
 }
 
 function setEdge(node) {
-  let parentId = parentMap.get(node.eventId)
+  console.log('eventID' + node.eventType)
+
+  let parentId = callNodeMap(node)
   let nodeId = node.eventId
   //Edge case when a childworkflow returns a signal, it has two parents.
-  if (node.eventType === 'ChildWorkflowExecutionCompleted') {
+  /* if (node.eventType === 'ChildWorkflowExecutionCompleted') {
     g.setEdge(nodeId - 1, nodeId)
-  }
+  } */
   //Edge case when an event has no children, but should be linked back to the workflow
-  if (!mapContainsValue(parentMap, nodeId) && nodeId != parentMap.size) {
+  /* if (!mapContainsValue(parentMap, nodeId) && nodeId != parentMap.size) {
     g.setEdge(nodeId, nodeId + 1)
-  }
+  } */
   g.setEdge(parentId, nodeId)
 }
 
-function setParent(node) {
+/* function setParent(node) {
   // Skip first workflow node
   if (node.eventId === 1) return;
   let parentId = findParentId(node)
   if (parentId) parentMap.set(node.eventId, parentId)
   //No parent ID => linked event to the one before it.
   else parentMap.set(node.eventId, node.eventId - 1)
-}
-function findParentId(node) {
+} */
+/* function findParentId(node) {
   let parentId;
   //Get the object which contains 'EventAttributes' - has information about parent node
   let nodeKeys = Object.keys(node)
@@ -76,7 +78,9 @@ function findParentId(node) {
         : max, eventAttrObj[relativeKeys[0]]);
   }
   return parentId
-}
+} */
+
+
 g.nodes().forEach(function (v) {
   var node = g.node(v);
   // Round the corners of the nodes
