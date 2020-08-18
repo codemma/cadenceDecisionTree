@@ -68,10 +68,9 @@ let eventTypeMap = {
     return node.eventId
   },
   'DecisionTaskCompleted': function (node, workflow) {
-    //console.log('get next decision Tadk' + node.eventId, getNextNode(node, workflow, 'WorkflowExecutionSignaled'))
     const nodeInfo: nodeInfo = {
       parent: node.decisionTaskCompletedEventAttributes.startedEventId,
-      child: getNextNode(node, workflow, 'WorkflowExecutionSignaled'),
+      child: findChild(node, workflow),
     }
     return nodeInfo
   },
@@ -171,9 +170,8 @@ let eventTypeMap = {
     return node.eventId
   },
   'WorkflowExecutionSignaled': function (node, workflow) {
-    console.log('get next ' + getNextNode(node, workflow, 'WorkflowExecutionSignaled'), node.eventId)
     const nodeInfo: nodeInfo = {
-      child: getNextNode(node, workflow, 'WorkflowExecutionSignaled')
+      child: findChild(node, workflow)
     }
     return nodeInfo
   },
@@ -184,15 +182,15 @@ let eventTypeMap = {
     return node.eventId
   },
 }
-function getNextNode(node, workflow, string): number {
-  //console.log('workflow in event' + workflow.slice(node.eventId)[3].eventType)
+function findChild(node, workflow): number {
+  //Signals do not have parents
+  let skipString = 'WorkflowExecutionSignaled'
   let childId = 0;
-
-  let newWorkflow = workflow.slice(node.eventId)
-
-  for (let targetNode of newWorkflow) {
-    if (targetNode.eventType !== string) {
-      console.log('found child' + targetNode.eventType)
+  //Start searching after current node event ID
+  let slicedWorkflow = workflow.slice(node.eventId)
+  for (let targetNode of slicedWorkflow) {
+    //We've found the first node that is not a signal - that is the child
+    if (targetNode.eventType !== skipString) {
       childId = targetNode.eventId
       break
     }

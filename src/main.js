@@ -1,4 +1,4 @@
-import * as workflow from '../data/unknown-large2';
+import * as workflow from '../data/signal';
 import { getNodeInfo } from './eventFunctionMap.ts';
 
 var nodeTemplate = Handlebars.compile($('#node-template').html());
@@ -36,7 +36,10 @@ function setEdge(node) {
     g.setEdge(parent, nodeId)
   }
   if (child) {
-    g.setEdge(nodeId, child)
+    g.setEdge(nodeId, child, {
+      style: "stroke: #f66; stroke-width: 3px; stroke-dasharray: 5, 5;",
+      arrowheadStyle: "fill: #f66"
+    });
   }
 }
 
