@@ -1,16 +1,14 @@
 interface nodeInfo {
   parent?: number;
   child?: number;
+  inferredParents?: number[];
 }
 function getNodeInfo(node, workflow) {
   return eventTypeMap[node.eventType](node, workflow)
 }
 let eventTypeMap = {
   'WorkflowExecutionStarted': function (node) {
-    const nodeInfo: nodeInfo = {
-      child: node.eventId + 1
-    }
-    return nodeInfo
+    return 0
   },
   'ActivityTaskCanceled': function (node) {
     return node.eventId;
@@ -70,7 +68,6 @@ let eventTypeMap = {
   'DecisionTaskCompleted': function (node, workflow) {
     const nodeInfo: nodeInfo = {
       parent: node.decisionTaskCompletedEventAttributes.startedEventId,
-      child: findChild(node, workflow),
     }
     return nodeInfo
   },
@@ -78,10 +75,10 @@ let eventTypeMap = {
     return node.eventId
   },
   'DecisionTaskScheduled': function (node, workflow) {
-    let parentId = findParent(node, workflow)
-    //Special case: Decision task is started by an event before it, use it as parent
+    //Special case: Decision task is started by an event before it, we call findInferredParents to find the parents
+    let parentIds = findinferredParents(node, workflow)
     const nodeInfo: nodeInfo = {
-      parent: parentId
+      inferredParents: parentIds
     }
     return nodeInfo
   },
@@ -157,7 +154,7 @@ let eventTypeMap = {
   },
   'WorkflowExecutionCompleted': function (node) {
     const nodeInfo: nodeInfo = {
-      parent: node.eventId - 1
+      inferredParents: [node.eventId - 1]
     }
     return nodeInfo
   },
@@ -170,10 +167,8 @@ let eventTypeMap = {
   'WorkflowExecutionFailed': function (node) {
     return node.eventId
   },
-  'WorkflowExecutionSignaled': function (node, workflow) {
-    const nodeInfo: nodeInfo = {
-      child: findChild(node, workflow)
-    }
+  'WorkflowExecutionSignaled': function (node) {
+    const nodeInfo: nodeInfo = {}
     return nodeInfo
   },
   'WorkflowExecutionTerminated': function (node) {
@@ -184,52 +179,32 @@ let eventTypeMap = {
   },
 }
 
-/* const childExists(node: object, workflow: Array): boolean => {
-  let childExists = false;
+function findinferredParents(node: object, workflow: object[]): number[] {
+  let parentIds = [];
 
-  let slicedWorkflow = workflow.slice(node.eventId : Number)
-
-  for (let targetNode of slicedWorkflow) {
-    //We've found the first node that is not a signal - that is the child
-    if (targetNode.eventType !== skipString) {
-      childId = targetNode.eventId
-      break
-    }
-  }
-
-} */
-function findParent(node: object, workflow: Array): boolean {
-  let parentId;
+  //We only want to search the parents of the workflow, in reversed order to find the closests parents
   let slicedWorkflow = workflow.slice(0, node.eventId)
-  let reversed = slicedWorkflow.reverse()
+  let reversedWorkflow = slicedWorkflow.reverse()
 
-  for (let targetNode of slicedWorkflow) {
+  for (let targetNode of reversedWorkflow) {
     let eventType = targetNode.eventType
-    //We've found the first node that started the event
-    if (eventType === 'DecisionTaskCompleted' || eventType === 'ActivityTaskCompleted' || eventType === 'WorkflowExecutionStarted') {
-      parentId = targetNode.eventId
-      break
+    switch (eventType) {
+      case 'WorkflowExecutionSignaled':
+        parentIds.push(targetNode.eventId)
+        break
+      case 'DecisionTaskCompleted':
+        parentIds.push(targetNode.eventId)
+        return parentIds
+      case 'ActivityTaskCompleted':
+        parentIds.push(targetNode.eventId)
+        return parentIds
+      case 'WorkflowExecutionStarted':
+        parentIds.push(targetNode.eventId)
+        return parentIds
     }
   }
-  return parentId
+  return parentIds
 }
-
-function findChild(node: object, workflow: Array): number {
-  //Signals do not have parents
-  let skipString = 'WorkflowExecutionSignaled'
-  let childId = 0;
-  //Start searching after current node event ID
-  let slicedWorkflow = workflow.slice(node.eventId)
-  for (let targetNode of slicedWorkflow) {
-    //We've found the first node that is not a signal - that is the child
-    if (targetNode.eventType !== skipString) {
-      childId = targetNode.eventId
-      break
-    }
-  }
-  return childId;
-}
-
 
 // Exporting variables and functions
 export { getNodeInfo };
