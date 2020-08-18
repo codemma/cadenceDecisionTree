@@ -42,7 +42,10 @@ let eventTypeMap = {
     return nodeInfo
   },
   'ActivityTaskTimedOut': function (node) {
-    return node.eventId
+    const nodeInfo: nodeInfo = {
+      parent: node.activityTaskTimedOutEventAttributes.startedEventId
+    }
+    return nodeInfo
   },
   'CancelTimerFailed': function (node) {
     return node.eventId
@@ -144,7 +147,10 @@ let eventTypeMap = {
     return nodeInfo
   },
   'UpsertWorkflowSearchAttributes': function (node) {
-    return node.eventId
+    const nodeInfo: nodeInfo = {
+      parent: node.upsertWorkflowSearchAttributesEventAttributes.decisionTaskCompletedEventId
+    }
+    return nodeInfo
   },
   'WorkflowExecutionCanceled': function (node) {
     return node.eventId
@@ -165,7 +171,10 @@ let eventTypeMap = {
     return nodeInfo
   },
   'WorkflowExecutionFailed': function (node) {
-    return node.eventId
+    const nodeInfo: nodeInfo = {
+      parent: node.workflowExecutionFailedEventAttributes.decisionTaskCompletedEventId
+    }
+    return nodeInfo
   },
   'WorkflowExecutionSignaled': function (node) {
     const nodeInfo: nodeInfo = {}
@@ -193,12 +202,10 @@ function findinferredParents(node: object, workflow: object[]): number[] {
         parentIds.push(targetNode.eventId)
         break
       case 'DecisionTaskCompleted':
-        parentIds.push(targetNode.eventId)
-        return parentIds
       case 'ActivityTaskCompleted':
-        parentIds.push(targetNode.eventId)
-        return parentIds
       case 'WorkflowExecutionStarted':
+      case 'TimerFired':
+      case 'ActivityTaskTimedOut':
         parentIds.push(targetNode.eventId)
         return parentIds
     }

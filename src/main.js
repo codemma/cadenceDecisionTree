@@ -1,10 +1,10 @@
-import * as workflow from '../data/signal';
+import * as workflow from '../data/timeout-activity';
 import { getNodeInfo } from './eventFunctionMap.ts';
 
 var nodeTemplate = Handlebars.compile($('#node-template').html());
 
 var g = new dagreD3.graphlib.Graph()
-  .setGraph({ align: 'DL' })
+  .setGraph({ align: 'UL' })
   .setDefaultEdgeLabel(function () { return {}; }); //Neccessary to display arrows between nodes
 
 buildTree()
