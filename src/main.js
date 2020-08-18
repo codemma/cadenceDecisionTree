@@ -1,4 +1,4 @@
-import * as workflow from '../data/signal';
+import * as workflow from '../data/data';
 import { getNodeInfo } from './eventFunctionMap.ts';
 
 var nodeTemplate = Handlebars.compile($('#node-template').html());
@@ -27,20 +27,24 @@ function buildTree() {
 }
 
 function setEdge(node) {
+  if (node.eventId == 1) return // always skip first node
+
   console.log('mainjs workflow ' + typeof workflow)
   let nodeId = node.eventId
 
   let { parent, child } = getNodeInfo(node, workflow)
 
-  if (parent) {
-    g.setEdge(parent, nodeId)
-  }
   if (child) {
     g.setEdge(nodeId, child, {
       style: "stroke: #f66; stroke-width: 3px; stroke-dasharray: 5, 5;",
       arrowheadStyle: "fill: #f66"
     });
   }
+
+  if (parent) {
+    g.setEdge(parent, nodeId)
+  }
+
 }
 
 g.nodes().forEach(function (v) {

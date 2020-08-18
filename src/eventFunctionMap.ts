@@ -77,10 +77,11 @@ let eventTypeMap = {
   'DecisionTaskFailed': function (node) {
     return node.eventId
   },
-  'DecisionTaskScheduled': function (node) {
+  'DecisionTaskScheduled': function (node, workflow) {
+    let parentId = findParent(node, workflow)
     //Special case: Decision task is started by an event before it, use it as parent
     const nodeInfo: nodeInfo = {
-      parent: node.eventId - 1
+      parent: parentId
     }
     return nodeInfo
   },
@@ -182,7 +183,38 @@ let eventTypeMap = {
     return node.eventId
   },
 }
-function findChild(node, workflow): number {
+
+/* const childExists(node: object, workflow: Array): boolean => {
+  let childExists = false;
+
+  let slicedWorkflow = workflow.slice(node.eventId : Number)
+
+  for (let targetNode of slicedWorkflow) {
+    //We've found the first node that is not a signal - that is the child
+    if (targetNode.eventType !== skipString) {
+      childId = targetNode.eventId
+      break
+    }
+  }
+
+} */
+function findParent(node: object, workflow: Array): boolean {
+  let parentId;
+  let slicedWorkflow = workflow.slice(0, node.eventId)
+  let reversed = slicedWorkflow.reverse()
+
+  for (let targetNode of slicedWorkflow) {
+    let eventType = targetNode.eventType
+    //We've found the first node that started the event
+    if (eventType === 'DecisionTaskCompleted' || eventType === 'ActivityTaskCompleted' || eventType === 'WorkflowExecutionStarted') {
+      parentId = targetNode.eventId
+      break
+    }
+  }
+  return parentId
+}
+
+function findChild(node: object, workflow: Array): number {
   //Signals do not have parents
   let skipString = 'WorkflowExecutionSignaled'
   let childId = 0;
