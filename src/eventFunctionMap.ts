@@ -67,9 +67,11 @@ let eventTypeMap = {
   'ChildWorkflowExecutionTimedOut': function (node) {
     return node.eventId
   },
-  'DecisionTaskCompleted': function (node) {
+  'DecisionTaskCompleted': function (node, workflow) {
+    //console.log('get next decision Tadk' + node.eventId, getNextNode(node, workflow, 'WorkflowExecutionSignaled'))
     const nodeInfo: nodeInfo = {
-      parent: node.decisionTaskCompletedEventAttributes.startedEventId
+      parent: node.decisionTaskCompletedEventAttributes.startedEventId,
+      child: getNextNode(node, workflow, 'WorkflowExecutionSignaled'),
     }
     return nodeInfo
   },
@@ -183,13 +185,13 @@ let eventTypeMap = {
   },
 }
 function getNextNode(node, workflow, string): number {
-  console.log('workflow in event' + workflow.slice(node.eventId)[3].eventType)
+  //console.log('workflow in event' + workflow.slice(node.eventId)[3].eventType)
   let childId = 0;
 
   let newWorkflow = workflow.slice(node.eventId)
 
   for (let targetNode of newWorkflow) {
-    if (targetNode.eventType !== string && index > node.eventId) {
+    if (targetNode.eventType !== string) {
       console.log('found child' + targetNode.eventType)
       childId = targetNode.eventId
       break
@@ -197,18 +199,6 @@ function getNextNode(node, workflow, string): number {
   }
   return childId;
 }
-
-var data = [{ "name": "placeHolder", "section": "right" }, { "name": "Overview", "section": "left" }, { "name": "ByFunction", "section": "left" }, { "name": "Time", "section": "left" }, { "name": "allFit", "section": "left" }, { "name": "allbMatches", "section": "left" }, { "name": "allOffers", "section": "left" }, { "name": "allInterests", "section": "left" }, { "name": "allResponses", "section": "left" }, { "name": "divChanged", "section": "right" }];
-var index = -1;
-var val = "allInterests"
-var filteredObj = data.find(function (item, i) {
-  if (item.name === val) {
-    index = i;
-    return i;
-  }
-});
-console.log(index, filteredObj);
-
 
 
 // Exporting variables and functions

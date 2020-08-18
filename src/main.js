@@ -1,10 +1,10 @@
-import * as workflow from '../data/signal';
+import * as workflow from '../data/unknown-large2';
 import { getNodeInfo } from './eventFunctionMap.ts';
 
 var nodeTemplate = Handlebars.compile($('#node-template').html());
 
 var g = new dagreD3.graphlib.Graph()
-  .setGraph({ align: 'DR' })
+  .setGraph({ align: 'DL' })
   .setDefaultEdgeLabel(function () { return {}; }); //Neccessary to display arrows between nodes
 
 buildTree()
