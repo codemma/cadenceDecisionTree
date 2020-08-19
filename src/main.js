@@ -1,10 +1,10 @@
-import * as workflow from '../data/test';
+import * as workflow from '../data/parent_workflow';
 import { getNodeInfo } from './eventFunctionMap.ts';
 
 var nodeTemplate = Handlebars.compile($('#node-template').html());
 
 var g = new dagreD3.graphlib.Graph()
-  .setGraph({ align: 'UL' })
+  .setGraph({ align: 'UR' })
   .setDefaultEdgeLabel(function () { return {}; }); //Neccessary to display arrows between nodes
 
 buildTree()
@@ -30,12 +30,13 @@ function setEdge(node) {
   let nodeId = node.eventId
   if (nodeId == 1) return // always skip first node
 
-  let { parent, child, inferredParents } = getNodeInfo(node, workflow)
+  let { parent, child, inferredParents, chronologicalParent } = getNodeInfo(node, workflow)
 
   if (parent) {
     g.setEdge(parent, nodeId)
   }
   if (inferredParents) {
+    console.log(inferredParents)
     inferredParents.forEach(parentID =>
       g.setEdge(parentID, nodeId, {
         style: "stroke: #f66; stroke-width: 3px; stroke-dasharray: 5, 5;",
@@ -47,6 +48,13 @@ function setEdge(node) {
     g.setEdge(nodeId, child, {
       style: "stroke: #f66; stroke-width: 3px; stroke-dasharray: 5, 5;",
       arrowheadStyle: "fill: #f66"
+    })
+  }
+  if (chronologicalParent) {
+    console.log('hello')
+    g.setEdge(chronologicalParent, nodeId, {
+      style: "stroke: #00B2EE; stroke-width: 3px; stroke-dasharray: 5, 5;",
+      arrowheadStyle: "fill: #00B2EE"
     })
   }
 }

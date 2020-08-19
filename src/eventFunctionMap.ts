@@ -92,8 +92,15 @@ let eventTypeMap = {
   'DecisionTaskScheduled': function (node: node, workflow: workflow) {
     //Special case: Decision task is started by an event before it, we call findInferredParents to find the parents
     let parentIds = findinferredParents(node, workflow)
+    let chronologicalParent;
+    if (parentIds) {
+      console.log('chron parent', node.eventId, findChronolicalParents(node, workflow, parentIds))
+      chronologicalParent = findChronolicalParents(node, workflow, parentIds)
+    }
+
     const nodeInfo: nodeInfo = {
-      inferredParents: parentIds
+      inferredParents: parentIds,
+      chronologicalParent: chronologicalParent
     }
     return nodeInfo
   },
@@ -220,7 +227,24 @@ let eventTypeMap = {
   },
 }
 
+function findChronolicalParents(node: node, workflow: workflow, inferredParents: any): number {
+  let parentId;
+  //We only want to search the parents of the workflow, in reversed order to find the closests parents
+  let slicedWorkflow = workflow.slice(0, node.eventId - 1)
+  let reversedWorkflow = slicedWorkflow.reverse()
+
+  let targetNode: node;
+  for (targetNode of reversedWorkflow) {
+    if (!inferredParents.includes(targetNode.eventId)) {
+      return targetNode.eventId
+    }
+  }
+  return parentId
+}
+
+
 function findinferredParents(node: node, workflow: workflow): number[] {
+  let nonsignalParent = false
   let parentIds = [];
 
   //We only want to search the parents of the workflow, in reversed order to find the closests parents
@@ -234,12 +258,13 @@ function findinferredParents(node: node, workflow: workflow): number[] {
       case 'WorkflowExecutionSignaled':
         parentIds.push(targetNode.eventId)
         break
+      case 'TimerFired':
       case 'DecisionTaskCompleted':
       case 'ActivityTaskCompleted':
       case 'WorkflowExecutionStarted':
-      case 'TimerFired':
       case 'ActivityTaskTimedOut':
       case 'ActivityTaskFailed':
+      case 'ActivityTaskCompleted':
       case 'ChildWorkflowExecutionStarted':
       case 'ChildWorkflowExecutionCompleted':
       case 'ChildWorkflowExecutionFailed':

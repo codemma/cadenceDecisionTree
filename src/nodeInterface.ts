@@ -1,6 +1,7 @@
 interface nodeInfo {
   parent?: number;
   child?: number;
+  chronologicalParent?: number;
   inferredParents?: number[];
 }
 
