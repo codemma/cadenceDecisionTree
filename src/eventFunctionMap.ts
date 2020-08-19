@@ -77,7 +77,7 @@ let eventTypeMap = {
   'ChildWorkflowExecutionTimedOut': function (node: node) {
     return node.eventId
   },
-  'DecisionTaskCompleted': function (node: node, workflow) {
+  'DecisionTaskCompleted': function (node: node) {
     const nodeInfo: nodeInfo = {
       parent: node.decisionTaskCompletedEventAttributes.startedEventId,
     }
@@ -86,7 +86,7 @@ let eventTypeMap = {
   'DecisionTaskFailed': function (node: node) {
     return node.eventId
   },
-  'DecisionTaskScheduled': function (node: node, workflow) {
+  'DecisionTaskScheduled': function (node: node, workflow: workflow) {
     //Special case: Decision task is started by an event before it, we call findInferredParents to find the parents
     let parentIds = findinferredParents(node, workflow)
     const nodeInfo: nodeInfo = {
