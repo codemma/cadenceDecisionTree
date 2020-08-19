@@ -1,5 +1,18 @@
 import { nodeInfo, node, workflow } from "./nodeInterface";
 
+var triggerActivities: string[] = [
+  'TimerFired',
+  'ActivityTaskCompleted',
+  'WorkflowExecutionStarted',
+  'ActivityTaskTimedOut',
+  'ActivityTaskFailed',
+  'ActivityTaskCompleted',
+  'ChildWorkflowExecutionStarted',
+  'ChildWorkflowExecutionCompleted',
+  'ChildWorkflowExecutionFailed',
+  'WorkflowExecutionCancelRequested'
+]
+
 function getNodeInfo(node: node, workflow: workflow) {
   return eventTypeMap[node.eventType](node, workflow)
 }
@@ -13,9 +26,11 @@ let eventTypeMap = {
   'ActivityTaskCancelRequested': function (node: node) {
     return node.eventId;
   },
-  'ActivityTaskCompleted': function (node: node) {
-    let childId = node.eventId + 1;
-
+  'ActivityTaskCompleted': function (node: node, workflow: workflow) {
+    let childId = findChild(node, workflow)
+    if (!childId) {
+      childId = node.eventId + 1;
+    }
     const nodeInfo: nodeInfo = {
       parent: node.activityTaskCompletedEventAttributes.startedEventId,
       child: childId
@@ -23,9 +38,11 @@ let eventTypeMap = {
     return nodeInfo
   },
 
-  'ActivityTaskFailed': function (node: node) {
+  'ActivityTaskFailed': function (node: node, workflow: workflow) {
+    let childId = findChild(node, workflow)
     const nodeInfo: nodeInfo = {
-      parent: node.activityTaskFailedEventAttributes.startedEventId
+      parent: node.activityTaskFailedEventAttributes.startedEventId,
+      child: childId
     }
     return nodeInfo
   },
@@ -41,9 +58,11 @@ let eventTypeMap = {
     }
     return nodeInfo
   },
-  'ActivityTaskTimedOut': function (node: node) {
+  'ActivityTaskTimedOut': function (node: node, workflow: workflow) {
+    let childId = findChild(node, workflow)
     const nodeInfo: nodeInfo = {
-      parent: node.activityTaskTimedOutEventAttributes.startedEventId
+      parent: node.activityTaskTimedOutEventAttributes.startedEventId,
+      child: childId
     }
     return nodeInfo
   },
@@ -56,21 +75,27 @@ let eventTypeMap = {
     }
     return nodeInfo
   },
-  'ChildWorkflowExecutionCompleted': function (node: node) {
+  'ChildWorkflowExecutionCompleted': function (node: node, workflow: workflow) {
+    let childId = findChild(node, workflow)
     const nodeInfo: nodeInfo = {
-      inferredParents: [node.childWorkflowExecutionCompletedEventAttributes.startedEventId]
+      inferredParents: [node.childWorkflowExecutionCompletedEventAttributes.startedEventId],
+      child: childId
     }
     return nodeInfo
   },
-  'ChildWorkflowExecutionFailed': function (node: node) {
+  'ChildWorkflowExecutionFailed': function (node: node, workflow: workflow) {
+    let childId = findChild(node, workflow)
     const nodeInfo: nodeInfo = {
-      parent: node.childWorkflowExecutionFailedEventAttributes.startedEventId
+      parent: node.childWorkflowExecutionFailedEventAttributes.startedEventId,
+      child: childId
     }
     return nodeInfo
   },
-  'ChildWorkflowExecutionStarted': function (node: node) {
+  'ChildWorkflowExecutionStarted': function (node: node, workflow: workflow) {
+    let childId = findChild(node, workflow)
     const nodeInfo: nodeInfo = {
-      parent: node.childWorkflowExecutionStartedEventAttributes.initiatedEventId
+      parent: node.childWorkflowExecutionStartedEventAttributes.initiatedEventId,
+      child: childId
     }
     return nodeInfo
   },
@@ -80,7 +105,7 @@ let eventTypeMap = {
   'ChildWorkflowExecutionTimedOut': function (node: node) {
     return node.eventId
   },
-  'DecisionTaskCompleted': function (node: node) {
+  'DecisionTaskCompleted': function (node: node, workflow: workflow) {
     const nodeInfo: nodeInfo = {
       parent: node.decisionTaskCompletedEventAttributes.startedEventId,
     }
@@ -91,16 +116,16 @@ let eventTypeMap = {
   },
   'DecisionTaskScheduled': function (node: node, workflow: workflow) {
     //Special case: Decision task is started by an event before it, we call findInferredParents to find the parents
-    let parentIds = findinferredParents(node, workflow)
+    let parentId = findinferredParents(node, workflow)
     let chronologicalParent;
-    if (parentIds) {
+    /* if (parentIds) {
       console.log('chron parent', node.eventId, findChronolicalParents(node, workflow, parentIds))
       chronologicalParent = findChronolicalParents(node, workflow, parentIds)
-    }
+    } */
 
     const nodeInfo: nodeInfo = {
-      inferredParents: parentIds,
-      chronologicalParent: chronologicalParent
+      chronologicalParent: parentId,
+      //chronologicalParent: chronologicalParent
     }
     return nodeInfo
   },
@@ -113,9 +138,11 @@ let eventTypeMap = {
   'DecisionTaskTimedOut': function (node: node) {
     return node.eventId
   },
-  'ExternalWorkflowExecutionCancelRequested': function (node: node) {
+  'ExternalWorkflowExecutionCancelRequested': function (node: node, workflow: workflow) {
+    let childId = findChild(node, workflow)
     const nodeInfo: nodeInfo = {
-      parent: node.externalWorkflowExecutionCancelRequestedEventAttributes.initiatedEventId
+      parent: node.externalWorkflowExecutionCancelRequestedEventAttributes.initiatedEventId,
+      child: childId
     }
     return nodeInfo
   },
@@ -168,9 +195,11 @@ let eventTypeMap = {
     }
     return nodeInfo
   },
-  'TimerFired': function (node: node) {
+  'TimerFired': function (node: node, workflow: workflow) {
+    let childId = findChild(node, workflow)
     const nodeInfo: nodeInfo = {
-      parent: node.timerFiredEventAttributes.startedEventId
+      parent: node.timerFiredEventAttributes.startedEventId,
+      child: childId
     }
     return nodeInfo
   },
@@ -214,9 +243,12 @@ let eventTypeMap = {
     }
     return nodeInfo
   },
-  'WorkflowExecutionSignaled': function (node: node) {
+  'WorkflowExecutionSignaled': function (node: node, workflow: workflow) {
+    let childId = findChild(node, workflow)
     //This node has no parent nor child
-    const nodeInfo: nodeInfo = {}
+    const nodeInfo: nodeInfo = {
+      child: childId
+    }
     return nodeInfo
   },
   'WorkflowExecutionTerminated': function (node: node) {
@@ -242,13 +274,33 @@ function findChronolicalParents(node: node, workflow: workflow, inferredParents:
   return parentId
 }
 
+function findChild(node: node, workflow: workflow): number {
+  let targetNodeId
+  let slicedWorkflow = workflow.slice(node.eventId)
+  let targetNode: node;
+  for (targetNode of slicedWorkflow) {
+    console.log('find child ', node.eventId, targetNode.eventType)
+    if (triggerActivities.includes(targetNode.eventType)) {
+      console.log(
+        'found child'
+      )
+      targetNodeId = targetNode.eventId
+      return targetNodeId
+    }
+    else if (targetNode.eventType === 'DecisionTaskScheduled') {
+      targetNodeId = targetNode.eventId
+      return targetNodeId
+    }
+  }
+  return targetNodeId
+}
 
-function findinferredParents(node: node, workflow: workflow): number[] {
-  let nonsignalParent = false
-  let parentIds = [];
 
+
+function findinferredParents(node: node, workflow: workflow): number {
+  let parentIds;
   //We only want to search the parents of the workflow, in reversed order to find the closests parents
-  let slicedWorkflow = workflow.slice(0, node.eventId)
+  let slicedWorkflow = workflow.slice(0, node.eventId - 1)
   let reversedWorkflow = slicedWorkflow.reverse()
 
   let targetNode: node;
@@ -256,21 +308,10 @@ function findinferredParents(node: node, workflow: workflow): number[] {
     let eventType = targetNode.eventType
     switch (eventType) {
       case 'WorkflowExecutionSignaled':
-        parentIds.push(targetNode.eventId)
-        break
-      case 'TimerFired':
-      case 'DecisionTaskCompleted':
-      case 'ActivityTaskCompleted':
-      case 'WorkflowExecutionStarted':
-      case 'ActivityTaskTimedOut':
-      case 'ActivityTaskFailed':
-      case 'ActivityTaskCompleted':
-      case 'ChildWorkflowExecutionStarted':
-      case 'ChildWorkflowExecutionCompleted':
-      case 'ChildWorkflowExecutionFailed':
       case 'WorkflowExecutionCancelRequested':
-        parentIds.push(targetNode.eventId)
-        return parentIds
+        break
+      default:
+        return targetNode.eventId
     }
   }
   return parentIds
