@@ -1,4 +1,4 @@
-import * as workflow from '../data/childworkflow_failed';
+import * as workflow from '../data/test';
 import { getNodeInfo } from './eventFunctionMap.ts';
 
 var nodeTemplate = Handlebars.compile($('#node-template').html());
