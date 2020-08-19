@@ -1,22 +1,19 @@
-interface nodeInfo {
-  parent?: number;
-  child?: number;
-  inferredParents?: number[];
-}
-function getNodeInfo(node, workflow) {
+import { nodeInfo, node, workflow } from "./nodeInterface";
+
+function getNodeInfo(node: node, workflow: workflow) {
   return eventTypeMap[node.eventType](node, workflow)
 }
 let eventTypeMap = {
-  'WorkflowExecutionStarted': function (node) {
+  'WorkflowExecutionStarted': function (node: node) {
     return 0
   },
-  'ActivityTaskCanceled': function (node) {
+  'ActivityTaskCanceled': function (node: node) {
     return node.eventId;
   },
-  'ActivityTaskCancelRequested': function (node) {
+  'ActivityTaskCancelRequested': function (node: node) {
     return node.eventId;
   },
-  'ActivityTaskCompleted': function (node) {
+  'ActivityTaskCompleted': function (node: node) {
     let childId = node.eventId + 1;
 
     const nodeInfo: nodeInfo = {
@@ -26,58 +23,70 @@ let eventTypeMap = {
     return nodeInfo
   },
 
-  'ActivityTaskFailed': function (node) {
-    return node.eventId;
+  'ActivityTaskFailed': function (node: node) {
+    const nodeInfo: nodeInfo = {
+      parent: node.activityTaskFailedEventAttributes.startedEventId
+    }
+    return nodeInfo
   },
-  'ActivityTaskScheduled': function (node) {
+  'ActivityTaskScheduled': function (node: node) {
     const nodeInfo: nodeInfo = {
       parent: node.activityTaskScheduledEventAttributes.decisionTaskCompletedEventId
     }
     return nodeInfo
   },
-  'ActivityTaskStarted': function (node) {
+  'ActivityTaskStarted': function (node: node) {
     const nodeInfo: nodeInfo = {
       parent: node.activityTaskStartedEventAttributes.scheduledEventId
     }
     return nodeInfo
   },
-  'ActivityTaskTimedOut': function (node) {
+  'ActivityTaskTimedOut': function (node: node) {
     const nodeInfo: nodeInfo = {
       parent: node.activityTaskTimedOutEventAttributes.startedEventId
     }
     return nodeInfo
   },
-  'CancelTimerFailed': function (node) {
+  'CancelTimerFailed': function (node: node) {
     return node.eventId
   },
-  'ChildWorkflowExecutionCanceled': function (node) {
+  'ChildWorkflowExecutionCanceled': function (node: node) {
     return node.eventId
   },
-  'ChildWorkflowExecutionCompleted': function (node) {
+  'ChildWorkflowExecutionCompleted': function (node: node) {
+    const nodeInfo: nodeInfo = {
+      inferredParents: [node.childWorkflowExecutionCompletedEventAttributes.startedEventId]
+    }
+    return nodeInfo
+  },
+  'ChildWorkflowExecutionFailed': function (node: node) {
+    const nodeInfo: nodeInfo = {
+      parent: node.childWorkflowExecutionFailedEventAttributes.startedEventId
+    }
+    return nodeInfo
+  },
+  'ChildWorkflowExecutionStarted': function (node: node) {
+    const nodeInfo: nodeInfo = {
+      parent: node.childWorkflowExecutionStartedEventAttributes.initiatedEventId
+    }
+    return nodeInfo
+  },
+  'ChildWorkflowExecutionTerminated': function (node: node) {
     return node.eventId
   },
-  'ChildWorkflowExecutionFailed': function (node) {
+  'ChildWorkflowExecutionTimedOut': function (node: node) {
     return node.eventId
   },
-  'ChildWorkflowExecutionStarted': function (node) {
-    return node.eventId
-  },
-  'ChildWorkflowExecutionTerminated': function (node) {
-    return node.eventId
-  },
-  'ChildWorkflowExecutionTimedOut': function (node) {
-    return node.eventId
-  },
-  'DecisionTaskCompleted': function (node, workflow) {
+  'DecisionTaskCompleted': function (node: node, workflow) {
     const nodeInfo: nodeInfo = {
       parent: node.decisionTaskCompletedEventAttributes.startedEventId,
     }
     return nodeInfo
   },
-  'DecisionTaskFailed': function (node) {
+  'DecisionTaskFailed': function (node: node) {
     return node.eventId
   },
-  'DecisionTaskScheduled': function (node, workflow) {
+  'DecisionTaskScheduled': function (node: node, workflow) {
     //Special case: Decision task is started by an event before it, we call findInferredParents to find the parents
     let parentIds = findinferredParents(node, workflow)
     const nodeInfo: nodeInfo = {
@@ -85,117 +94,122 @@ let eventTypeMap = {
     }
     return nodeInfo
   },
-  'DecisionTaskStarted': function (node) {
+  'DecisionTaskStarted': function (node: node) {
     const nodeInfo: nodeInfo = {
       parent: node.decisionTaskStartedEventAttributes.scheduledEventId
     }
     return nodeInfo
   },
-  'DecisionTaskTimedOut': function (node) {
+  'DecisionTaskTimedOut': function (node: node) {
     return node.eventId
   },
-  'ExternalWorkflowExecutionCancelRequested': function (node) {
+  'ExternalWorkflowExecutionCancelRequested': function (node: node) {
     return node.eventId
   },
-  'ExternalWorkflowExecutionSignaled': function (node) {
+  'ExternalWorkflowExecutionSignaled': function (node: node) {
     return node.eventId
   },
-  'MarkerRecorded': function (node) {
+  'MarkerRecorded': function (node: node) {
     const nodeInfo: nodeInfo = {
       parent: node.markerRecordedEventAttributes.decisionTaskCompletedEventId
     }
     return nodeInfo
   },
-  'RequestCancelActivityTaskFailed': function (node) {
+  'RequestCancelActivityTaskFailed': function (node: node) {
     return node.eventId
   },
-  'RequestCancelExternalWorkflowExecutionFailed': function (node) {
+  'RequestCancelExternalWorkflowExecutionFailed': function (node: node) {
     return node.eventId
   },
-  'RequestCancelExternalWorkflowExecutionInitiated': function (node) {
+  'RequestCancelExternalWorkflowExecutionInitiated': function (node: node) {
     return node.eventId
   },
-  'SignalExternalWorkflowExecutionFailed': function (node) {
+  'SignalExternalWorkflowExecutionFailed': function (node: node) {
     return node.eventId
   },
-  'SignalExternalWorkflowExecutionInitiated': function (node) {
+  'SignalExternalWorkflowExecutionInitiated': function (node: node) {
     return node.eventId
   },
-  'StartChildWorkflowExecutionFailed': function (node) {
+  'StartChildWorkflowExecutionFailed': function (node: node) {
     return node.eventId
   },
-  'StartChildWorkflowExecutionInitiated': function (node) {
-    return node.eventId
+  'StartChildWorkflowExecutionInitiated': function (node: node) {
+    const nodeInfo: nodeInfo = {
+      parent: node.startChildWorkflowExecutionInitiatedEventAttributes.decisionTaskCompletedEventId
+    }
+    return nodeInfo
   },
-  'TimerCanceled': function (node) {
+  'TimerCanceled': function (node: node) {
     //TODO
     const nodeInfo: nodeInfo = {
       parent: node.timerStartedEventAttributes.decisionTaskCompletedEventId
     }
     return nodeInfo
   },
-  'TimerFired': function (node) {
+  'TimerFired': function (node: node) {
     const nodeInfo: nodeInfo = {
       parent: node.timerFiredEventAttributes.startedEventId
     }
     return nodeInfo
   },
-  'TimerStarted': function (node) {
+  'TimerStarted': function (node: node) {
     const nodeInfo: nodeInfo = {
       parent: node.timerStartedEventAttributes.decisionTaskCompletedEventId
     }
     return nodeInfo
   },
-  'UpsertWorkflowSearchAttributes': function (node) {
+  'UpsertWorkflowSearchAttributes': function (node: node) {
     const nodeInfo: nodeInfo = {
       parent: node.upsertWorkflowSearchAttributesEventAttributes.decisionTaskCompletedEventId
     }
     return nodeInfo
   },
-  'WorkflowExecutionCanceled': function (node) {
+  'WorkflowExecutionCanceled': function (node: node) {
     return node.eventId
   },
-  'WorkflowExecutionCancelRequested': function (node) {
+  'WorkflowExecutionCancelRequested': function (node: node) {
     return node.eventId
   },
-  'WorkflowExecutionCompleted': function (node) {
+  'WorkflowExecutionCompleted': function (node: node) {
     const nodeInfo: nodeInfo = {
       inferredParents: [node.eventId - 1]
     }
     return nodeInfo
   },
-  'WorkflowExecutionContinuedAsNew': function (node) {
+  'WorkflowExecutionContinuedAsNew': function (node: node) {
     const nodeInfo: nodeInfo = {
       parent: node.workflowExecutionContinuedAsNewEventAttributes.decisionTaskCompletedEventId
     }
     return nodeInfo
   },
-  'WorkflowExecutionFailed': function (node) {
+  'WorkflowExecutionFailed': function (node: node) {
     const nodeInfo: nodeInfo = {
       parent: node.workflowExecutionFailedEventAttributes.decisionTaskCompletedEventId
     }
     return nodeInfo
   },
-  'WorkflowExecutionSignaled': function (node) {
+  'WorkflowExecutionSignaled': function (node: node) {
+    //This node has no parent nor child
     const nodeInfo: nodeInfo = {}
     return nodeInfo
   },
-  'WorkflowExecutionTerminated': function (node) {
+  'WorkflowExecutionTerminated': function (node: node) {
     return node.eventId
   },
-  'WorkflowExecutionTimedOut': function (node) {
+  'WorkflowExecutionTimedOut': function (node: node) {
     return node.eventId
   },
 }
 
-function findinferredParents(node: object, workflow: object[]): number[] {
+function findinferredParents(node: node, workflow: workflow): number[] {
   let parentIds = [];
 
   //We only want to search the parents of the workflow, in reversed order to find the closests parents
   let slicedWorkflow = workflow.slice(0, node.eventId)
   let reversedWorkflow = slicedWorkflow.reverse()
 
-  for (let targetNode of reversedWorkflow) {
+  let targetNode: node;
+  for (targetNode of reversedWorkflow) {
     let eventType = targetNode.eventType
     switch (eventType) {
       case 'WorkflowExecutionSignaled':
@@ -206,6 +220,10 @@ function findinferredParents(node: object, workflow: object[]): number[] {
       case 'WorkflowExecutionStarted':
       case 'TimerFired':
       case 'ActivityTaskTimedOut':
+      case 'ActivityTaskFailed':
+      case 'ChildWorkflowExecutionStarted':
+      case 'ChildWorkflowExecutionCompleted':
+      case 'ChildWorkflowExecutionFailed':
         parentIds.push(targetNode.eventId)
         return parentIds
     }
