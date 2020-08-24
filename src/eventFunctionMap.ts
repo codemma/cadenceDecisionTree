@@ -340,6 +340,7 @@ function findInferredParents(node: node, workflow: workflow): number {
     let eventType = targetNode.eventType
     switch (eventType) {
       case 'WorkflowExecutionSignaled':
+      case 'ExternalWorkflowExecutionSignaled':
       case 'WorkflowExecutionCancelRequested':
         break
       default:

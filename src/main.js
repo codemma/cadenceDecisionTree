@@ -7,6 +7,9 @@ var g = new dagreD3.graphlib.Graph()
   .setGraph({ align: 'UR' })
   .setDefaultEdgeLabel(function () { return {}; }); //Neccessary to display arrows between nodes
 
+let workFlowMap = new Map(),
+  parentArray = [];
+
 buildTree()
 
 function buildTree() {
@@ -20,10 +23,45 @@ function buildTree() {
       hovertext: node.eventId
     });
   });
-  //Set edges between the nodes
+  //Set the strict parent child relationships.
   workflow.forEach(function (node) {
-    setEdge(node)
+    setParentChildMap(node)
   })
+  // const iterator1 = workFlowMap.entries();
+  console.log('finished parent array' + parentArray)
+  for (let [child, parent] of workFlowMap.entries()) {
+    // g.setEdge(parent, child)
+  }
+  workflow.forEach(function (node) {
+    setDanglingNodes(node)
+  })
+}
+
+
+function setDanglingNodes(node) {
+  //The nodes is NOT referenced as a direct or chron parent - it is dangling.
+  if (!parentArray.includes(node.eventId)) {
+    setEdge(node)
+  }
+}
+
+function setParentChildMap(node) {
+  let { parent, chronologicalParent } = getNodeInfo(node, workflow)
+  if (parent) {
+    parentArray.push(parent)
+    workFlowMap.set(node.eventId, parent)
+
+    g.setEdge(parent, node.eventId)
+  }
+  if (chronologicalParent) {
+    parentArray.push(chronologicalParent)
+    workFlowMap.set(node.eventId, chronologicalParent)
+
+    g.setEdge(chronologicalParent, node.eventId, {
+      style: "stroke: #00B2EE; stroke-width: 3px; stroke-dasharray: 5, 5;",
+      arrowheadStyle: "fill: #00B2EE"
+    })
+  }
 }
 
 function setEdge(node) {
@@ -32,9 +70,9 @@ function setEdge(node) {
 
   let { parent, inferredChild, chronologicalChild, chronologicalParent } = getNodeInfo(node, workflow)
 
-  if (parent) {
-    g.setEdge(parent, nodeId)
-  }
+  /*  if (parent) {
+     g.setEdge(parent, nodeId)
+   } */
   /*  if (inferredParents) {
      console.log(inferredParents)
      inferredParents.forEach(parentID =>
@@ -53,7 +91,7 @@ function setEdge(node) {
   if (chronologicalChild) {
     g.setEdge(nodeId, chronologicalChild, {
       style: "stroke: #00B2EE; stroke-width: 3px; stroke-dasharray: 5, 5;",
-      arrowheadStyle: "fill: #f66"
+      arrowheadStyle: "fill: #00B2EE"
     })
   }
   if (chronologicalParent) {
