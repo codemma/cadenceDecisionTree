@@ -28,25 +28,31 @@ function buildTree() {
 
 function setEdge(node) {
   let nodeId = node.eventId
-  if (nodeId == 1) return // always skip first node
+  //if (nodeId == 1) return // always skip first node
 
-  let { parent, child, inferredParents, chronologicalParent } = getNodeInfo(node, workflow)
+  let { parent, inferredChild, chronologicalChild, chronologicalParent } = getNodeInfo(node, workflow)
 
   if (parent) {
     g.setEdge(parent, nodeId)
   }
-  if (inferredParents) {
-    console.log(inferredParents)
-    inferredParents.forEach(parentID =>
-      g.setEdge(parentID, nodeId, {
-        style: "stroke: #f66; stroke-width: 3px; stroke-dasharray: 5, 5;",
-        arrowheadStyle: "fill: #f66"
-      })
-    )
-  }
-  if (child) {
-    g.setEdge(nodeId, child, {
+  /*  if (inferredParents) {
+     console.log(inferredParents)
+     inferredParents.forEach(parentID =>
+       g.setEdge(parentID, nodeId, {
+         style: "stroke: #f66; stroke-width: 3px; stroke-dasharray: 5, 5;",
+         arrowheadStyle: "fill: #f66"
+       })
+     )
+   } */
+  if (inferredChild) {
+    g.setEdge(nodeId, inferredChild, {
       style: "stroke: #f66; stroke-width: 3px; stroke-dasharray: 5, 5;",
+      arrowheadStyle: "fill: #f66"
+    })
+  }
+  if (chronologicalChild) {
+    g.setEdge(nodeId, chronologicalChild, {
+      style: "stroke: #00B2EE; stroke-width: 3px; stroke-dasharray: 5, 5;",
       arrowheadStyle: "fill: #f66"
     })
   }
