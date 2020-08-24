@@ -7,8 +7,7 @@ var g = new dagreD3.graphlib.Graph()
   .setGraph({ align: 'UL' })
   .setDefaultEdgeLabel(function () { return {}; }); //Neccessary to display arrows between nodes
 
-let workFlowMap = new Map(),
-  parentArray = [];
+let parentArray = [];
 
 buildTree()
 
