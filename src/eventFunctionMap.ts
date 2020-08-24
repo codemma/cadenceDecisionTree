@@ -13,15 +13,6 @@ var triggerActivities: string[] = [
   'WorkflowExecutionCancelRequested'
 ]
 
-var signalEvents: string[] = [
-  'ChildWorkflowExecutionStarted',
-  'ChildWorkflowExecutionCompleted',
-  'ChildWorkflowExecutionFailed',
-  'ExternalWorkflowExecutionSignaled',
-  'WorkflowExecutionSignaled'
-
-]
-
 function getNodeInfo(node: node, workflow: workflow) {
   return eventTypeMap[node.eventType](node, workflow)
 }
@@ -132,16 +123,10 @@ let eventTypeMap = {
     return node.eventId
   },
   'DecisionTaskScheduled': function (node: node, workflow: workflow) {
-    //Special case: Decision task is started by an event before it, we call findInferredParents to find the parents
-    let parentId = findInferredParents(node, workflow)
-    let chronologicalParent;
-    /* if (parentIds) {
-      console.log('chron parent', node.eventId, findChronolicalParents(node, workflow, parentIds))
-      chronologicalParent = findChronolicalParents(node, workflow, parentIds)
-    } */
+    //Special case: Decision task is always started by an event before it, we call findChronParents to find the parent
+    let parentId = findChronParent(node, workflow)
     const nodeInfo: nodeInfo = {
       chronologicalParent: parentId,
-      //chronologicalParent: chronologicalParent
     }
     return nodeInfo
   },
@@ -265,7 +250,6 @@ let eventTypeMap = {
   },
   'WorkflowExecutionSignaled': function (node: node, workflow: workflow) {
     let childId = findChild(node, workflow)
-    //This node has no parent nor child
     const nodeInfo: nodeInfo = {
       inferredChild: childId
     }
@@ -278,22 +262,6 @@ let eventTypeMap = {
     return node.eventId
   },
 }
-
-function findChronolicalParents(node: node, workflow: workflow, inferredParents: any): number {
-  let parentId;
-  //We only want to search the parents of the workflow, in reversed order to find the closests parents
-  let slicedWorkflow = workflow.slice(0, node.eventId - 1)
-  let reversedWorkflow = slicedWorkflow.reverse()
-
-  let targetNode: node;
-  for (targetNode of reversedWorkflow) {
-    if (!inferredParents.includes(targetNode.eventId)) {
-      return targetNode.eventId
-    }
-  }
-  return parentId
-}
-
 function findChronChild(node: node, workflow: workflow): number {
   let targetNodeId,
     slicedWorkflow = workflow.slice(node.eventId),
@@ -315,11 +283,7 @@ function findChild(node: node, workflow: workflow): number {
   let slicedWorkflow = workflow.slice(node.eventId)
   let targetNode: node;
   for (targetNode of slicedWorkflow) {
-    console.log('find child ', node.eventId, targetNode.eventType)
     if (triggerActivities.includes(targetNode.eventType)) {
-      console.log(
-        'found child'
-      )
       targetNodeId = targetNode.eventId
       return targetNodeId
     }
@@ -333,12 +297,13 @@ function findChild(node: node, workflow: workflow): number {
 
 
 
-function findInferredParents(node: node, workflow: workflow): number {
+function findChronParent(node: node, workflow: workflow): number {
   let parentIds;
   //We only want to search the parents of the workflow, in reversed order to find the closests parents
   let slicedWorkflow = workflow.slice(0, node.eventId - 1)
   let reversedWorkflow = slicedWorkflow.reverse()
 
+  //Signals are not chronological parents, skip them!
   let targetNode: node;
   for (targetNode of reversedWorkflow) {
     let eventType = targetNode.eventType

@@ -28,6 +28,8 @@ function buildTree() {
   workflow.forEach(function (node) {
     setParents(node)
   })
+
+  //Set the chronological and inferred child relationships
   workflow.forEach(function (node) {
     if (!parentArray.includes(node.eventId)) {
       setChildren(node)
