@@ -78,7 +78,7 @@ let eventTypeMap = {
   'ChildWorkflowExecutionCompleted': function (node: node, workflow: workflow) {
     let childId = findChild(node, workflow)
     const nodeInfo: nodeInfo = {
-      inferredParents: [node.childWorkflowExecutionCompletedEventAttributes.startedEventId],
+      parent: node.childWorkflowExecutionCompletedEventAttributes.startedEventId,
       child: childId
     }
     return nodeInfo
@@ -116,7 +116,7 @@ let eventTypeMap = {
   },
   'DecisionTaskScheduled': function (node: node, workflow: workflow) {
     //Special case: Decision task is started by an event before it, we call findInferredParents to find the parents
-    let parentId = findinferredParents(node, workflow)
+    let parentId = findInferredParents(node, workflow)
     let chronologicalParent;
     /* if (parentIds) {
       console.log('chron parent', node.eventId, findChronolicalParents(node, workflow, parentIds))
@@ -297,7 +297,7 @@ function findChild(node: node, workflow: workflow): number {
 
 
 
-function findinferredParents(node: node, workflow: workflow): number {
+function findInferredParents(node: node, workflow: workflow): number {
   let parentIds;
   //We only want to search the parents of the workflow, in reversed order to find the closests parents
   let slicedWorkflow = workflow.slice(0, node.eventId - 1)
