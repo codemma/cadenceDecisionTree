@@ -237,8 +237,12 @@ let eventTypeMap = {
     }
     return nodeInfo
   },
-  'WorkflowExecutionCancelRequested': function (node: node) {
-    const nodeInfo: nodeInfo = {}
+  'WorkflowExecutionCancelRequested': function (node: node, workflow: workflow) {
+    let childId = findChild(node, workflow)
+    //This node has no parent nor child
+    const nodeInfo: nodeInfo = {
+      inferredChild: childId
+    }
     return nodeInfo
   },
   'WorkflowExecutionCompleted': function (node: node) {
