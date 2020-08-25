@@ -1,5 +1,6 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+let VueLoaderPlugin = require('vue-loader/lib/plugin')
 
 module.exports = {
   entry: './src/main.js',
@@ -11,6 +12,7 @@ module.exports = {
     contentBase: './dist'
   },
   plugins: [
+    new VueLoaderPlugin(),
     new HtmlWebpackPlugin({
       filename: 'index.html',
       template: './src/index.html'
@@ -18,6 +20,7 @@ module.exports = {
   ],
   module: {
     rules: [
+      { test: /\.vue$/, use: 'vue-loader' },
       {
         test: /\.js$/, //using regex to tell babel exactly what files to transcompile
         exclude: /node_modules/, // files to be ignored

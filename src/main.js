@@ -3,6 +3,12 @@ import { getNodeInfo } from './eventFunctionMap.ts';
 
 var nodeTemplate = Handlebars.compile($('#node-template').html());
 
+import CustomArticle from './CustomArticle.vue';
+new Vue({
+  el: '#vue-test',
+  render: h => h(CustomArticle),
+})
+
 var g = new dagreD3.graphlib.Graph()
   .setGraph({ align: 'UL' })
   .setDefaultEdgeLabel(function () { return {}; }); //Neccessary to display arrows between nodes
