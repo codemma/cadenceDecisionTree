@@ -25,10 +25,16 @@ let eventTypeMap = {
     return nodeInfo
   },
   'ActivityTaskCanceled': function (node: node) {
-    return node.eventId;
+    const nodeInfo: nodeInfo = {
+      parent: node.activityTaskCanceledEventAttributes.startedEventId,
+    }
+    return nodeInfo
   },
   'ActivityTaskCancelRequested': function (node: node) {
-    return node.eventId;
+    const nodeInfo: nodeInfo = {
+      parent: node.activityTaskCancelRequestedEventAttributes.decisionTaskCompletedEventId,
+    }
+    return nodeInfo
   },
   'ActivityTaskCompleted': function (node: node, workflow: workflow) {
     let childId = findChronChild(node, workflow)
@@ -73,7 +79,10 @@ let eventTypeMap = {
     return nodeInfo
   },
   'CancelTimerFailed': function (node: node) {
-    return node.eventId
+    const nodeInfo: nodeInfo = {
+      parent: node.cancelTimerFailedEventAttributes.decisionTaskCompletedEventId,
+    }
+    return nodeInfo
   },
   'ChildWorkflowExecutionCanceled': function (node: node) {
     const nodeInfo: nodeInfo = {
@@ -106,10 +115,16 @@ let eventTypeMap = {
     return nodeInfo
   },
   'ChildWorkflowExecutionTerminated': function (node: node) {
-    return node.eventId
+    const nodeInfo: nodeInfo = {
+      parent: node.childWorkflowExecutionTerminatedEventAttributes.startedEventId
+    }
+    return nodeInfo
   },
   'ChildWorkflowExecutionTimedOut': function (node: node) {
-    return node.eventId
+    const nodeInfo: nodeInfo = {
+      parent: node.childWorkflowExecutionTimedOutEventAttributes.startedEventId
+    }
+    return nodeInfo
   },
   'DecisionTaskCompleted': function (node: node, workflow: workflow) {
     let childId = findChronChild(node, workflow)
@@ -120,7 +135,10 @@ let eventTypeMap = {
     return nodeInfo
   },
   'DecisionTaskFailed': function (node: node) {
-    return node.eventId
+    const nodeInfo: nodeInfo = {
+      parent: node.decisionTaskFailedEventAttributes.startedEventId,
+    }
+    return nodeInfo
   },
   'DecisionTaskScheduled': function (node: node, workflow: workflow) {
     //Special case: Decision task is always started by an event before it, we call findChronParents to find the parent
@@ -150,9 +168,11 @@ let eventTypeMap = {
     }
     return nodeInfo
   },
-  'ExternalWorkflowExecutionSignaled': function (node: node) {
+  'ExternalWorkflowExecutionSignaled': function (node: node, workflow: workflow) {
+    let childId = findChild(node, workflow);
     const nodeInfo: nodeInfo = {
-      parent: node.externalWorkflowExecutionSignaledEventAttributes.initiatedEventId
+      parent: node.externalWorkflowExecutionSignaledEventAttributes.initiatedEventId,
+      inferredChild: childId
     }
     return nodeInfo
   },
@@ -163,10 +183,16 @@ let eventTypeMap = {
     return nodeInfo
   },
   'RequestCancelActivityTaskFailed': function (node: node) {
-    return node.eventId
+    const nodeInfo: nodeInfo = {
+      parent: node.requestCancelActivityTaskFailedEventAttributes.decisionTaskCompletedEventId
+    }
+    return nodeInfo
   },
   'RequestCancelExternalWorkflowExecutionFailed': function (node: node) {
-    return node.eventId
+    const nodeInfo: nodeInfo = {
+      parent: node.requestCancelExternalWorkflowExecutionFailed.decisionTaskCompletedEventId
+    }
+    return nodeInfo
   },
   'RequestCancelExternalWorkflowExecutionInitiated': function (node: node) {
     const nodeInfo: nodeInfo = {
@@ -175,7 +201,10 @@ let eventTypeMap = {
     return nodeInfo
   },
   'SignalExternalWorkflowExecutionFailed': function (node: node) {
-    return node.eventId
+    const nodeInfo: nodeInfo = {
+      parent: node.signalExternalWorkflowExecutionFailedEventAttributes.decisionTaskCompletedEventId
+    }
+    return nodeInfo
   },
   'SignalExternalWorkflowExecutionInitiated': function (node: node) {
     const nodeInfo: nodeInfo = {
@@ -184,7 +213,10 @@ let eventTypeMap = {
     return nodeInfo
   },
   'StartChildWorkflowExecutionFailed': function (node: node) {
-    return node.eventId
+    const nodeInfo: nodeInfo = {
+      parent: node.startChildWorkflowExecutionFailedEventAttributes.decisionTaskCompletedEventId
+    }
+    return nodeInfo
   },
   'StartChildWorkflowExecutionInitiated': function (node: node) {
     const nodeInfo: nodeInfo = {
@@ -259,10 +291,18 @@ let eventTypeMap = {
     return nodeInfo
   },
   'WorkflowExecutionTerminated': function (node: node) {
-    return node.eventId
+    //TODO - not sure how to implement.
+    const nodeInfo: nodeInfo = {
+      parent: node.eventId - 1
+    }
+    return nodeInfo
   },
   'WorkflowExecutionTimedOut': function (node: node) {
-    return node.eventId
+    //TODO - not sure how to implement.
+    const nodeInfo: nodeInfo = {
+      parent: node.eventId - 1
+    }
+    return nodeInfo
   },
 }
 function findChronChild(node: node, workflow: workflow): number {
