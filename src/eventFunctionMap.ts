@@ -1,26 +1,13 @@
 import { nodeInfo, node, workflow } from "./nodeInterface";
 
-var triggerActivities: string[] = [
-  'TimerFired',
-  'ActivityTaskCompleted',
-  'WorkflowExecutionStarted',
-  'ActivityTaskTimedOut',
-  'ActivityTaskFailed',
-  'ActivityTaskCompleted',
-  'ChildWorkflowExecutionStarted',
-  'ChildWorkflowExecutionCompleted',
-  'ChildWorkflowExecutionFailed',
-  'WorkflowExecutionCancelRequested'
-]
-
 function getNodeInfo(node: node, workflow: workflow) {
   return eventTypeMap[node.eventType](node, workflow)
 }
 let eventTypeMap = {
   'WorkflowExecutionStarted': function (node: node, workflow: workflow) {
-    let childId = findChild(node, workflow);
+    let { inferredChild } = findChild(node, workflow);
     const nodeInfo: nodeInfo = {
-      chronologicalChild: childId
+      inferredChild: inferredChild
     }
     return nodeInfo
   },
@@ -37,24 +24,21 @@ let eventTypeMap = {
     return nodeInfo
   },
   'ActivityTaskCompleted': function (node: node, workflow: workflow) {
-    let childId = findChronChild(node, workflow)
-    //console.log('chron child' + findChronChild(node, workflow))
-    /*  let childId = findChild(node, workflow)
-     if (!childId) {
-       childId = node.eventId + 1;
-     } */
+    let { inferredChild, chronologicalChild } = findChild(node, workflow);
     const nodeInfo: nodeInfo = {
       parent: node.activityTaskCompletedEventAttributes.startedEventId,
-      chronologicalChild: childId
+      chronologicalChild: chronologicalChild,
+      inferredChild: inferredChild
     }
     return nodeInfo
   },
 
   'ActivityTaskFailed': function (node: node, workflow: workflow) {
-    let childId = findChild(node, workflow)
+    let { inferredChild, chronologicalChild } = findChild(node, workflow);
     const nodeInfo: nodeInfo = {
       parent: node.activityTaskFailedEventAttributes.startedEventId,
-      chronologicalChild: childId
+      chronologicalChild: chronologicalChild,
+      inferredChild: inferredChild
     }
     return nodeInfo
   },
@@ -71,10 +55,11 @@ let eventTypeMap = {
     return nodeInfo
   },
   'ActivityTaskTimedOut': function (node: node, workflow: workflow) {
-    let childId = findChild(node, workflow)
+    let { inferredChild, chronologicalChild } = findChild(node, workflow);
     const nodeInfo: nodeInfo = {
       parent: node.activityTaskTimedOutEventAttributes.startedEventId,
-      chronologicalChild: childId
+      chronologicalChild: chronologicalChild,
+      inferredChild: inferredChild
     }
     return nodeInfo
   },
@@ -91,26 +76,29 @@ let eventTypeMap = {
     return nodeInfo
   },
   'ChildWorkflowExecutionCompleted': function (node: node, workflow: workflow) {
-    let childId = findChild(node, workflow)
+    let { inferredChild, chronologicalChild } = findChild(node, workflow);
     const nodeInfo: nodeInfo = {
       parent: node.childWorkflowExecutionCompletedEventAttributes.startedEventId,
-      inferredChild: childId
+      inferredChild: inferredChild,
+      chronologicalChild: chronologicalChild
     }
     return nodeInfo
   },
   'ChildWorkflowExecutionFailed': function (node: node, workflow: workflow) {
-    let childId = findChild(node, workflow)
+    let { inferredChild, chronologicalChild } = findChild(node, workflow);
     const nodeInfo: nodeInfo = {
       parent: node.childWorkflowExecutionFailedEventAttributes.startedEventId,
-      inferredChild: childId
+      inferredChild: inferredChild,
+      chronologicalChild: chronologicalChild
     }
     return nodeInfo
   },
   'ChildWorkflowExecutionStarted': function (node: node, workflow: workflow) {
-    let childId = findChild(node, workflow)
+    let { inferredChild, chronologicalChild } = findChild(node, workflow);
     const nodeInfo: nodeInfo = {
       parent: node.childWorkflowExecutionStartedEventAttributes.initiatedEventId,
-      inferredChild: childId
+      inferredChild: inferredChild,
+      chronologicalChild: chronologicalChild
     }
     return nodeInfo
   },
@@ -127,10 +115,10 @@ let eventTypeMap = {
     return nodeInfo
   },
   'DecisionTaskCompleted': function (node: node, workflow: workflow) {
-    let childId = findChronChild(node, workflow)
+    let { chronologicalChild } = findChild(node, workflow);
     const nodeInfo: nodeInfo = {
       parent: node.decisionTaskCompletedEventAttributes.startedEventId,
-      chronologicalChild: childId
+      chronologicalChild: chronologicalChild
     }
     return nodeInfo
   },
@@ -161,18 +149,19 @@ let eventTypeMap = {
     return nodeInfo
   },
   'ExternalWorkflowExecutionCancelRequested': function (node: node, workflow: workflow) {
-    let childId = findChild(node, workflow)
+    let { inferredChild, chronologicalChild } = findChild(node, workflow);
     const nodeInfo: nodeInfo = {
       parent: node.externalWorkflowExecutionCancelRequestedEventAttributes.initiatedEventId,
-      inferredChild: childId
+      inferredChild: inferredChild,
+      chronologicalChild: chronologicalChild
     }
     return nodeInfo
   },
   'ExternalWorkflowExecutionSignaled': function (node: node, workflow: workflow) {
-    let childId = findChild(node, workflow);
+    let { inferredChild } = findChild(node, workflow);
     const nodeInfo: nodeInfo = {
       parent: node.externalWorkflowExecutionSignaledEventAttributes.initiatedEventId,
-      inferredChild: childId
+      inferredChild: inferredChild
     }
     return nodeInfo
   },
@@ -232,10 +221,10 @@ let eventTypeMap = {
     return nodeInfo
   },
   'TimerFired': function (node: node, workflow: workflow) {
-    let childId = findChild(node, workflow)
+    let { inferredChild, chronologicalChild } = findChild(node, workflow);
     const nodeInfo: nodeInfo = {
       parent: node.timerFiredEventAttributes.startedEventId,
-      inferredChild: childId
+      inferredChild: inferredChild
     }
     return nodeInfo
   },
@@ -258,10 +247,10 @@ let eventTypeMap = {
     return nodeInfo
   },
   'WorkflowExecutionCancelRequested': function (node: node, workflow: workflow) {
-    let childId = findChild(node, workflow)
+    let { inferredChild, chronologicalChild } = findChild(node, workflow);
     //This node has no parent nor child
     const nodeInfo: nodeInfo = {
-      inferredChild: childId
+      inferredChild: inferredChild
     }
     return nodeInfo
   },
@@ -284,9 +273,9 @@ let eventTypeMap = {
     return nodeInfo
   },
   'WorkflowExecutionSignaled': function (node: node, workflow: workflow) {
-    let childId = findChild(node, workflow)
+    let { inferredChild } = findChild(node, workflow);
     const nodeInfo: nodeInfo = {
-      inferredChild: childId
+      inferredChild: inferredChild
     }
     return nodeInfo
   },
@@ -305,40 +294,35 @@ let eventTypeMap = {
     return nodeInfo
   },
 }
-function findChronChild(node: node, workflow: workflow): number {
+
+
+//Looks for a chronological or inferred child
+//It is inferred if a DecisionTaskScheduled, otherwise its chronological
+//External signals are not children and therefore they are skipped
+function findChild(node: node, workflow: workflow): nodeInfo {
   let targetNodeId,
     slicedWorkflow = workflow.slice(node.eventId),
+    nodeInformation: nodeInfo,
     targetNode: node;
   for (targetNode of slicedWorkflow) {
     switch (targetNode.eventType) {
       case 'WorkflowExecutionSignaled':
       case 'WorkflowExecutionCancelRequested':
         break
+      case 'DecisionTaskScheduled':
+        nodeInformation = {
+          inferredChild: targetNode.eventId
+        }
+        return nodeInformation
       default:
-        return targetNode.eventId
+        nodeInformation = {
+          chronologicalChild: targetNode.eventId
+        }
+        return nodeInformation
     }
   }
   return targetNodeId
 }
-
-function findChild(node: node, workflow: workflow): number {
-  let targetNodeId
-  let slicedWorkflow = workflow.slice(node.eventId)
-  let targetNode: node;
-  for (targetNode of slicedWorkflow) {
-    if (triggerActivities.includes(targetNode.eventType)) {
-      targetNodeId = targetNode.eventId
-      return targetNodeId
-    }
-    else if (targetNode.eventType === 'DecisionTaskScheduled') {
-      targetNodeId = targetNode.eventId
-      return targetNodeId
-    }
-  }
-  return targetNodeId
-}
-
-
 
 function findChronParent(node: node, workflow: workflow): number {
   let parentIds;
