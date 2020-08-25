@@ -1,4 +1,4 @@
-import * as workflow from '../data/signal-and-children';
+import * as workflow from '../data/decision-task-timeout';
 import { getNodeInfo } from './eventFunctionMap.ts';
 
 var nodeTemplate = Handlebars.compile($('#node-template').html());

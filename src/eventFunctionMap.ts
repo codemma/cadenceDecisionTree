@@ -137,7 +137,10 @@ let eventTypeMap = {
     return nodeInfo
   },
   'DecisionTaskTimedOut': function (node: node) {
-    return node.eventId
+    const nodeInfo: nodeInfo = {
+      parent: node.decisionTaskTimedOutEventAttributes.scheduledEventId
+    }
+    return nodeInfo
   },
   'ExternalWorkflowExecutionCancelRequested': function (node: node, workflow: workflow) {
     let childId = findChild(node, workflow)
