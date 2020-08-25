@@ -1,24 +1,18 @@
-import * as workflow from '../data/unknown-large.json';
-
+import * as workflow from '../data/signal-and-children';
+import { getNodeInfo } from './eventFunctionMap.ts';
 
 var nodeTemplate = Handlebars.compile($('#node-template').html());
 
 var g = new dagreD3.graphlib.Graph()
-  .setGraph({ align: 'DR' })
+  .setGraph({ align: 'UL' })
   .setDefaultEdgeLabel(function () { return {}; }); //Neccessary to display arrows between nodes
 
-//Create a map to store parent and child eventID's as key value pairs.
-// The first workflow node will never have a parent - we set it to 0 in the map
-let parentMap = new Map();
-parentMap.set(1, 0)
-
-//Helper function to check if map contains a value
-let mapContainsValue = (map, val) => [...map.values()].includes(val)
+let parentArray = [];
 
 buildTree()
 
 function buildTree() {
-  //Create nodes and set their parents in map
+  //Create nodes to render with Dagre D3
   workflow.forEach(function (node) {
     g.setNode(node.eventId, {
       label: nodeTemplate({ label: node.eventType }),
@@ -27,55 +21,55 @@ function buildTree() {
       class: [node.type],
       hovertext: node.eventId
     });
-    setParent(node)
   });
 
-  //Set edges between the nodes
+  //Set the direct and chronological parent relationships
   workflow.forEach(function (node) {
-    if (node.eventId === 1) return;
-    setEdge(node)
+    setParents(node)
+  })
+
+  //Set the chronological and inferred child relationships
+  workflow.forEach(function (node) {
+    if (!parentArray.includes(node.eventId)) {
+      setChildren(node)
+    }
   })
 }
 
-function setEdge(node) {
-  let parentId = parentMap.get(node.eventId)
-  let nodeId = node.eventId
-  //Edge case when a childworkflow returns a signal, it has two parents.
-  if (node.eventType === 'ChildWorkflowExecutionCompleted') {
-    g.setEdge(nodeId - 1, nodeId)
+function setParents(node) {
+  let nodeId = node.eventId,
+    { parent, chronologicalParent } = getNodeInfo(node, workflow)
+  if (parent) {
+    parentArray.push(parent)
+    g.setEdge(parent, nodeId)
   }
-  //Edge case when an event has no children, but should be linked back to the workflow
-  if (!mapContainsValue(parentMap, nodeId) && nodeId != parentMap.size) {
-    g.setEdge(nodeId, nodeId + 1)
+  if (chronologicalParent) {
+    parentArray.push(chronologicalParent)
+    g.setEdge(chronologicalParent, nodeId, {
+      style: "stroke: #00B2EE; stroke-width: 3px; stroke-dasharray: 5, 5;",
+      arrowheadStyle: "fill: #00B2EE"
+    })
   }
-  g.setEdge(parentId, nodeId)
 }
 
-function setParent(node) {
-  // Skip first workflow node
-  if (node.eventId === 1) return;
-  let parentId = findParentId(node)
-  if (parentId) parentMap.set(node.eventId, parentId)
-  //No parent ID => linked event to the one before it.
-  else parentMap.set(node.eventId, node.eventId - 1)
-}
-function findParentId(node) {
-  let parentId;
-  //Get the object which contains 'EventAttributes' - has information about parent node
-  let nodeKeys = Object.keys(node)
-  let eventAttrKey = nodeKeys.filter(cls => cls.includes('EventAttributes'))
-  let eventAttrObj = node[eventAttrKey]
-  //Get an array of all  keys to object which contains 'EventID' (can be several)
-  let eventKeys = Object.keys(eventAttrObj)
-  let relativeKeys = eventKeys.filter(cls => cls.includes('EventId'))
+function setChildren(node) {
+  let nodeId = node.eventId,
+    { inferredChild, chronologicalChild } = getNodeInfo(node, workflow)
 
-  if (relativeKeys.length != 0) {
-    parentId = relativeKeys.reduce((max, p) =>
-      eventAttrObj[p] > max ? eventAttrObj[p]
-        : max, eventAttrObj[relativeKeys[0]]);
+  if (inferredChild) {
+    g.setEdge(nodeId, inferredChild, {
+      style: "stroke: #f66; stroke-width: 3px; stroke-dasharray: 5, 5;",
+      arrowheadStyle: "fill: #f66"
+    })
   }
-  return parentId
+  if (chronologicalChild) {
+    g.setEdge(nodeId, chronologicalChild, {
+      style: "stroke: #00B2EE; stroke-width: 3px; stroke-dasharray: 5, 5;",
+      arrowheadStyle: "fill: #00B2EE"
+    })
+  }
 }
+
 g.nodes().forEach(function (v) {
   var node = g.node(v);
   // Round the corners of the nodes

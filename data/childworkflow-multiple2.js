@@ -1,4 +1,4 @@
-[
+module.exports = [
   {
     "eventId": 1,
     "timestamp": 1597067658492397004,
