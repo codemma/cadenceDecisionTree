@@ -3,10 +3,10 @@ import { getNodeInfo } from './eventFunctionMap.ts';
 
 var nodeTemplate = Handlebars.compile($('#node-template').html());
 
-import CustomArticle from './CustomArticle.vue';
+import TestComponent from './TestComponent.vue';
 new Vue({
   el: '#vue-test',
-  render: h => h(CustomArticle),
+  render: h => h(TestComponent),
 })
 
 var g = new dagreD3.graphlib.Graph()
