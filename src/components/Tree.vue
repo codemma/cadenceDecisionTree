@@ -25,9 +25,8 @@ export default {
     this.loadWorkflow();
     this.createGraph();
     this.buildTree();
-    this.render();
   },
-  data: function () {
+  data() {
     return {
       workflow: {},
       graph: {},
@@ -44,18 +43,16 @@ export default {
         });
     },
     loadWorkflow(index) {
-      this.workflow = require("../data/marker-event");
+      this.workflow = require("../data/parent_workflow");
     },
-
     buildTree() {
       var self = this;
       //Create nodes to render with Dagre D3
       this.workflow.forEach(function (node) {
         self.graph.setNode(node.eventId, {
           label: node.eventType,
-          class: [node.type],
+          class: node.eventType,
           id: node.eventId,
-          class: [node.type],
           hovertext: node.eventId,
         });
       });
@@ -71,6 +68,8 @@ export default {
           self.setChildren(node);
         }
       });
+
+      this.renderGraph();
     },
     setParents(node) {
       let nodeId = node.eventId,
@@ -87,7 +86,6 @@ export default {
         });
       }
     },
-
     setChildren(node) {
       let nodeId = node.eventId,
         { inferredChild, chronologicalChild } = getNodeInfo(
@@ -109,7 +107,7 @@ export default {
       }
     },
 
-    render() {
+    renderGraph() {
       var self = this;
 
       this.graph.nodes().forEach(function (v) {
@@ -134,6 +132,13 @@ export default {
       // Run the renderer. This is what draws the final graph.
       render(inner, this.graph);
 
+      //Add click on childNode
+      inner
+        .selectAll(".ChildWorkflowExecutionStarted")
+        .on("click", function (d) {
+          console.log("clicked" + d);
+        });
+
       //Select all nodes and add click event
       //ALso trying out mouseover and mouseout
       inner
@@ -142,10 +147,10 @@ export default {
         .attr("data-hovertext", function (v) {
           return self.graph.node(v).hovertext;
         })
-        .on("click", function () {
+        /*  .on("click", function () {
           //Show tooltip
           d3.select("#tooltip").classed("hidden", false);
-        })
+        }) */
         .on("mousemove", function (d) {
           d3.select("#tooltip")
             .style("left", event.pageX - 10 + "px")
@@ -156,7 +161,6 @@ export default {
         .on("mouseout", function () {
           d3.select("#tooltip").classed("hidden", true);
         });
-      //svg.attr("height", g.graph().height + 50);
     },
   },
   computed: {},
