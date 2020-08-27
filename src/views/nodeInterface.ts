@@ -10,6 +10,10 @@ interface workflow {
   [index: number]: node
 }
 
+interface eventTypeMap {
+  [key: string]: any;
+}
+
 interface node {
   eventType: string;
   eventId: number;
@@ -18,4 +22,4 @@ interface node {
 
 interface workflow extends Array<node> { }
 
-export { nodeInfo, node, workflow };
+export { nodeInfo, node, workflow, eventTypeMap };

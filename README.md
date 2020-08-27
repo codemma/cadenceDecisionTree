@@ -1,13 +1,19 @@
-# cadenceDecisionTree
+# cadencegraph
 
-To run project:
-
+## Project setup
+```
 npm install
+```
 
-then:
+### Compiles and hot-reloads for development
+```
+npm run serve
+```
 
-npm run dev           //running dev script.<br/> 
-npm run build       //running build script.<br/> 
-npm run start       //running Start script.<br/> 
+### Compiles and minifies for production
+```
+npm run build
+```
 
-
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).

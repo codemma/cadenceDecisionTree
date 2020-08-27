@@ -1,6 +1,5 @@
 <template>
   <div class="tree">
-    <div class="test"></div>
     <svg id="canvas" width="100%" height="100%" style="border: 1px solid black;">
       <g />
     </svg>
@@ -155,15 +154,16 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="stylus">
 div.tree {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
+  height: 100%;
 }
 
-g.Decision-Task > rect {
+g.Decision-Task>rect {
   fill: #00ffd0;
 }
 
@@ -174,10 +174,10 @@ g.Decision-Task > rect {
   height: auto;
   padding: 20px;
   background-color: #fff;
-  border: "solid";
-  border-width: "2px";
-  border-radius: "5px";
-  padding: "5px";
+  border: 'solid';
+  border-width: '2px';
+  border-radius: '5px';
+  padding: '5px';
   box-shadow: 4px 4px 10px rgba(156, 156, 156, 0.4);
   pointer-events: none;
 }
@@ -193,15 +193,9 @@ g.Decision-Task > rect {
   line-height: 20px;
 }
 
-.test {
-  width: 100px;
-  height: 100px;
-  color: red;
-}
-
 text {
   font-weight: 300;
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serf;
   font-size: 14px;
 }
 
@@ -217,8 +211,19 @@ text {
   stroke-width: 1.5px;
 }
 
-.edgePath path {
+.edgePath path.path {
   stroke: #333;
   stroke-width: 1.5px;
+  fill: none;
 }
+
+/* #tooltip_template {
+  position: "absolute";
+  background-color: "white";
+  border: "solid";
+  border-width: "2px";
+  border-radius: "5px";
+  padding: "5px";
+  z-index: "1000";
+} */
 </style>
