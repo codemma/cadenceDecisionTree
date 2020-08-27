@@ -6,5 +6,7 @@ import Vue from "vue";
 import App from "./Tree.vue";
 
 new Vue({
-  render: h => h(App)
+  render: h => h(App),
+  template: '<App/>',
 }).$mount("#app");
+

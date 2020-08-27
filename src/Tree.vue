@@ -1,5 +1,6 @@
 <template>
   <div class="tree">
+    <div class="test"></div>
     <svg id="canvas" width="100%" height="100%" style="border: 1px solid black;">
       <g />
     </svg>
@@ -109,9 +110,8 @@ export default {
       });
 
       // Set up an SVG group so that we can translate the final graph.
-      var svg = d3.select("svg"),
-        inner = svg.select("g"),
-        innerInner = inner.selectAll(".node");
+      var svg = d3.select("#canvas"),
+        inner = svg.select("g");
       // Create the renderer
       var render = new dagreD3.render();
 
@@ -156,6 +156,17 @@ export default {
 </script>
 
 <style lang="scss">
+div.tree {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+g.Decision-Task > rect {
+  fill: #00ffd0;
+}
+
 #tooltip {
   position: absolute;
   border: 2px solid #999;
@@ -182,6 +193,12 @@ export default {
   line-height: 20px;
 }
 
+.test {
+  width: 100px;
+  height: 100px;
+  color: red;
+}
+
 text {
   font-weight: 300;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serf;
@@ -200,9 +217,8 @@ text {
   stroke-width: 1.5px;
 }
 
-.edgePath path.path {
+.edgePath path {
   stroke: #333;
   stroke-width: 1.5px;
-  fill: none;
 }
 </style>

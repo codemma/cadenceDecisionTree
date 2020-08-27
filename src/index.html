@@ -1,46 +1,8 @@
-<html>
-<div id="inget">
-  <h1>D3js + Dagre - click on nodes to display more info, panning and zoomin is enabled</h1>
-  <div id="app"></div>
-
-  <body>
-    <svg id="canvas" width="800" height="600" style="border: 1px solid black;">
-      <g></g>
-    </svg>
-
-    <div id="tooltip" class="hidden">
-      <p><strong>Event information</strong></p>
-      <p><span id="info"></span></p>
-    </div>
-
+<h1>D3js + Dagre - click on nodes to display more info, panning and zoomin is enabled</h1>
+<div id="app">
 </div>
 
-<script type="text/x-template" id="node-template">
-	<b >{{label}}</b>
-</script>
-<script type="text/x-template" id="arc-template-detail">
-  <table class="arc-information">
-   <thead>
-     <tr>
-       <th>{{svgId}}</th>
-     </tr>
-   </thead>
-   <tbody>
-     <tr>
-       <td>{{source}} - {{target}}</td>
-     </tr>
-     <tr>
-       <td>{{label}}</td>
-     </tr>
-     <tr>
-       <td><button v-on:click="showDetail()">details</button></td>
-     </tr>
-   </tbody>
- </table>
-</script>
-
-
-<style>
+<style scoped>
   g.Decision-Task>rect {
     fill: #00ffd0;
   }
@@ -89,23 +51,8 @@
     stroke-width: 1.5px;
   }
 
-  .edgePath path.path {
+  .edgePath path {
     stroke: #333;
     stroke-width: 1.5px;
-    fill: none;
   }
-
-  /*  #tooltip_template {
-    position: "absolute";
-    background-color: "white";
-    border: "solid";
-    border-width: "2px";
-    border-radius: "5px";
-    padding: "5px";
-    z-index: "1000";
-  } */
 </style>
-
-</body>
-
-</html>
