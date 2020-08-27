@@ -19,8 +19,23 @@ import * as d3 from "d3";
 import dagreD3 from "dagre-d3";
 //import * as workflow from "../data/marker-event";
 import { getNodeInfo } from "../eventFunctionMap.ts";
+import router from "../router";
 export default {
-  props: ["runId", "workflowId"],
+  props: {
+    runId: {
+      type: String,
+      required: true,
+    },
+  },
+  watch: {
+    runId: function (newVal, oldVal) {
+      // watch it
+      console.log("Prop changed: ", newVal, " | was: ", oldVal);
+      this.loadWorkflow();
+      this.createGraph();
+      this.buildTree();
+    },
+  },
   mounted() {
     this.loadWorkflow();
     this.createGraph();
@@ -34,6 +49,12 @@ export default {
     };
   },
 
+  updated() {
+    this.loadWorkflow();
+    this.createGraph();
+    this.buildTree();
+  },
+
   methods: {
     createGraph() {
       this.graph = new dagreD3.graphlib.Graph()
@@ -43,7 +64,7 @@ export default {
         });
     },
     loadWorkflow(index) {
-      this.workflow = require("../data/parent_workflow");
+      this.workflow = require("../data/" + this.runId + ".js");
     },
     buildTree() {
       var self = this;
@@ -136,6 +157,11 @@ export default {
       inner
         .selectAll(".ChildWorkflowExecutionStarted")
         .on("click", function (d) {
+          router.push({ path: "/tree/a783dad6-7225-4a0c-838d-65f6d6ba1472" });
+          /* this.$route.push({
+            name: "/",
+            params: { runId: "a783dad6-7225-4a0c-838d-65f6d6ba1472" },
+          }); */
           console.log("clicked" + d);
         });
 
@@ -147,10 +173,10 @@ export default {
         .attr("data-hovertext", function (v) {
           return self.graph.node(v).hovertext;
         })
-        /*  .on("click", function () {
+        .on("dblclick", function () {
           //Show tooltip
           d3.select("#tooltip").classed("hidden", false);
-        }) */
+        })
         .on("mousemove", function (d) {
           d3.select("#tooltip")
             .style("left", event.pageX - 10 + "px")

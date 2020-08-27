@@ -7,7 +7,13 @@ Vue.use(VueRouter)
 const routes: Array<RouteConfig> = [
   {
     path: '/',
+    name: 'Home',
+    component: () => import(/* webpackChunkName: "about" */ '../views/Home.vue')
+  },
+  {
+    path: '/tree/:runId',
     name: 'Tree',
+    props: true,
     component: Tree
   },
   {
