@@ -17,19 +17,106 @@
 <script>
 import * as d3 from "d3";
 import dagreD3 from "dagre-d3";
-import * as workflow from "../data/data";
+import * as workflow from "../data/marker-event";
 import { getNodeInfo } from "../eventFunctionMap.ts";
 export default {
+  props: ["runId", "workflowId"],
   mounted() {
+    //this.getJsonFile();
+    this.saveItem();
+    this.buildTree();
     this.render();
   },
-  data() {
+  data: function () {
     return {
       workflow,
+      graph: {},
+      parentArray: [],
     };
   },
+
   methods: {
+    saveItem() {
+      console.log("ehllo" + this.graphic);
+      var g = new dagreD3.graphlib.Graph()
+        .setGraph({ align: "UL" })
+        .setDefaultEdgeLabel(function () {
+          return {};
+        }); //Neccessary to display arrows between nodes
+      this.graph = g;
+    },
+    updateData() {
+      import("../data/data.json").then((data) => {
+        this.workflow = data;
+      });
+      //this.workflow = "hello";
+    },
+    /* getJsonFile(index) {
+      this.workflow = require("../data/marker-event");
+    }, */
+
+    buildTree() {
+      var self = this;
+      //Create nodes to render with Dagre D3
+      workflow.forEach(function (node) {
+        self.graph.setNode(node.eventId, {
+          label: node.eventType,
+          class: [node.type],
+          id: node.eventId,
+          class: [node.type],
+          hovertext: node.eventId,
+        });
+      });
+
+      //Set the direct and chronological parent relationships
+      workflow.forEach(function (node) {
+        self.setParents(node);
+      });
+
+      //Set the chronological and inferred child relationships
+      workflow.forEach(function (node) {
+        if (!self.parentArray.includes(node.eventId)) {
+          self.setChildren(node);
+        }
+      });
+    },
+    setParents(node) {
+      let nodeId = node.eventId,
+        { parent, chronologicalParent } = getNodeInfo(node, workflow);
+      if (parent) {
+        this.parentArray.push(parent);
+        this.graph.setEdge(parent, nodeId);
+      }
+      if (chronologicalParent) {
+        this.parentArray.push(chronologicalParent);
+        this.graph.setEdge(chronologicalParent, nodeId, {
+          style: "stroke: #00B2EE; stroke-width: 3px; stroke-dasharray: 5, 5;",
+          arrowheadStyle: "fill: #00B2EE",
+        });
+      }
+    },
+
+    setChildren(node) {
+      let nodeId = node.eventId,
+        { inferredChild, chronologicalChild } = getNodeInfo(node, workflow);
+
+      if (inferredChild) {
+        this.graph.setEdge(nodeId, inferredChild, {
+          style: "stroke: #f66; stroke-width: 3px; stroke-dasharray: 5, 5;",
+          arrowheadStyle: "fill: #f66",
+        });
+      }
+      if (chronologicalChild) {
+        this.graph.setEdge(nodeId, chronologicalChild, {
+          style: "stroke: #00B2EE; stroke-width: 3px; stroke-dasharray: 5, 5;",
+          arrowheadStyle: "fill: #00B2EE",
+        });
+      }
+    },
+
     render() {
+      /* console.log("hello" + this.workflow);
+      //const workflow = () => import("../data/data");
       // var nodeTemplate = Handlebars.compile($("#node-template").html());
       var g = new dagreD3.graphlib.Graph()
         .setGraph({ align: "UL" })
@@ -38,8 +125,8 @@ export default {
         }); //Neccessary to display arrows between nodes
 
       let parentArray = [];
-
-      buildTree();
+ */
+      /* buildTree();
 
       function buildTree() {
         //Create nodes to render with Dagre D3
@@ -100,10 +187,12 @@ export default {
             arrowheadStyle: "fill: #00B2EE",
           });
         }
-      }
+      } */
 
-      g.nodes().forEach(function (v) {
-        var node = g.node(v);
+      var self = this;
+
+      this.graph.nodes().forEach(function (v) {
+        var node = self.graph.node(v);
         // Round the corners of the nodes
         node.rx = node.ry = 5;
       });
@@ -122,7 +211,7 @@ export default {
       svg.call(zoom);
 
       // Run the renderer. This is what draws the final graph.
-      render(inner, g);
+      render(inner, this.graph);
 
       //Select all nodes and add click event
       //ALso trying out mouseover and mouseout
@@ -130,7 +219,7 @@ export default {
         .selectAll("g.node")
         //To access the node hovertext
         .attr("data-hovertext", function (v) {
-          return g.node(v).hovertext;
+          return self.graph.node(v).hovertext;
         })
         .on("click", function () {
           //Show tooltip
@@ -146,7 +235,6 @@ export default {
         .on("mouseout", function () {
           d3.select("#tooltip").classed("hidden", true);
         });
-
       //svg.attr("height", g.graph().height + 50);
     },
   },
