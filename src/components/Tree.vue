@@ -29,7 +29,6 @@ export default {
   },
   watch: {
     runId: function (newVal, oldVal) {
-      // watch it
       console.log("Prop changed: ", newVal, " | was: ", oldVal);
       this.loadWorkflow();
       this.createGraph();
@@ -156,8 +155,11 @@ export default {
       //Add click on childNode
       inner
         .selectAll(".ChildWorkflowExecutionStarted")
-        .on("click", function (d) {
-          router.push({ path: "/tree/a783dad6-7225-4a0c-838d-65f6d6ba1472" });
+        .on("click", function (id) {
+          let childRunId =
+            self.workflow[id - 1].childWorkflowExecutionStartedEventAttributes
+              .workflowExecution.runId;
+          router.push({ path: "/tree/" + childRunId });
           /* this.$route.push({
             name: "/",
             params: { runId: "a783dad6-7225-4a0c-838d-65f6d6ba1472" },
