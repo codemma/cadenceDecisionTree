@@ -1,19 +1,13 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
-import Home from '../views/Home.vue'
-import Tree from '../views/Tree.vue'
+import Tree from '../components/Tree.vue'
 
 Vue.use(VueRouter)
 
 const routes: Array<RouteConfig> = [
   {
     path: '/',
-    name: 'Home',
-    component: Home
-  },
-  {
-    path: '/tree',
-    name: 'tree',
+    name: 'Tree',
     component: Tree
   },
   {
