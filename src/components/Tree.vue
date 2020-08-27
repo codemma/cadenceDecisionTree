@@ -22,9 +22,8 @@ import { getNodeInfo } from "../eventFunctionMap.ts";
 export default {
   props: ["runId", "workflowId"],
   mounted() {
-    //this.getJsonFile();
-    this.getJsonFile();
-    this.saveItem();
+    this.loadWorkflow();
+    this.createGraph();
     this.buildTree();
     this.render();
   },
@@ -37,22 +36,14 @@ export default {
   },
 
   methods: {
-    saveItem() {
-      var g = new dagreD3.graphlib.Graph()
+    createGraph() {
+      this.graph = new dagreD3.graphlib.Graph()
         .setGraph({ align: "UL" })
         .setDefaultEdgeLabel(function () {
-          return {};
-        }); //Neccessary to display arrows between nodes
-      this.graph = g;
+          return {}; //Neccessary to display arrows between nodes
+        });
     },
-    updateData() {
-      import("../data/data.json").then((data) => {
-        console.log("received data" + data);
-        // this.workflow = data;
-      });
-      //this.workflow = "hello";
-    },
-    getJsonFile(index) {
+    loadWorkflow(index) {
       this.workflow = require("../data/marker-event");
     },
 
@@ -119,80 +110,6 @@ export default {
     },
 
     render() {
-      /* console.log("hello" + this.workflow);
-      //const workflow = () => import("../data/data");
-      // var nodeTemplate = Handlebars.compile($("#node-template").html());
-      var g = new dagreD3.graphlib.Graph()
-        .setGraph({ align: "UL" })
-        .setDefaultEdgeLabel(function () {
-          return {};
-        }); //Neccessary to display arrows between nodes
-
-      let parentArray = [];
- */
-      /* buildTree();
-
-      function buildTree() {
-        //Create nodes to render with Dagre D3
-        workflow.forEach(function (node) {
-          g.setNode(node.eventId, {
-            label: node.eventType,
-            class: [node.type],
-            id: node.eventId,
-            class: [node.type],
-            hovertext: node.eventId,
-          });
-        });
-
-        //Set the direct and chronological parent relationships
-        workflow.forEach(function (node) {
-          setParents(node);
-        });
-
-        //Set the chronological and inferred child relationships
-        workflow.forEach(function (node) {
-          if (!parentArray.includes(node.eventId)) {
-            setChildren(node);
-          }
-        });
-      }
-
-      function setParents(node) {
-        let nodeId = node.eventId,
-          { parent, chronologicalParent } = getNodeInfo(node, workflow);
-        if (parent) {
-          parentArray.push(parent);
-          g.setEdge(parent, nodeId);
-        }
-        if (chronologicalParent) {
-          parentArray.push(chronologicalParent);
-          g.setEdge(chronologicalParent, nodeId, {
-            style:
-              "stroke: #00B2EE; stroke-width: 3px; stroke-dasharray: 5, 5;",
-            arrowheadStyle: "fill: #00B2EE",
-          });
-        }
-      }
-
-      function setChildren(node) {
-        let nodeId = node.eventId,
-          { inferredChild, chronologicalChild } = getNodeInfo(node, workflow);
-
-        if (inferredChild) {
-          g.setEdge(nodeId, inferredChild, {
-            style: "stroke: #f66; stroke-width: 3px; stroke-dasharray: 5, 5;",
-            arrowheadStyle: "fill: #f66",
-          });
-        }
-        if (chronologicalChild) {
-          g.setEdge(nodeId, chronologicalChild, {
-            style:
-              "stroke: #00B2EE; stroke-width: 3px; stroke-dasharray: 5, 5;",
-            arrowheadStyle: "fill: #00B2EE",
-          });
-        }
-      } */
-
       var self = this;
 
       this.graph.nodes().forEach(function (v) {
