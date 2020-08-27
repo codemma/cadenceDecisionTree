@@ -17,19 +17,20 @@
 <script>
 import * as d3 from "d3";
 import dagreD3 from "dagre-d3";
-import * as workflow from "../data/marker-event";
+//import * as workflow from "../data/marker-event";
 import { getNodeInfo } from "../eventFunctionMap.ts";
 export default {
   props: ["runId", "workflowId"],
   mounted() {
     //this.getJsonFile();
+    this.getJsonFile();
     this.saveItem();
     this.buildTree();
     this.render();
   },
   data: function () {
     return {
-      workflow,
+      workflow: {},
       graph: {},
       parentArray: [],
     };
@@ -37,7 +38,6 @@ export default {
 
   methods: {
     saveItem() {
-      console.log("ehllo" + this.graphic);
       var g = new dagreD3.graphlib.Graph()
         .setGraph({ align: "UL" })
         .setDefaultEdgeLabel(function () {
@@ -47,18 +47,19 @@ export default {
     },
     updateData() {
       import("../data/data.json").then((data) => {
-        this.workflow = data;
+        console.log("received data" + data);
+        // this.workflow = data;
       });
       //this.workflow = "hello";
     },
-    /* getJsonFile(index) {
+    getJsonFile(index) {
       this.workflow = require("../data/marker-event");
-    }, */
+    },
 
     buildTree() {
       var self = this;
       //Create nodes to render with Dagre D3
-      workflow.forEach(function (node) {
+      this.workflow.forEach(function (node) {
         self.graph.setNode(node.eventId, {
           label: node.eventType,
           class: [node.type],
@@ -69,12 +70,12 @@ export default {
       });
 
       //Set the direct and chronological parent relationships
-      workflow.forEach(function (node) {
+      this.workflow.forEach(function (node) {
         self.setParents(node);
       });
 
       //Set the chronological and inferred child relationships
-      workflow.forEach(function (node) {
+      this.workflow.forEach(function (node) {
         if (!self.parentArray.includes(node.eventId)) {
           self.setChildren(node);
         }
@@ -82,7 +83,7 @@ export default {
     },
     setParents(node) {
       let nodeId = node.eventId,
-        { parent, chronologicalParent } = getNodeInfo(node, workflow);
+        { parent, chronologicalParent } = getNodeInfo(node, this.workflow);
       if (parent) {
         this.parentArray.push(parent);
         this.graph.setEdge(parent, nodeId);
@@ -98,7 +99,10 @@ export default {
 
     setChildren(node) {
       let nodeId = node.eventId,
-        { inferredChild, chronologicalChild } = getNodeInfo(node, workflow);
+        { inferredChild, chronologicalChild } = getNodeInfo(
+          node,
+          this.workflow
+        );
 
       if (inferredChild) {
         this.graph.setEdge(nodeId, inferredChild, {
