@@ -1,9 +1,10 @@
-import { nodeInfo, node, workflow } from "./nodeInterface";
+import { nodeInfo, node, workflow, eventTypeMap } from "./nodeInterface";
 
 function getNodeInfo(node: node, workflow: workflow) {
   return eventTypeMap[node.eventType](node, workflow)
 }
-let eventTypeMap = {
+
+let eventTypeMap: eventTypeMap = {
   'WorkflowExecutionStarted': function (node: node, workflow: workflow) {
     let { inferredChild } = findChild(node, workflow);
     const nodeInfo: nodeInfo = {
@@ -132,7 +133,7 @@ let eventTypeMap = {
     //Special case: Decision task is always started by an event before it, we call findChronParents to find the parent
     let parentId = findChronParent(node, workflow)
     const nodeInfo: nodeInfo = {
-      chronologicalParent: parentId,
+      // chronologicalParent: parentId,
     }
     return nodeInfo
   },
@@ -300,9 +301,9 @@ let eventTypeMap = {
 //It is inferred if a DecisionTaskScheduled, otherwise its chronological
 //External signals are not children and therefore they are skipped
 function findChild(node: node, workflow: workflow): nodeInfo {
-  let targetNodeId,
+  let
     slicedWorkflow = workflow.slice(node.eventId),
-    nodeInformation: nodeInfo,
+    nodeInformation: nodeInfo = {},
     targetNode: node;
   for (targetNode of slicedWorkflow) {
     switch (targetNode.eventType) {
@@ -321,10 +322,10 @@ function findChild(node: node, workflow: workflow): nodeInfo {
         return nodeInformation
     }
   }
-  return targetNodeId
+  return nodeInformation
 }
 
-function findChronParent(node: node, workflow: workflow): number {
+function findChronParent(node: node, workflow: workflow): number | undefined {
   let parentIds;
   //We only want to search the parents of the workflow, in reversed order to find the closests parents
   let slicedWorkflow = workflow.slice(0, node.eventId - 1)

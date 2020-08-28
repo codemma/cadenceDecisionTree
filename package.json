@@ -1,32 +1,33 @@
 {
-  "name": "cadencedecisiontree",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "cadencegraph",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
-    "dev": "webpack --mode development",
-    "build": "webpack --mode production",
-    "start": "webpack-dev-server --mode development --open"
-  },
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@babel/core": "^7.11.1",
-    "@babel/preset-env": "^7.11.0",
-    "@babel/preset-typescript": "^7.10.4",
-    "babel-loader": "^8.1.0",
-    "css-loader": "^4.2.1",
-    "html-webpack-plugin": "^4.3.0",
-    "sass": "^1.26.10",
-    "sass-loader": "^9.0.3",
-    "source-map-loader": "^1.0.1",
-    "style-loader": "^1.2.1",
-    "webpack": "^4.44.1",
-    "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.11.0"
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build"
   },
   "dependencies": {
-    "@babel/runtime": "^7.11.2",
-    "core-js": "^3.6.5"
-  }
+    "core-js": "^3.6.5",
+    "d3": "^5.16.0",
+    "dagre-d3": "^0.6.4",
+    "vue": "^2.6.11",
+    "vue-class-component": "^7.2.3",
+    "vue-property-decorator": "^8.4.2",
+    "vue-router": "^3.2.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-router": "~4.5.0",
+    "@vue/cli-plugin-typescript": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "stylus": "^0.54.7",
+    "stylus-loader": "^3.0.2",
+    "typescript": "~3.9.3",
+    "vue-template-compiler": "^2.6.11"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
 }
