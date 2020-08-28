@@ -1,6 +1,7 @@
 <template>
   <div id="app">
     <input v-model="runId" placeholder="Enter run ID" />
+    <p>Hint: 957bad90-9c99-4afb-8ccc-0e550a439a60</p>
     <button v-on:click="onClick">Build Tree</button>
     <!--  <div id="nav">
       <router-link to="/tree">Tree</router-link>
