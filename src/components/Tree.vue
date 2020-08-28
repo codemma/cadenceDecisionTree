@@ -81,7 +81,7 @@ export default {
       //Set the chronological and inferred child relationships
       this.workflow.forEach((node) => {
         if (!this.parentArray.includes(node.eventId)) {
-          self.setChildren(node);
+          this.setChildren(node);
         }
       });
 
@@ -193,6 +193,7 @@ div.tree {
   justify-content: center;
   align-items: center;
   height: 100%;
+  width: 100%;
 }
 
 g.Decision-Task>rect {
