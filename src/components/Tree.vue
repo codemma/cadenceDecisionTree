@@ -85,9 +85,7 @@ export default {
         } else {
           hovertext = nodeTemplate({
             infoText: {
-              bob: "For sure",
-              roger: "Unknown",
-              donkey: "What an ass",
+              test: "Nice test",
             },
           });
         }
