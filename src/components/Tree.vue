@@ -81,10 +81,14 @@ export default {
 
         if (infoText !== undefined) {
           console.log("not undefined", node.eventType, infoText);
-          hovertext = nodeTemplate({ people: infoText.persons });
+          hovertext = nodeTemplate({ infoText: infoText });
         } else {
           hovertext = nodeTemplate({
-            people: ["Yehuda Katz", "Alan Johnson", "Charles Jolley"],
+            infoText: {
+              bob: "For sure",
+              roger: "Unknown",
+              donkey: "What an ass",
+            },
           });
         }
 

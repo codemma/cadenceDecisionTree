@@ -76,27 +76,6 @@ let eventTypeMap: eventTypeMap = {
     }
     return nodeInfo
   },
-
-  /*  {
-     "eventId": 10,
-     "timestamp": 1598539132519370300,
-     "eventType": "ChildWorkflowExecutionCompleted",
-     "version": -24,
-     "taskId": 2097176,
-     "childWorkflowExecutionCompletedEventAttributes": {
-       "result": "IkhlbGxvIFdvcmxkISI=",
-       "domain": "sample",
-       "workflowExecution": {
-         "workflowId": "46aed52e-3745-3a8e-87b0-499b82d894c4",
-         "runId": "a783dad6-7225-4a0c-838d-65f6d6ba1472"
-       },
-       "workflowType": {
-         "name": "GreetingChild::composeGreeting"
-       },
-       "initiatedEventId": 5,
-       "startedEventId": 6
-     }
-   }, */
   'ChildWorkflowExecutionCompleted': function (node: node, workflow: workflow) {
     let attributesObj = node.childWorkflowExecutionCompletedEventAttributes
     let { inferredChild, chronologicalChild } = findChild(node, workflow);
@@ -105,12 +84,9 @@ let eventTypeMap: eventTypeMap = {
       inferredChild: inferredChild,
       chronologicalChild: chronologicalChild,
       infoText: {
-        persons: [
-          "Yehuda Katzzz",
-          "Alan Johnson",
-          "Charles Jolley",
-        ]
-      }
+        result: attributesObj.result,
+        workflowType: attributesObj.workflowType.name,
+      },
     }
     return nodeInfo
   },
