@@ -64,15 +64,35 @@ export default {
         this.buildTree();
       });
     },
+    createInfoHTML(infoText, i) {
+      if (i == Object.keys(infoText).length) return "<p>";
+      return "<p>" + infoText[i] + "<p>" + this.createInfoHTML(infoText, i + 1);
+    },
     buildTree() {
       var nodeTemplate = Handlebars.compile($("#node-template").html());
       //Create nodes to render with Dagre D3
       this.workflow.forEach((node) => {
+        let { infoText } = getNodeInfo(node, this.workflow),
+          hovertext2;
+
+        //if (infoText) hovertext2 = this.createInfoHTML(infoText, 0);
+        //console.log("HEJ " + typeof infoText.persons);
+        let hovertext;
+
+        if (infoText !== undefined) {
+          console.log("not undefined", node.eventType, infoText);
+          hovertext = nodeTemplate({ people: infoText.persons });
+        } else {
+          hovertext = nodeTemplate({
+            people: ["Yehuda Katz", "Alan Johnson", "Charles Jolley"],
+          });
+        }
+
         this.graph.setNode(node.eventId, {
           label: node.eventType,
           class: node.eventType,
           id: node.eventId,
-          hovertext: nodeTemplate({ label: node.eventType, id: node.eventId }),
+          hovertext: hovertext,
           //label: nodeTemplate({ label: node.eventType }),
           //labelType: "html",
         });
@@ -175,12 +195,13 @@ export default {
           d3.select("#tooltip").classed("hidden", false);
         })
         .on("mousemove", function (d) {
-          console.log(d, this.dataset);
+          console.log(d, this.dataset.hovertext);
           d3.select("#tooltip")
             .style("left", event.pageX - 10 + "px")
             .style("top", event.pageY + 10 + "px")
             .select("#info")
-            .html("<p>" + this.dataset.hovertext + "</p>");
+            .html(this.dataset.hovertext);
+          //.html("<p>" + this.dataset.hovertext + "</p>");
           //.text(this.dataset.hovertext);
         })
         .on("mouseout", function () {

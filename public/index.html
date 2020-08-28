@@ -15,11 +15,17 @@
       Please enable it to continue.</strong>
   </noscript>
   <script type="text/x-template" id="node-template">
-    <p>{{label}}</p>
-    <p>{{id}}</p>
+    <ul>
+      {{#each people}}
+    <li>{{this}}</li>
+  {{/each}}
+	  </ul>
   </script>
   <div id="app"></div>
   <!-- built files will be auto injected -->
 </body>
 
 </html>
+
+<!--  <p>{{label}}</p>
+    <p>{{id}}</p> -->

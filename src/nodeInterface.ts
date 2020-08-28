@@ -4,6 +4,7 @@ interface nodeInfo {
   chronologicalChild?: number;
   chronologicalParent?: number;
   inferredParents?: number[];
+  [key: string]: any;
 }
 
 interface workflow {
