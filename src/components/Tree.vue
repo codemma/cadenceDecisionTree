@@ -20,6 +20,8 @@ import dagreD3 from "dagre-d3";
 //import * as workflow from "../data/marker-event";
 import { getNodeInfo } from "../eventFunctionMap.ts";
 import router from "../router";
+import Handlebars from "handlebars";
+import $ from "jquery";
 export default {
   props: {
     runId: {
@@ -63,13 +65,16 @@ export default {
       });
     },
     buildTree() {
+      var nodeTemplate = Handlebars.compile($("#node-template").html());
       //Create nodes to render with Dagre D3
       this.workflow.forEach((node) => {
         this.graph.setNode(node.eventId, {
           label: node.eventType,
           class: node.eventType,
           id: node.eventId,
-          hovertext: node.eventId,
+          hovertext: nodeTemplate({ label: node.eventType, id: node.eventId }),
+          //label: nodeTemplate({ label: node.eventType }),
+          //labelType: "html",
         });
       });
 
@@ -165,16 +170,18 @@ export default {
         .attr("data-hovertext", function (v) {
           return self.graph.node(v).hovertext;
         })
-        .on("dblclick", function () {
+        .on("mouseover", function () {
           //Show tooltip
           d3.select("#tooltip").classed("hidden", false);
         })
         .on("mousemove", function (d) {
+          console.log(d, this.dataset);
           d3.select("#tooltip")
             .style("left", event.pageX - 10 + "px")
             .style("top", event.pageY + 10 + "px")
             .select("#info")
-            .text(this.dataset.hovertext);
+            .html("<p>" + this.dataset.hovertext + "</p>");
+          //.text(this.dataset.hovertext);
         })
         .on("mouseout", function () {
           d3.select("#tooltip").classed("hidden", true);
