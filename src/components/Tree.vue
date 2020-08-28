@@ -46,7 +46,7 @@ export default {
   methods: {
     setGraph() {
       this.graph = new dagreD3.graphlib.Graph()
-        .setGraph({ align: "UL" })
+        .setGraph({ align: "UL" }) //one option is also: {compound:true}
         .setDefaultEdgeLabel(function () {
           return {}; //Neccessary to display arrows between nodes
         });
@@ -180,6 +180,18 @@ export default {
         .on("mouseout", function () {
           d3.select("#tooltip").classed("hidden", true);
         });
+
+      // TODO: Try to center the graph
+      /*   var svg = d3.select("svg");
+
+      console.log(this.graph.graph().width);
+      console.log(svg.attr("width"));
+
+      // Center the graph
+      var xCenterOffset = this.graph.graph().width / 2;
+      // console.log(xCenterOffset);
+      inner.attr("transform", "translate(" + xCenterOffset + ", 20)");
+      svg.attr("height", this.graph.graph().height + 40); */
     },
   },
   computed: {},
