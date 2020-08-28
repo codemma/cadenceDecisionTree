@@ -28,17 +28,12 @@ export default {
     },
   },
   watch: {
-    runId: function (newVal, oldVal) {
-      console.log("Prop changed: ", newVal, " | was: ", oldVal);
-      this.loadWorkflow();
+    runId: function () {
       this.createGraph();
-      this.buildTree();
     },
   },
   mounted() {
-    this.loadWorkflow();
     this.createGraph();
-    this.buildTree();
   },
   data() {
     return {
@@ -48,28 +43,29 @@ export default {
     };
   },
 
-  updated() {
-    this.loadWorkflow();
-    this.createGraph();
-    this.buildTree();
-  },
-
   methods: {
-    createGraph() {
+    setGraph() {
       this.graph = new dagreD3.graphlib.Graph()
         .setGraph({ align: "UL" })
         .setDefaultEdgeLabel(function () {
           return {}; //Neccessary to display arrows between nodes
         });
     },
-    loadWorkflow(index) {
-      this.workflow = require("../data/" + this.runId + ".js");
+    async loadWorkflow() {
+      let workflow = require("../data/" + this.runId + ".js");
+      return workflow;
+    },
+    createGraph() {
+      this.setGraph();
+      this.loadWorkflow().then((workflow) => {
+        this.workflow = workflow;
+        this.buildTree();
+      });
     },
     buildTree() {
-      var self = this;
       //Create nodes to render with Dagre D3
-      this.workflow.forEach(function (node) {
-        self.graph.setNode(node.eventId, {
+      this.workflow.forEach((node) => {
+        this.graph.setNode(node.eventId, {
           label: node.eventType,
           class: node.eventType,
           id: node.eventId,
@@ -78,13 +74,13 @@ export default {
       });
 
       //Set the direct and chronological parent relationships
-      this.workflow.forEach(function (node) {
-        self.setParents(node);
+      this.workflow.forEach((node) => {
+        this.setParents(node);
       });
 
       //Set the chronological and inferred child relationships
-      this.workflow.forEach(function (node) {
-        if (!self.parentArray.includes(node.eventId)) {
+      this.workflow.forEach((node) => {
+        if (!this.parentArray.includes(node.eventId)) {
           self.setChildren(node);
         }
       });
@@ -159,12 +155,7 @@ export default {
           let childRunId =
             self.workflow[id - 1].childWorkflowExecutionStartedEventAttributes
               .workflowExecution.runId;
-          router.push({ path: "/tree/" + childRunId });
-          /* this.$route.push({
-            name: "/",
-            params: { runId: "a783dad6-7225-4a0c-838d-65f6d6ba1472" },
-          }); */
-          console.log("clicked" + d);
+          router.push({ name: "Tree", params: { runId: childRunId } });
         });
 
       //Select all nodes and add click event
