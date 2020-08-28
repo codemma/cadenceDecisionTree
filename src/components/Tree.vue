@@ -141,7 +141,6 @@ export default {
       // Set up zoom
       var zoom = d3.zoom().on("zoom", function () {
         inner.attr("transform", d3.event.transform);
-        inner.attr("transform", d3.event.transform);
       });
       svg.call(zoom);
 
