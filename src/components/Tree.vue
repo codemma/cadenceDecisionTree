@@ -4,12 +4,10 @@
       <g />
     </svg>
     <div id="tooltip" class="hidden">
-      <p>
+      <div id="event-info-header">
         <strong>Event information</strong>
-      </p>
-      <p>
-        <span id="info"></span>
-      </p>
+      </div>
+      <span id="info"></span>
     </div>
   </div>
 </template>
@@ -241,30 +239,38 @@ g.Decision-Task>rect {
   fill: #00ffd0;
 }
 
-#tooltip {
-  position: absolute;
-  border: 2px solid #999;
-  width: fit-content;
-  height: auto;
-  padding: 20px;
-  background-color: #fff;
-  border: 'solid';
-  border-width: '2px';
-  border-radius: '5px';
-  padding: '5px';
-  box-shadow: 4px 4px 10px rgba(156, 156, 156, 0.4);
-  pointer-events: none;
+#event-info-header {
+  background: #FFEB3B;
+  padding: 10px;
+  margin: 0;
+  text-align: center;
 }
 
-#tooltip.hidden {
-  display: none;
+#tooltip {
+  font-size: 14px;
+  position: absolute;
+  border: 2px solid black;
+  width: fit-content;
+  text-align: left;
+  height: auto;
+  background-color: #fff;
+  border-radius: 6px;
+  box-shadow: 0px 4px 33px 0px rgba(240, 240, 240, 1);
+  pointer-events: none;
 }
 
 #tooltip p {
   margin: 0;
   font-family: sans-serif;
-  font-size: 16px;
   line-height: 20px;
+}
+
+#info-text-area {
+  margin: 10px;
+}
+
+#tooltip.hidden {
+  display: none;
 }
 
 text {
