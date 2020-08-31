@@ -49,11 +49,19 @@ let eventTypeMap: eventTypeMap = {
   },
 
   'ActivityTaskFailed': function (node: node, workflow: workflow) {
-    let { inferredChild, chronologicalChild } = findChild(node, workflow);
+    let attributesObj = node.activityTaskFailedEventAttributes,
+      { inferredChild, chronologicalChild } = findChild(node, workflow);
     const nodeInfo: nodeInfo = {
       parent: node.activityTaskFailedEventAttributes.startedEventId,
       chronologicalChild: chronologicalChild,
-      inferredChild: inferredChild
+      inferredChild: inferredChild,
+      hoverText: {
+        id: node.eventId,
+        reason: attributesObj.reason,
+        details: attributesObj.details,
+        scheduledEventId: attributesObj.scheduledEventId,
+        startedEventId: attributesObj.startedEventId,
+      },
     }
     return nodeInfo
   },

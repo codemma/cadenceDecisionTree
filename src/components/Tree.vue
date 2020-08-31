@@ -250,6 +250,8 @@ g.Decision-Task>rect {
   position: absolute;
   border: 2px solid black;
   width: fit-content;
+  max-width: 400px;
+  overflow-wrap: break-word;
   text-align: left;
   height: auto;
   background-color: #fff;
