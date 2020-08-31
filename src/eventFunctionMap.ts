@@ -236,8 +236,15 @@ let eventTypeMap: eventTypeMap = {
     return nodeInfo
   },
   'MarkerRecorded': function (node: node) {
+    let attributesObj = node.markerRecordedEventAttributes
     const nodeInfo: nodeInfo = {
-      parent: node.markerRecordedEventAttributes.decisionTaskCompletedEventId
+      parent: attributesObj.decisionTaskCompletedEventId,
+      hoverText: {
+        id: node.eventId,
+        markerName: attributesObj.markerName,
+        details: attributesObj.details,
+        decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId
+      },
     }
     return nodeInfo
   },
@@ -301,28 +308,47 @@ let eventTypeMap: eventTypeMap = {
     return nodeInfo
   },
   'TimerFired': function (node: node, workflow: workflow) {
-    let { inferredChild, chronologicalChild } = findChild(node, workflow);
+    let attributesObj = node.timerFiredEventAttributes,
+      { inferredChild } = findChild(node, workflow);
     const nodeInfo: nodeInfo = {
-      parent: node.timerFiredEventAttributes.startedEventId,
-      inferredChild: inferredChild
+      parent: attributesObj.startedEventId,
+      inferredChild: inferredChild,
+      hoverText: {
+        id: node.eventId,
+        timerId: attributesObj.timerId,
+        startedEventId: attributesObj.startedEventId
+      }
     }
     return nodeInfo
   },
   'TimerStarted': function (node: node) {
+    let attributesObj = node.timerStartedEventAttributes
     const nodeInfo: nodeInfo = {
-      parent: node.timerStartedEventAttributes.decisionTaskCompletedEventId
+      parent: attributesObj.decisionTaskCompletedEventId,
+      hoverText: {
+        id: node.eventId,
+        timerId: attributesObj.timerId,
+        startToFireTimeoutSeconds: attributesObj.startToFireTimeoutSeconds,
+        decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId
+      }
     }
     return nodeInfo
   },
   'UpsertWorkflowSearchAttributes': function (node: node) {
+    //TODO: not sure about what is important to display here
+    let attributesObj = node.upsertWorkflowSearchAttributesEventAttributes
     const nodeInfo: nodeInfo = {
-      parent: node.upsertWorkflowSearchAttributesEventAttributes.decisionTaskCompletedEventId
+      parent: attributesObj.decisionTaskCompletedEventId,
+      hoverText: {
+        searchAttributes: attributesObj.searchAttributes.indexedFields.CadenceChangeVersion,
+        decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId,
+      }
     }
     return nodeInfo
   },
   'WorkflowExecutionCanceled': function (node: node) {
     const nodeInfo: nodeInfo = {
-      parent: node.workflowExecutionCanceledEventAttributes.decisionTaskCompletedEventId
+      parent: node.workflowExecutionCanceledEventAttributes.decisionTaskCompletedEventId,
     }
     return nodeInfo
   },
@@ -339,6 +365,7 @@ let eventTypeMap: eventTypeMap = {
     const nodeInfo: nodeInfo = {
       parent: attributesObj.decisionTaskCompletedEventId,
       hoverText: {
+        id: node.eventId,
         result: attributesObj.result,
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId,
       }
@@ -346,8 +373,17 @@ let eventTypeMap: eventTypeMap = {
     return nodeInfo
   },
   'WorkflowExecutionContinuedAsNew': function (node: node) {
+    let attributesObj = node.workflowExecutionContinuedAsNewEventAttributes
     const nodeInfo: nodeInfo = {
-      parent: node.workflowExecutionContinuedAsNewEventAttributes.decisionTaskCompletedEventId
+      parent: attributesObj.decisionTaskCompletedEventId,
+      hoverText: {
+        id: node.eventId,
+        input: attributesObj.input,
+        initiator: attributesObj.initiator,
+        newExecutionRunId: attributesObj.newExecutionRunId,
+        workflowType: attributesObj.workflowType.name,
+        taskList: attributesObj.taskList,
+      }
     }
     return nodeInfo
   },
