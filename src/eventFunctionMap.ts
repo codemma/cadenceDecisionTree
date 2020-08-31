@@ -11,6 +11,7 @@ let eventTypeMap: eventTypeMap = {
     const nodeInfo: nodeInfo = {
       inferredChild: inferredChild,
       hoverText: {
+        id: node.eventId,
         workflowType: attributesObj.workflowType.name,
         taskList: attributesObj.taskList.name,
         input: attributesObj.input,
@@ -31,11 +32,18 @@ let eventTypeMap: eventTypeMap = {
     return nodeInfo
   },
   'ActivityTaskCompleted': function (node: node, workflow: workflow) {
-    let { inferredChild, chronologicalChild } = findChild(node, workflow);
+    let attributesObj = node.activityTaskCompletedEventAttributes,
+      { inferredChild, chronologicalChild } = findChild(node, workflow);
     const nodeInfo: nodeInfo = {
-      parent: node.activityTaskCompletedEventAttributes.startedEventId,
+      parent: attributesObj.startedEventId,
       chronologicalChild: chronologicalChild,
-      inferredChild: inferredChild
+      inferredChild: inferredChild,
+      hoverText: {
+        id: node.eventId,
+        startedEventId: attributesObj.startedEventId,
+        scheduledEventId: attributesObj.scheduledEventId,
+        result: attributesObj.result
+      },
     }
     return nodeInfo
   },
