@@ -66,8 +66,16 @@ let eventTypeMap: eventTypeMap = {
     return nodeInfo
   },
   'ActivityTaskScheduled': function (node: node) {
+    let attributesObj = node.activityTaskScheduledEventAttributes;
     const nodeInfo: nodeInfo = {
-      parent: node.activityTaskScheduledEventAttributes.decisionTaskCompletedEventId
+      parent: attributesObj.decisionTaskCompletedEventId,
+      hoverText: {
+        id: node.eventId,
+        input: attributesObj.input,
+        activityType: attributesObj.activityType.name,
+        taskList: attributesObj.taskList.name,
+        decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId,
+      },
     }
     return nodeInfo
   },
