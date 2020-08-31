@@ -80,8 +80,16 @@ let eventTypeMap: eventTypeMap = {
     return nodeInfo
   },
   'ActivityTaskStarted': function (node: node) {
+    let attributesObj = node.activityTaskStartedEventAttributes
     const nodeInfo: nodeInfo = {
-      parent: node.activityTaskStartedEventAttributes.scheduledEventId
+      parent: attributesObj.scheduledEventId,
+      hoverText: {
+        id: node.eventId,
+        requestId: attributesObj.requestId,
+        attempt: attributesObj.attempt,
+        lastFailureReason: attributesObj.lastFailureReason,
+        scheduledEventId: attributesObj.scheduledEventId,
+      },
     }
     return nodeInfo
   },
@@ -130,11 +138,20 @@ let eventTypeMap: eventTypeMap = {
     return nodeInfo
   },
   'ChildWorkflowExecutionStarted': function (node: node, workflow: workflow) {
-    let { inferredChild, chronologicalChild } = findChild(node, workflow);
+    let attributesObj = node.childWorkflowExecutionStartedEventAttributes,
+      { inferredChild, chronologicalChild } = findChild(node, workflow);
     const nodeInfo: nodeInfo = {
-      parent: node.childWorkflowExecutionStartedEventAttributes.initiatedEventId,
+      parent: attributesObj.initiatedEventId,
       inferredChild: inferredChild,
-      chronologicalChild: chronologicalChild
+      chronologicalChild: chronologicalChild,
+      hoverText: {
+        id: node.eventId,
+        domain: attributesObj.domain,
+        workflowType: attributesObj.workflowType.name,
+        initiatedEventId: attributesObj.initiatedEventId,
+        workflowId: attributesObj.workflowExecution.workflowId,
+        runId: attributesObj.workflowExecution.runId
+      }
     }
     return nodeInfo
   },
@@ -151,10 +168,16 @@ let eventTypeMap: eventTypeMap = {
     return nodeInfo
   },
   'DecisionTaskCompleted': function (node: node, workflow: workflow) {
+    let attributesObj = node.decisionTaskCompletedEventAttributes
     let { chronologicalChild } = findChild(node, workflow);
     const nodeInfo: nodeInfo = {
-      parent: node.decisionTaskCompletedEventAttributes.startedEventId,
-      chronologicalChild: chronologicalChild
+      parent: attributesObj.startedEventId,
+      chronologicalChild: chronologicalChild,
+      hoverText: {
+        id: node.eventId,
+        scheduledEventId: attributesObj.scheduledEventId,
+        startedEventId: attributesObj.startedEventId,
+      },
     }
     return nodeInfo
   },
@@ -165,16 +188,27 @@ let eventTypeMap: eventTypeMap = {
     return nodeInfo
   },
   'DecisionTaskScheduled': function (node: node, workflow: workflow) {
+    let attributesObj = node.decisionTaskScheduledEventAttributes
     //Special case: Decision task is always started by an event before it, we call findChronParents to find the parent
     let parentId = findChronParent(node, workflow)
     const nodeInfo: nodeInfo = {
       // chronologicalParent: parentId,
+      hoverText: {
+        id: node.eventId,
+        taskList: attributesObj.taskList.name,
+        attempt: attributesObj.attempt,
+      },
     }
     return nodeInfo
   },
   'DecisionTaskStarted': function (node: node) {
+    let attributesObj = node.decisionTaskStartedEventAttributes
     const nodeInfo: nodeInfo = {
-      parent: node.decisionTaskStartedEventAttributes.scheduledEventId
+      parent: attributesObj.scheduledEventId,
+      hoverText: {
+        id: node.eventId,
+        scheduledEventId: attributesObj.scheduledEventId,
+      },
     }
     return nodeInfo
   },
@@ -233,19 +267,29 @@ let eventTypeMap: eventTypeMap = {
   },
   'SignalExternalWorkflowExecutionInitiated': function (node: node) {
     const nodeInfo: nodeInfo = {
-      parent: node.signalExternalWorkflowExecutionInitiatedEventAttributes.decisionTaskCompletedEventId
+      parent: node.signalExternalWorkflowExecutionInitiatedEventAttributes.decisionTaskCompletedEventId,
     }
     return nodeInfo
   },
   'StartChildWorkflowExecutionFailed': function (node: node) {
+    let attributesObj = node.startChildWorkflowExecutionFailedEventAttributes
     const nodeInfo: nodeInfo = {
-      parent: node.startChildWorkflowExecutionFailedEventAttributes.decisionTaskCompletedEventId
+      parent: attributesObj.decisionTaskCompletedEventId,
     }
     return nodeInfo
   },
   'StartChildWorkflowExecutionInitiated': function (node: node) {
+    let attributesObj = node.startChildWorkflowExecutionInitiatedEventAttributes
     const nodeInfo: nodeInfo = {
-      parent: node.startChildWorkflowExecutionInitiatedEventAttributes.decisionTaskCompletedEventId
+      parent: node.startChildWorkflowExecutionInitiatedEventAttributes.decisionTaskCompletedEventId,
+      hoverText: {
+        domain: attributesObj.domain,
+        input: attributesObj.input,
+        workflowId: attributesObj.workflowId,
+        workflowType: attributesObj.workflowType.name,
+        taskList: attributesObj.taskList,
+        decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId
+      }
     }
     return nodeInfo
   },
@@ -291,8 +335,13 @@ let eventTypeMap: eventTypeMap = {
     return nodeInfo
   },
   'WorkflowExecutionCompleted': function (node: node) {
+    let attributesObj = node.workflowExecutionCompletedEventAttributes
     const nodeInfo: nodeInfo = {
-      parent: node.workflowExecutionCompletedEventAttributes.decisionTaskCompletedEventId
+      parent: attributesObj.decisionTaskCompletedEventId,
+      hoverText: {
+        result: attributesObj.result,
+        decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId,
+      }
     }
     return nodeInfo
   },
@@ -303,8 +352,14 @@ let eventTypeMap: eventTypeMap = {
     return nodeInfo
   },
   'WorkflowExecutionFailed': function (node: node) {
+    let attributesObj = node.workflowExecutionFailedEventAttributes
     const nodeInfo: nodeInfo = {
-      parent: node.workflowExecutionFailedEventAttributes.decisionTaskCompletedEventId
+      parent: attributesObj.decisionTaskCompletedEventId,
+      hoverText: {
+        reason: attributesObj.reason,
+        decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId,
+        details: attributesObj.details,
+      }
     }
     return nodeInfo
   },
