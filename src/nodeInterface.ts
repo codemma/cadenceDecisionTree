@@ -4,7 +4,7 @@ interface nodeInfo {
   chronologicalChild?: number;
   chronologicalParent?: number;
   inferredParents?: number[];
-  infoText?: object;
+  hoverText?: object;
 }
 
 interface workflow {

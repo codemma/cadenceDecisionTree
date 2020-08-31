@@ -6,9 +6,15 @@ function getNodeInfo(node: node, workflow: workflow) {
 
 let eventTypeMap: eventTypeMap = {
   'WorkflowExecutionStarted': function (node: node, workflow: workflow) {
-    let { inferredChild } = findChild(node, workflow);
+    let attributesObj = node.workflowExecutionStartedEventAttributes,
+      { inferredChild } = findChild(node, workflow);
     const nodeInfo: nodeInfo = {
-      inferredChild: inferredChild
+      inferredChild: inferredChild,
+      hoverText: {
+        workflowType: attributesObj.workflowType.name,
+        taskList: attributesObj.taskList.name,
+        input: attributesObj.input,
+      },
     }
     return nodeInfo
   },
@@ -77,13 +83,13 @@ let eventTypeMap: eventTypeMap = {
     return nodeInfo
   },
   'ChildWorkflowExecutionCompleted': function (node: node, workflow: workflow) {
-    let attributesObj = node.childWorkflowExecutionCompletedEventAttributes
-    let { inferredChild, chronologicalChild } = findChild(node, workflow);
+    let attributesObj = node.childWorkflowExecutionCompletedEventAttributes,
+      { inferredChild, chronologicalChild } = findChild(node, workflow);
     const nodeInfo: nodeInfo = {
       parent: attributesObj.startedEventId,
       inferredChild: inferredChild,
       chronologicalChild: chronologicalChild,
-      infoText: {
+      hoverText: {
         result: attributesObj.result,
         workflowType: attributesObj.workflowType.name,
       },

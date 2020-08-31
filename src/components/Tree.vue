@@ -70,19 +70,18 @@ export default {
       var nodeTemplate = Handlebars.compile($("#node-template").html());
       //Create nodes to render with Dagre D3
       this.workflow.forEach((node) => {
-        let { infoText } = getNodeInfo(node, this.workflow),
+        let { hoverText } = getNodeInfo(node, this.workflow),
           hovertext2;
 
         //if (infoText) hovertext2 = this.createInfoHTML(infoText, 0);
         //console.log("HEJ " + typeof infoText.persons);
         let hovertext;
 
-        if (infoText !== undefined) {
-          console.log("not undefined", node.eventType, infoText);
-          hovertext = nodeTemplate({ infoText: infoText });
+        if (hoverText !== undefined) {
+          hovertext = nodeTemplate({ hoverText: hoverText });
         } else {
           hovertext = nodeTemplate({
-            infoText: {
+            hoverText: {
               test: "Nice test",
             },
           });
