@@ -3,6 +3,10 @@
     <svg id="canvas" width="100%" height="100%" style="border: 1px solid black;">
       <g />
     </svg>
+    <div id="node-info-box">
+      <h3>Info</h3>
+      <div id="node-info-box-text"></div>
+    </div>
     <div id="tooltip" class="hidden">
       <div id="event-info-header">
         <strong>Event information</strong>
@@ -200,6 +204,7 @@ export default {
             .style("top", event.pageY + 10 + "px")
             .select("#info")
             .html(this.dataset.hovertext);
+          d3.select("#node-info-box-text").html(this.dataset.hovertext);
           //.html("<p>" + this.dataset.hovertext + "</p>");
           //.text(this.dataset.hovertext);
         })
@@ -226,12 +231,18 @@ export default {
 
 <style lang="stylus">
 div.tree {
-  flex: 1;
+  width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%;
-  width: 100%;
+  overflow: hidden;
+  padding: 1px;
+  margin-top: 20px;
+}
+
+#canvas {
+  flex: 2;
 }
 
 g.Decision-Task>rect {
@@ -260,6 +271,15 @@ g.Decision-Task>rect {
   pointer-events: none;
 }
 
+#node-info-box {
+  flex: 1;
+  height: 100%;
+  border: 1px solid black;
+  overflow-wrap: break-word;
+  overflow-y: scroll;
+  margin: 20px;
+}
+
 #tooltip p {
   margin: 0;
   font-family: sans-serif;
@@ -267,7 +287,7 @@ g.Decision-Task>rect {
 }
 
 #info-text-area {
-  margin: 10px;
+  margin: 20px;
 }
 
 #tooltip.hidden {
