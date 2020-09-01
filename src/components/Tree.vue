@@ -67,27 +67,19 @@ export default {
         this.buildTree();
       });
     },
-    createInfoHTML(infoText, i) {
-      if (i == Object.keys(infoText).length) return "<p>";
-      return "<p>" + infoText[i] + "<p>" + this.createInfoHTML(infoText, i + 1);
-    },
     buildTree() {
       var nodeTemplate = Handlebars.compile($("#node-template").html());
       //Create nodes to render with Dagre D3
       this.workflow.forEach((node) => {
         let { hoverText } = getNodeInfo(node, this.workflow),
-          hovertext2;
-
-        //if (infoText) hovertext2 = this.createInfoHTML(infoText, 0);
-        //console.log("HEJ " + typeof infoText.persons);
-        let hovertext;
+          hovertext;
 
         if (hoverText !== undefined) {
           hovertext = nodeTemplate({ hoverText: hoverText });
         } else {
           hovertext = nodeTemplate({
             hoverText: {
-              test: "Nice test",
+              test: "TODO",
             },
           });
         }
@@ -101,48 +93,39 @@ export default {
           //labelType: "html",
         });
       });
-
-      let map = new Map();
-
-      //Set the direct and chronological relationships
+      //Set the direct and inferred relationships
       this.workflow.forEach((node) => {
-        this.setParents(node);
+        this.setDirectAndInferred(node);
       });
 
-      //Set the chronological and inferred child relationships
+      //Set the chronological relationships.
+      //If the node is not referred to as a parent it should be connected back to the graph with a chron child
       this.workflow.forEach((node) => {
         if (!this.parentArray.includes(node.eventId)) {
-          this.setChildren(node);
+          this.setChron(node);
         }
       });
       this.renderGraph();
     },
-    setParents(node) {
+    setDirectAndInferred(node) {
       let nodeId = node.eventId,
         { parent, inferredChild } = getNodeInfo(node, this.workflow);
       if (parent) {
         this.parentArray.push(parent);
         this.graph.setEdge(parent, nodeId, {
-          style: "stroke: #000000; stroke-width: 2px; stroke-dasharray: 5, 5;",
+          style: "stroke: #000000; stroke-width: 2px;",
           arrowheadStyle: "fill: #000000",
         });
       }
       if (inferredChild) {
         this.parentArray.push(nodeId);
         this.graph.setEdge(nodeId, inferredChild, {
-          style: "stroke: #f66; stroke-width: 2px; stroke-dasharray: 5, 5;",
+          style: "stroke: #f66; stroke-width: 2px;",
           arrowheadStyle: "fill: #f66",
         });
       }
-      /*   if (chronologicalParent) {
-        this.parentArray.push(chronologicalParent);
-        this.graph.setEdge(chronologicalParent, nodeId, {
-          style: "stroke: #00B2EE; stroke-width: 3px; stroke-dasharray: 5, 5;",
-          arrowheadStyle: "fill: #00B2EE",
-        });
-      } */
     },
-    setChildren(node) {
+    setChron(node) {
       let nodeId = node.eventId,
         { chronologicalChild } = getNodeInfo(node, this.workflow);
       if (chronologicalChild) {
