@@ -5,6 +5,7 @@
     </svg>
     <div id="node-info-box">
       <h3>Info</h3>
+      <button v-on:click="route" v-if="showButton">Route to child</button>
       <div id="node-info-box-text"></div>
     </div>
     <div id="tooltip" class="hidden">
@@ -31,6 +32,15 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      workflow: {},
+      graph: {},
+      parentArray: [],
+      showButton: false,
+      routeId: "",
+    };
+  },
   watch: {
     runId: function () {
       this.parentArray = [];
@@ -39,13 +49,6 @@ export default {
   },
   mounted() {
     this.createGraph();
-  },
-  data() {
-    return {
-      workflow: {},
-      graph: {},
-      parentArray: [],
-    };
   },
 
   methods: {
@@ -67,11 +70,14 @@ export default {
         this.buildTree();
       });
     },
+    route() {
+      router.push({ name: "tree", params: { runId: this.routeId } });
+    },
     buildTree() {
       var nodeTemplate = Handlebars.compile($("#node-template").html());
       //Create nodes to render with Dagre D3
       this.workflow.forEach((node) => {
-        let { hoverText } = getNodeInfo(node, this.workflow),
+        let { hoverText, runId } = getNodeInfo(node, this.workflow),
           hovertext;
 
         if (hoverText !== undefined) {
@@ -84,14 +90,26 @@ export default {
           });
         }
 
-        this.graph.setNode(node.eventId, {
-          label: node.eventType,
-          class: node.eventType,
-          id: node.eventId,
-          hovertext: hovertext,
-          //label: nodeTemplate({ label: node.eventType }),
-          //labelType: "html",
-        });
+        if (runId) {
+          this.graph.setNode(node.eventId, {
+            label: node.eventType,
+            class: node.eventType,
+            id: node.eventId,
+            hovertext: hovertext,
+            runId: runId,
+            //label: nodeTemplate({ label: node.eventType }),
+            //labelType: "html",
+          });
+        } else {
+          this.graph.setNode(node.eventId, {
+            label: node.eventType,
+            class: node.eventType,
+            id: node.eventId,
+            hovertext: hovertext,
+            //label: nodeTemplate({ label: node.eventType }),
+            //labelType: "html",
+          });
+        }
       });
       //Set the direct and inferred relationships
       this.workflow.forEach((node) => {
@@ -135,7 +153,6 @@ export default {
         });
       }
     },
-
     renderGraph() {
       var self = this;
 
@@ -179,6 +196,10 @@ export default {
           return self.graph.node(v).hovertext;
         })
         .on("click", function (d) {
+          if (self.graph.node(d).runId) {
+            self.showButton = true;
+            self.routeId = self.graph.node(d).runId;
+          }
           //console.log(d, this.dataset.hovertext);
           d3.select("#tooltip")
             .style("left", event.pageX - 10 + "px")
@@ -187,6 +208,10 @@ export default {
             .html(this.dataset.hovertext);
           d3.select("#node-info-box-text").html(this.dataset.hovertext);
         });
+
+      d3.select("#buttonId").on("click", function (d) {
+        console.log("hey", d);
+      });
 
       // TODO: Try to center the graph
       /*   var svg = d3.select("svg");
@@ -286,6 +311,12 @@ text {
   stroke: rgb(196, 141, 141);
   fill: #fff;
   stroke-width: 1.5px;
+}
+
+#buttonId {
+  width: 100%;
+  height: 50px;
+  background-color: blue;
 }
 
 .edgePath path.path {
