@@ -293,12 +293,6 @@ text {
   stroke-width: 1.5px;
 }
 
-#buttonId {
-  width: 100%;
-  height: 50px;
-  background-color: blue;
-}
-
 .edgePath path.path {
   stroke: #333;
   stroke-width: 1.5px;
