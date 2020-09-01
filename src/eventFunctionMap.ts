@@ -145,6 +145,7 @@ let eventTypeMap: eventTypeMap = {
       parent: attributesObj.initiatedEventId,
       inferredChild: inferredChild,
       chronologicalChild: chronologicalChild,
+      runId: attributesObj.workflowExecution.runId,
       hoverText: {
         id: node.eventId,
         domain: attributesObj.domain,
