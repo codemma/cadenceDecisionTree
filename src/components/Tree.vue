@@ -101,7 +101,7 @@ export default {
         });
       });
 
-      //Set the direct and chronological parent relationships
+      //Set the direct and chronological relationships
       this.workflow.forEach((node) => {
         this.setParents(node);
       });
@@ -117,10 +117,19 @@ export default {
     },
     setParents(node) {
       let nodeId = node.eventId,
-        { parent, chronologicalParent } = getNodeInfo(node, this.workflow);
+        { parent, chronologicalParent, inferredChild } = getNodeInfo(
+          node,
+          this.workflow
+        );
       if (parent) {
         this.parentArray.push(parent);
         this.graph.setEdge(parent, nodeId);
+      }
+      if (inferredChild) {
+        this.graph.setEdge(nodeId, inferredChild, {
+          style: "stroke: #f66; stroke-width: 3px; stroke-dasharray: 5, 5;",
+          arrowheadStyle: "fill: #f66",
+        });
       }
       if (chronologicalParent) {
         this.parentArray.push(chronologicalParent);
@@ -136,13 +145,6 @@ export default {
           node,
           this.workflow
         );
-
-      if (inferredChild) {
-        this.graph.setEdge(nodeId, inferredChild, {
-          style: "stroke: #f66; stroke-width: 3px; stroke-dasharray: 5, 5;",
-          arrowheadStyle: "fill: #f66",
-        });
-      }
       if (chronologicalChild) {
         this.graph.setEdge(nodeId, chronologicalChild, {
           style: "stroke: #00B2EE; stroke-width: 3px; stroke-dasharray: 5, 5;",

@@ -122,6 +122,7 @@ let eventTypeMap: eventTypeMap = {
       inferredChild: inferredChild,
       chronologicalChild: chronologicalChild,
       hoverText: {
+        id: node.eventId,
         result: attributesObj.result,
         workflowType: attributesObj.workflowType.name,
       },
@@ -140,6 +141,14 @@ let eventTypeMap: eventTypeMap = {
   'ChildWorkflowExecutionStarted': function (node: node, workflow: workflow) {
     let attributesObj = node.childWorkflowExecutionStartedEventAttributes,
       { inferredChild, chronologicalChild } = findChild(node, workflow);
+
+    /*   if (inferredChild) {
+        console.log('inf', node.eventId, inferredChild)
+      }
+      if (chronologicalChild) {
+        console.log('cron', node.eventId, chronologicalChild)
+      } */
+
     const nodeInfo: nodeInfo = {
       parent: attributesObj.initiatedEventId,
       inferredChild: inferredChild,
@@ -170,6 +179,10 @@ let eventTypeMap: eventTypeMap = {
   'DecisionTaskCompleted': function (node: node, workflow: workflow) {
     let attributesObj = node.decisionTaskCompletedEventAttributes
     let { chronologicalChild } = findChild(node, workflow);
+
+    if (chronologicalChild) {
+      console.log('cron', node.eventId, chronologicalChild)
+    }
     const nodeInfo: nodeInfo = {
       parent: attributesObj.startedEventId,
       chronologicalChild: chronologicalChild,
@@ -431,22 +444,29 @@ function findChild(node: node, workflow: workflow): nodeInfo {
     slicedWorkflow = workflow.slice(node.eventId),
     nodeInformation: nodeInfo = {},
     targetNode: node;
-  for (targetNode of slicedWorkflow) {
-    switch (targetNode.eventType) {
-      case 'WorkflowExecutionSignaled':
-      case 'WorkflowExecutionCancelRequested':
-        break
-      case 'DecisionTaskScheduled':
-        nodeInformation = {
-          inferredChild: targetNode.eventId
-        }
-        return nodeInformation
-      default:
-        nodeInformation = {
-          chronologicalChild: targetNode.eventId
-        }
-        return nodeInformation
+
+  console.log('in findchild', node.eventType + node.eventId, slicedWorkflow[0].eventType + slicedWorkflow[0].eventId)
+  if (slicedWorkflow[0].eventType === 'DecisionTaskScheduled') {
+    nodeInformation = {
+      inferredChild: slicedWorkflow[0].eventId
     }
+    return nodeInformation
+  }
+
+  else {
+    for (targetNode of slicedWorkflow) {
+      switch (targetNode.eventType) {
+        case 'WorkflowExecutionSignaled':
+        case 'WorkflowExecutionCancelRequested':
+          break
+        default:
+          nodeInformation = {
+            chronologicalChild: targetNode.eventId
+          }
+          return nodeInformation
+      }
+    }
+
   }
   return nodeInformation
 }
