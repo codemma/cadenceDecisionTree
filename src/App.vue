@@ -3,9 +3,16 @@
     <input v-model="runId" placeholder="Enter run ID" />
     <p>Hint: 957bad90-9c99-4afb-8ccc-0e550a439a60</p>
     <button v-on:click="onClick">Build Tree</button>
-    <!--  <div id="nav">
-      <router-link to="/tree">Tree</router-link>
-    </div>-->
+    <div id="nav">
+      <router-link
+        :to="{ name: 'tree', params: { runId: '957bad90-9c99-4afb-8ccc-0e550a439a60' }}"
+      >Parent workflow</router-link>
+      <router-link
+        :to="{ name: 'tree', params: { runId: 'afc9e3d9-cba6-4df1-b212-919c34addf5b' }}"
+      >Failed workflow</router-link>
+
+      <!-- <router-link to="/tree" params: { runId: 957bad90-9c99-4afb-8ccc-0e550a439a60 }>Tree</router-link> -->
+    </div>
     <router-view />
   </div>
 </template>
@@ -21,7 +28,7 @@ export default {
   },
   methods: {
     onClick() {
-      router.push({ name: "Tree", params: { runId: this.runId } });
+      router.push({ name: "tree", params: { runId: this.runId } });
     },
   },
 };

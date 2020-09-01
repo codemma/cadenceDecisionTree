@@ -7,7 +7,7 @@ Vue.use(VueRouter)
 const routes: Array<RouteConfig> = [
   {
     path: '/tree/:runId',
-    name: 'Tree',
+    name: 'tree',
     props: true,
     component: Tree
   },

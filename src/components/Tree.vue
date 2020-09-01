@@ -3,13 +3,15 @@
     <svg id="canvas" width="100%" height="100%" style="border: 1px solid black;">
       <g />
     </svg>
+    <div id="node-info-box">
+      <h3>Info</h3>
+      <div id="node-info-box-text"></div>
+    </div>
     <div id="tooltip" class="hidden">
-      <p>
+      <div id="event-info-header">
         <strong>Event information</strong>
-      </p>
-      <p>
-        <span id="info"></span>
-      </p>
+      </div>
+      <span id="info"></span>
     </div>
   </div>
 </template>
@@ -20,6 +22,8 @@ import dagreD3 from "dagre-d3";
 //import * as workflow from "../data/marker-event";
 import { getNodeInfo } from "../eventFunctionMap.ts";
 import router from "../router";
+import Handlebars from "handlebars";
+import $ from "jquery";
 export default {
   props: {
     runId: {
@@ -29,6 +33,7 @@ export default {
   },
   watch: {
     runId: function () {
+      this.parentArray = [];
       this.createGraph();
     },
   },
@@ -52,7 +57,7 @@ export default {
         });
     },
     async loadWorkflow() {
-      let workflow = require("../data/" + this.runId + ".js");
+      let workflow = require("../demo-data/" + this.runId + ".js");
       return workflow;
     },
     createGraph() {
@@ -63,61 +68,69 @@ export default {
       });
     },
     buildTree() {
+      var nodeTemplate = Handlebars.compile($("#node-template").html());
       //Create nodes to render with Dagre D3
       this.workflow.forEach((node) => {
+        let { hoverText } = getNodeInfo(node, this.workflow),
+          hovertext;
+
+        if (hoverText !== undefined) {
+          hovertext = nodeTemplate({ hoverText: hoverText });
+        } else {
+          hovertext = nodeTemplate({
+            hoverText: {
+              test: "TODO",
+            },
+          });
+        }
+
         this.graph.setNode(node.eventId, {
           label: node.eventType,
           class: node.eventType,
           id: node.eventId,
-          hovertext: node.eventId,
+          hovertext: hovertext,
+          //label: nodeTemplate({ label: node.eventType }),
+          //labelType: "html",
         });
       });
-
-      //Set the direct and chronological parent relationships
+      //Set the direct and inferred relationships
       this.workflow.forEach((node) => {
-        this.setParents(node);
+        this.setDirectAndInferred(node);
       });
 
-      //Set the chronological and inferred child relationships
+      //Set the chronological relationships.
+      //If the node is not referred to as a parent it should be connected back to the graph with a chron child
       this.workflow.forEach((node) => {
         if (!this.parentArray.includes(node.eventId)) {
-          this.setChildren(node);
+          this.setChron(node);
         }
       });
-
       this.renderGraph();
     },
-    setParents(node) {
+    setDirectAndInferred(node) {
       let nodeId = node.eventId,
-        { parent, chronologicalParent } = getNodeInfo(node, this.workflow);
+        { parent, inferredChild } = getNodeInfo(node, this.workflow);
       if (parent) {
         this.parentArray.push(parent);
-        this.graph.setEdge(parent, nodeId);
-      }
-      if (chronologicalParent) {
-        this.parentArray.push(chronologicalParent);
-        this.graph.setEdge(chronologicalParent, nodeId, {
-          style: "stroke: #00B2EE; stroke-width: 3px; stroke-dasharray: 5, 5;",
-          arrowheadStyle: "fill: #00B2EE",
+        this.graph.setEdge(parent, nodeId, {
+          style: "stroke: #000000; stroke-width: 2px;",
+          arrowheadStyle: "fill: #000000",
         });
       }
-    },
-    setChildren(node) {
-      let nodeId = node.eventId,
-        { inferredChild, chronologicalChild } = getNodeInfo(
-          node,
-          this.workflow
-        );
-
       if (inferredChild) {
+        this.parentArray.push(nodeId);
         this.graph.setEdge(nodeId, inferredChild, {
-          style: "stroke: #f66; stroke-width: 3px; stroke-dasharray: 5, 5;",
+          style: "stroke: #f66; stroke-width: 2px;",
           arrowheadStyle: "fill: #f66",
         });
       }
+    },
+    setChron(node) {
+      let nodeId = node.eventId,
+        { chronologicalChild } = getNodeInfo(node, this.workflow);
       if (chronologicalChild) {
         this.graph.setEdge(nodeId, chronologicalChild, {
-          style: "stroke: #00B2EE; stroke-width: 3px; stroke-dasharray: 5, 5;",
+          style: "stroke: #00B2EE; stroke-width: 2px; stroke-dasharray: 5, 5;",
           arrowheadStyle: "fill: #00B2EE",
         });
       }
@@ -158,26 +171,21 @@ export default {
         });
 
       //Select all nodes and add click event
-      //ALso trying out mouseover and mouseout
+      //Also trying out mouseover and mouseout
       inner
         .selectAll("g.node")
         //To access the node hovertext
         .attr("data-hovertext", function (v) {
           return self.graph.node(v).hovertext;
         })
-        .on("dblclick", function () {
-          //Show tooltip
-          d3.select("#tooltip").classed("hidden", false);
-        })
-        .on("mousemove", function (d) {
+        .on("click", function (d) {
+          //console.log(d, this.dataset.hovertext);
           d3.select("#tooltip")
             .style("left", event.pageX - 10 + "px")
             .style("top", event.pageY + 10 + "px")
             .select("#info")
-            .text(this.dataset.hovertext);
-        })
-        .on("mouseout", function () {
-          d3.select("#tooltip").classed("hidden", true);
+            .html(this.dataset.hovertext);
+          d3.select("#node-info-box-text").html(this.dataset.hovertext);
         });
 
       // TODO: Try to center the graph
@@ -199,42 +207,67 @@ export default {
 
 <style lang="stylus">
 div.tree {
-  flex: 1;
+  width: 100%;
+  height: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100%;
-  width: 100%;
+  overflow: hidden;
+  padding: 1px;
+  margin-top: 20px;
+}
+
+#canvas {
+  flex: 2;
 }
 
 g.Decision-Task>rect {
   fill: #00ffd0;
 }
 
+#event-info-header {
+  background: #FFEB3B;
+  padding: 10px;
+  margin: 0;
+  text-align: center;
+}
+
 #tooltip {
+  font-size: 14px;
   position: absolute;
-  border: 2px solid #999;
+  border: 2px solid black;
   width: fit-content;
+  max-width: 400px;
+  overflow-wrap: break-word;
+  text-align: left;
   height: auto;
-  padding: 20px;
   background-color: #fff;
-  border: 'solid';
-  border-width: '2px';
-  border-radius: '5px';
-  padding: '5px';
-  box-shadow: 4px 4px 10px rgba(156, 156, 156, 0.4);
+  border-radius: 6px;
+  box-shadow: 0px 4px 33px 0px rgba(240, 240, 240, 1);
   pointer-events: none;
 }
 
-#tooltip.hidden {
-  display: none;
+#node-info-box {
+  flex: 1;
+  height: 100%;
+  border: 1px solid black;
+  overflow-wrap: break-word;
+  overflow-y: scroll;
+  margin: 20px;
 }
 
 #tooltip p {
   margin: 0;
   font-family: sans-serif;
-  font-size: 16px;
   line-height: 20px;
+}
+
+#info-text-area {
+  margin: 20px;
+}
+
+#tooltip.hidden {
+  display: none;
 }
 
 text {
