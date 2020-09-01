@@ -56,7 +56,7 @@ export default {
         });
     },
     async loadWorkflow() {
-      let workflow = require("../data/" + this.runId + ".js");
+      let workflow = require("../demo-data/" + this.runId + ".js");
       return workflow;
     },
     createGraph() {

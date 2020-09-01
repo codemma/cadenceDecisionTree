@@ -192,7 +192,7 @@ let eventTypeMap: eventTypeMap = {
     //Special case: Decision task is always started by an event before it, we call findChronParents to find the parent
     let parentId = findChronParent(node, workflow)
     const nodeInfo: nodeInfo = {
-      // chronologicalParent: parentId,
+      //chronologicalParent: parentId,
       hoverText: {
         id: node.eventId,
         taskList: attributesObj.taskList.name,
