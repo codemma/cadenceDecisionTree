@@ -97,8 +97,6 @@ export default {
             id: node.eventId,
             hovertext: hovertext,
             runId: runId,
-            //label: nodeTemplate({ label: node.eventType }),
-            //labelType: "html",
           });
         } else {
           this.graph.setNode(node.eventId, {
@@ -106,8 +104,6 @@ export default {
             class: node.eventType,
             id: node.eventId,
             hovertext: hovertext,
-            //label: nodeTemplate({ label: node.eventType }),
-            //labelType: "html",
           });
         }
       });
