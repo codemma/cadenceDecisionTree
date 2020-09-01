@@ -34,10 +34,6 @@ let eventTypeMap: eventTypeMap = {
   'ActivityTaskCompleted': function (node: node, workflow: workflow) {
     let attributesObj = node.activityTaskCompletedEventAttributes,
       { inferredChild, chronologicalChild } = findChild(node, workflow);
-
-    if (chronologicalChild) {
-      console.log('cron', node.eventId, chronologicalChild)
-    }
     const nodeInfo: nodeInfo = {
       parent: attributesObj.startedEventId,
       chronologicalChild: chronologicalChild,
@@ -145,14 +141,6 @@ let eventTypeMap: eventTypeMap = {
   'ChildWorkflowExecutionStarted': function (node: node, workflow: workflow) {
     let attributesObj = node.childWorkflowExecutionStartedEventAttributes,
       { inferredChild, chronologicalChild } = findChild(node, workflow);
-
-    /*   if (inferredChild) {
-        console.log('inf', node.eventId, inferredChild)
-      }
-      if (chronologicalChild) {
-        console.log('cron', node.eventId, chronologicalChild)
-      } */
-
     const nodeInfo: nodeInfo = {
       parent: attributesObj.initiatedEventId,
       inferredChild: inferredChild,
@@ -183,10 +171,6 @@ let eventTypeMap: eventTypeMap = {
   'DecisionTaskCompleted': function (node: node, workflow: workflow) {
     let attributesObj = node.decisionTaskCompletedEventAttributes
     let { chronologicalChild } = findChild(node, workflow);
-
-    /*   if (chronologicalChild) {
-        console.log('cron', node.eventId, chronologicalChild)
-      } */
     const nodeInfo: nodeInfo = {
       parent: attributesObj.startedEventId,
       chronologicalChild: chronologicalChild,
@@ -206,10 +190,7 @@ let eventTypeMap: eventTypeMap = {
   },
   'DecisionTaskScheduled': function (node: node, workflow: workflow) {
     let attributesObj = node.decisionTaskScheduledEventAttributes
-    //Special case: Decision task is always started by an event before it, we call findChronParents to find the parent
-    let parentId = findChronParent(node, workflow)
     const nodeInfo: nodeInfo = {
-      //chronologicalParent: parentId,
       hoverText: {
         id: node.eventId,
         taskList: attributesObj.taskList.name,
@@ -417,7 +398,7 @@ let eventTypeMap: eventTypeMap = {
     return nodeInfo
   },
   'WorkflowExecutionSignaled': function (node: node, workflow: workflow) {
-    let { inferredChild } = findChild(node, workflow);
+    let { inferredChild } = findInferredChild(node, workflow);
     const nodeInfo: nodeInfo = {
       inferredChild: inferredChild
     }
@@ -439,6 +420,27 @@ let eventTypeMap: eventTypeMap = {
   },
 }
 
+function findInferredChild(node: node, workflow: workflow): nodeInfo {
+  let
+    slicedWorkflow = workflow.slice(node.eventId),
+    nodeInformation: nodeInfo = {},
+    targetNode: node;
+
+  for (targetNode of slicedWorkflow) {
+    switch (targetNode.eventType) {
+      case 'WorkflowExecutionSignaled':
+      case 'WorkflowExecutionCancelRequested':
+        break
+      case 'DecisionTaskScheduled':
+        nodeInformation = {
+          inferredChild: targetNode.eventId
+        }
+        return nodeInformation
+    }
+  }
+  return nodeInformation
+}
+
 
 //Looks for a chronological or inferred child
 //It is inferred if a DecisionTaskScheduled, otherwise its chronological
@@ -449,7 +451,6 @@ function findChild(node: node, workflow: workflow): nodeInfo {
     nodeInformation: nodeInfo = {},
     targetNode: node;
 
-  console.log('in findchild', node.eventType + node.eventId, slicedWorkflow[0].eventType + slicedWorkflow[0].eventId)
   if (slicedWorkflow[0].eventType === 'DecisionTaskScheduled') {
     nodeInformation = {
       inferredChild: slicedWorkflow[0].eventId
@@ -473,28 +474,6 @@ function findChild(node: node, workflow: workflow): nodeInfo {
 
   }
   return nodeInformation
-}
-
-function findChronParent(node: node, workflow: workflow): number | undefined {
-  let parentIds;
-  //We only want to search the parents of the workflow, in reversed order to find the closests parents
-  let slicedWorkflow = workflow.slice(0, node.eventId - 1)
-  let reversedWorkflow = slicedWorkflow.reverse()
-
-  //Signals are not chronological parents, skip them!
-  let targetNode: node;
-  for (targetNode of reversedWorkflow) {
-    let eventType = targetNode.eventType
-    switch (eventType) {
-      case 'WorkflowExecutionSignaled':
-      case 'ExternalWorkflowExecutionSignaled':
-      case 'WorkflowExecutionCancelRequested':
-        break
-      default:
-        return targetNode.eventId
-    }
-  }
-  return parentIds
 }
 
 // Exporting variables and functions
