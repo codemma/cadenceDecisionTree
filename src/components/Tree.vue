@@ -33,6 +33,7 @@ export default {
   },
   watch: {
     runId: function () {
+      this.parentArray = [];
       this.createGraph();
     },
   },
@@ -101,6 +102,8 @@ export default {
         });
       });
 
+      let map = new Map();
+
       //Set the direct and chronological relationships
       this.workflow.forEach((node) => {
         this.setParents(node);
@@ -112,42 +115,39 @@ export default {
           this.setChildren(node);
         }
       });
-
       this.renderGraph();
     },
     setParents(node) {
       let nodeId = node.eventId,
-        { parent, chronologicalParent, inferredChild } = getNodeInfo(
-          node,
-          this.workflow
-        );
+        { parent, inferredChild } = getNodeInfo(node, this.workflow);
       if (parent) {
         this.parentArray.push(parent);
-        this.graph.setEdge(parent, nodeId);
+        this.graph.setEdge(parent, nodeId, {
+          style: "stroke: #000000; stroke-width: 2px; stroke-dasharray: 5, 5;",
+          arrowheadStyle: "fill: #000000",
+        });
       }
       if (inferredChild) {
+        this.parentArray.push(nodeId);
         this.graph.setEdge(nodeId, inferredChild, {
-          style: "stroke: #f66; stroke-width: 3px; stroke-dasharray: 5, 5;",
+          style: "stroke: #f66; stroke-width: 2px; stroke-dasharray: 5, 5;",
           arrowheadStyle: "fill: #f66",
         });
       }
-      if (chronologicalParent) {
+      /*   if (chronologicalParent) {
         this.parentArray.push(chronologicalParent);
         this.graph.setEdge(chronologicalParent, nodeId, {
           style: "stroke: #00B2EE; stroke-width: 3px; stroke-dasharray: 5, 5;",
           arrowheadStyle: "fill: #00B2EE",
         });
-      }
+      } */
     },
     setChildren(node) {
       let nodeId = node.eventId,
-        { inferredChild, chronologicalChild } = getNodeInfo(
-          node,
-          this.workflow
-        );
+        { chronologicalChild } = getNodeInfo(node, this.workflow);
       if (chronologicalChild) {
         this.graph.setEdge(nodeId, chronologicalChild, {
-          style: "stroke: #00B2EE; stroke-width: 3px; stroke-dasharray: 5, 5;",
+          style: "stroke: #00B2EE; stroke-width: 2px; stroke-dasharray: 5, 5;",
           arrowheadStyle: "fill: #00B2EE",
         });
       }
@@ -196,7 +196,7 @@ export default {
           return self.graph.node(v).hovertext;
         })
         .on("click", function (d) {
-          console.log(d, this.dataset.hovertext);
+          //console.log(d, this.dataset.hovertext);
           d3.select("#tooltip")
             .style("left", event.pageX - 10 + "px")
             .style("top", event.pageY + 10 + "px")

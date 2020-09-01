@@ -34,6 +34,10 @@ let eventTypeMap: eventTypeMap = {
   'ActivityTaskCompleted': function (node: node, workflow: workflow) {
     let attributesObj = node.activityTaskCompletedEventAttributes,
       { inferredChild, chronologicalChild } = findChild(node, workflow);
+
+    if (chronologicalChild) {
+      console.log('cron', node.eventId, chronologicalChild)
+    }
     const nodeInfo: nodeInfo = {
       parent: attributesObj.startedEventId,
       chronologicalChild: chronologicalChild,
@@ -180,9 +184,9 @@ let eventTypeMap: eventTypeMap = {
     let attributesObj = node.decisionTaskCompletedEventAttributes
     let { chronologicalChild } = findChild(node, workflow);
 
-    if (chronologicalChild) {
-      console.log('cron', node.eventId, chronologicalChild)
-    }
+    /*   if (chronologicalChild) {
+        console.log('cron', node.eventId, chronologicalChild)
+      } */
     const nodeInfo: nodeInfo = {
       parent: attributesObj.startedEventId,
       chronologicalChild: chronologicalChild,
