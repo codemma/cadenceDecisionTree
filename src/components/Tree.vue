@@ -186,18 +186,14 @@ export default {
         });
 
       //Select all nodes and add click event
-      //ALso trying out mouseover and mouseout
+      //Also trying out mouseover and mouseout
       inner
         .selectAll("g.node")
         //To access the node hovertext
         .attr("data-hovertext", function (v) {
           return self.graph.node(v).hovertext;
         })
-        .on("mouseover", function () {
-          //Show tooltip
-          d3.select("#tooltip").classed("hidden", false);
-        })
-        .on("mousemove", function (d) {
+        .on("click", function (d) {
           console.log(d, this.dataset.hovertext);
           d3.select("#tooltip")
             .style("left", event.pageX - 10 + "px")
@@ -205,11 +201,6 @@ export default {
             .select("#info")
             .html(this.dataset.hovertext);
           d3.select("#node-info-box-text").html(this.dataset.hovertext);
-          //.html("<p>" + this.dataset.hovertext + "</p>");
-          //.text(this.dataset.hovertext);
-        })
-        .on("mouseout", function () {
-          d3.select("#tooltip").classed("hidden", true);
         });
 
       // TODO: Try to center the graph
