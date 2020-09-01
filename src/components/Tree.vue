@@ -177,16 +177,6 @@ export default {
       // Run the renderer. This is what draws the final graph.
       render(inner, this.graph);
 
-      //Add click on childNode
-      inner
-        .selectAll(".ChildWorkflowExecutionStarted")
-        .on("click", function (id) {
-          let childRunId =
-            self.workflow[id - 1].childWorkflowExecutionStartedEventAttributes
-              .workflowExecution.runId;
-          router.push({ name: "Tree", params: { runId: childRunId } });
-        });
-
       //Select all nodes and add click event
       //Also trying out mouseover and mouseout
       inner
@@ -196,22 +186,16 @@ export default {
           return self.graph.node(v).hovertext;
         })
         .on("click", function (d) {
+          d3.select("#node-info-box-text").html(this.dataset.hovertext);
+
+          //Show button if node has a runID ref TODO: improve this solution
           if (self.graph.node(d).runId) {
             self.showButton = true;
             self.routeId = self.graph.node(d).runId;
+          } else {
+            self.showButton = false;
           }
-          //console.log(d, this.dataset.hovertext);
-          d3.select("#tooltip")
-            .style("left", event.pageX - 10 + "px")
-            .style("top", event.pageY + 10 + "px")
-            .select("#info")
-            .html(this.dataset.hovertext);
-          d3.select("#node-info-box-text").html(this.dataset.hovertext);
         });
-
-      d3.select("#buttonId").on("click", function (d) {
-        console.log("hey", d);
-      });
 
       // TODO: Try to center the graph
       /*   var svg = d3.select("svg");
