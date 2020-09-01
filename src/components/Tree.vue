@@ -5,7 +5,7 @@
     </svg>
     <div id="node-info-box">
       <h3>Info</h3>
-      <button v-on:click="route" v-if="showButton">Route to child</button>
+      <button v-on:click="route" v-if="showRouteButton">Route to child</button>
       <div id="node-info-box-text"></div>
     </div>
     <div id="tooltip" class="hidden">
@@ -37,7 +37,7 @@ export default {
       workflow: {},
       graph: {},
       parentArray: [],
-      showButton: false,
+      showRouteButton: false,
       routeId: "",
     };
   },
@@ -190,10 +190,10 @@ export default {
 
           //Show button if node has a runID ref TODO: improve this solution
           if (self.graph.node(d).runId) {
-            self.showButton = true;
+            self.showRouteButton = true;
             self.routeId = self.graph.node(d).runId;
           } else {
-            self.showButton = false;
+            self.showRouteButton = false;
           }
         });
 
