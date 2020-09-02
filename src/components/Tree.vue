@@ -3,16 +3,10 @@
     <svg id="canvas" width="100%" height="100%" style="border: 1px solid black;">
       <g />
     </svg>
-    <div id="node-info-box">
-      <h3>Info</h3>
-      <button v-on:click="route" v-if="showRouteButton">Route to child</button>
-      <div id="node-info-box-text"></div>
-    </div>
-    <div id="tooltip" class="hidden">
-      <div id="event-info-header">
-        <strong>Event information</strong>
-      </div>
-      <span id="info"></span>
+    <div class="event-info">
+      <h3>Event information</h3>
+      <div class="event-info-btn" v-on:click="route" v-if="showRouteButton">Route to child</div>
+      <div class="event-info-text-container"></div>
     </div>
   </div>
 </template>
@@ -37,7 +31,7 @@ export default {
       workflow: {},
       graph: {},
       parentArray: [],
-      showRouteButton: false,
+      showRouteButton: true,
       routeId: "",
     };
   },
@@ -182,7 +176,7 @@ export default {
           return self.graph.node(v).hovertext;
         })
         .on("click", function (d) {
-          d3.select("#node-info-box-text").html(this.dataset.hovertext);
+          d3.select(".event-info-text-container").html(this.dataset.hovertext);
 
           //Show button if node has a runID ref TODO: improve this solution
           if (self.graph.node(d).runId) {
@@ -223,18 +217,11 @@ div.tree {
 }
 
 #canvas {
-  flex: 2;
+  flex: 3;
 }
 
 g.Decision-Task>rect {
   fill: #00ffd0;
-}
-
-#event-info-header {
-  background: #FFEB3B;
-  padding: 10px;
-  margin: 0;
-  text-align: center;
 }
 
 #tooltip {
@@ -252,13 +239,37 @@ g.Decision-Task>rect {
   pointer-events: none;
 }
 
-#node-info-box {
+.event-info {
   flex: 1;
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   border: 1px solid black;
   overflow-wrap: break-word;
   overflow-y: scroll;
   margin: 20px;
+
+  &-text {
+    > p {
+      overflow-wrap: break-word;
+      margin: 8px 20px;
+    }
+  }
+
+  &-text-container {
+    text-align: left;
+    width: 100%;
+  }
+
+  &-btn {
+    color: white;
+    background-color: #809fff;
+    font-weight: bold;
+    border-radius: 2px;
+    padding: 8px;
+    width: fit-content;
+  }
 }
 
 #tooltip p {
