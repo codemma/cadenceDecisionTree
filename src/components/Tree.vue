@@ -31,7 +31,7 @@ export default {
       workflow: {},
       graph: {},
       parentArray: [],
-      showRouteButton: true,
+      showRouteButton: false,
       routeId: "",
     };
   },
@@ -224,21 +224,6 @@ g.Decision-Task>rect {
   fill: #00ffd0;
 }
 
-#tooltip {
-  font-size: 14px;
-  position: absolute;
-  border: 2px solid black;
-  width: fit-content;
-  max-width: 400px;
-  overflow-wrap: break-word;
-  text-align: left;
-  height: auto;
-  background-color: #fff;
-  border-radius: 6px;
-  box-shadow: 0px 4px 33px 0px rgba(240, 240, 240, 1);
-  pointer-events: none;
-}
-
 .event-info {
   flex: 1;
   height: 100%;
@@ -256,7 +241,7 @@ g.Decision-Task>rect {
 
     > div {
       overflow-wrap: break-word;
-      margin: 8px 20px;
+      margin: 0px 20px;
     }
   }
 
@@ -265,27 +250,17 @@ g.Decision-Task>rect {
   }
 
   &-btn {
+    width: calc(100% - 40px);
     color: white;
-    background-color: #809fff;
+    background-color: #849df7;
     font-weight: bold;
     border-radius: 2px;
-    padding: 8px;
-    width: fit-content;
+    padding: 6px 0;
+
+    &:hover {
+      cursor: pointer;
+    }
   }
-}
-
-#tooltip p {
-  margin: 0;
-  font-family: sans-serif;
-  line-height: 20px;
-}
-
-#info-text-area {
-  margin: 20px;
-}
-
-#tooltip.hidden {
-  display: none;
 }
 
 text {
@@ -296,12 +271,6 @@ text {
 
 .node rect {
   stroke: #999;
-  fill: #fff;
-  stroke-width: 1.5px;
-}
-
-.node.tooltip {
-  stroke: rgb(196, 141, 141);
   fill: #fff;
   stroke-width: 1.5px;
 }
