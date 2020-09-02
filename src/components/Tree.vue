@@ -6,7 +6,7 @@
     <div class="event-info">
       <h3>Event information</h3>
       <div class="event-info-btn" v-on:click="route" v-if="showRouteButton">Route to child</div>
-      <div class="event-info-text-container"></div>
+      <div class="event-info-text"></div>
     </div>
   </div>
 </template>
@@ -176,7 +176,7 @@ export default {
           return self.graph.node(v).hovertext;
         })
         .on("click", function (d) {
-          d3.select(".event-info-text-container").html(this.dataset.hovertext);
+          d3.select(".event-info-text").html(this.dataset.hovertext);
 
           //Show button if node has a runID ref TODO: improve this solution
           if (self.graph.node(d).runId) {
@@ -251,7 +251,10 @@ g.Decision-Task>rect {
   margin: 20px;
 
   &-text {
-    > p {
+    text-align: left;
+    width: 100%;
+
+    > div {
       overflow-wrap: break-word;
       margin: 8px 20px;
     }
@@ -259,7 +262,6 @@ g.Decision-Task>rect {
 
   &-text-container {
     text-align: left;
-    width: 100%;
   }
 
   &-btn {
