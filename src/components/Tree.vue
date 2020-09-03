@@ -1,10 +1,11 @@
 <template>
   <div class="tree">
-    <svg id="canvas" width="100%" height="100%" style="border: 1px solid black;">
+    <svg id="canvas">
       <g />
     </svg>
     <div class="event-info">
       <h4>Event information</h4>
+      <hr />
       <div class="event-info-btn" v-on:click="route" v-if="showRouteButton">Route to child</div>
       <div class="event-info-text"></div>
     </div>
@@ -209,14 +210,15 @@ div.tree {
   width: 100%;
   height: 100%;
   display: flex;
-  justify-content: center;
   overflow: hidden;
-  padding: 1px;
-  margin-top: 20px;
+  margin: 20px 0;
 }
 
 #canvas {
   flex: 3;
+  background-color: white;
+  box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
+  margin-left: 20px;
 }
 
 g.Decision-Task>rect {
@@ -234,8 +236,18 @@ g.Decision-Task>rect {
   // border: 1px solid #e5e5e4;
   overflow-wrap: break-word;
   margin: 0 20px;
-  padding: 26px;
+  padding: 24px;
   overflow-y: scroll;
+  position: relative;
+
+  > hr {
+    border: 0;
+    border-top: 1px solid #eaeaea;
+    margin: 24px 0;
+    width: calc(100% + 48px);
+    padding: 0;
+    left: 0;
+  }
 
   > h4 {
     width: 100%;
