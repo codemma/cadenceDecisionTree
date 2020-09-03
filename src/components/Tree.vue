@@ -238,14 +238,14 @@ g.Decision-Task>rect {
   // border: 1px solid #e5e5e4;
   overflow-wrap: break-word;
   margin: 0 20px;
-  padding: 24px 0;
+  padding: 20px 0;
   overflow-y: scroll;
   overflow-x: hidden;
 
   > hr {
     border: 0;
     border-top: 1px solid #eaeaea;
-    margin: 24px 0;
+    margin: 20px 0;
     width: 100%;
     padding: 0;
     left: 0;
@@ -277,7 +277,7 @@ g.Decision-Task>rect {
   > hr {
     border: 0;
     border-top: 1px solid #eaeaea;
-    margin: 20px 0;
+    margin: 16px 0;
     width: 100%;
     padding: 0;
 
@@ -290,6 +290,11 @@ g.Decision-Task>rect {
 .list-item {
   margin: 0 24px;
   overflow-wrap: break-word;
+
+  &-header {
+    font-weight: 600;
+    padding-bottom: 2px;
+  }
 
   &-content {
     color: #7b7b7b; // #94989c;
