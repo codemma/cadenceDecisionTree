@@ -275,7 +275,7 @@ g.Decision-Task>rect {
   &-btn {
     width: 100%;
     color: white;
-    background-color: #849df7;
+    background-color: #11939A; // old #849df7
     font-weight: bold;
     border-radius: 2px;
     padding: 6px 0;
@@ -300,7 +300,7 @@ g.Decision-Task>rect {
 
   &-chronological {
     stroke-dasharray: 5, 5;
-    stroke: #11939A;
+    stroke: #5879DA;
     stroke-width: 2px;
   }
 }
@@ -319,8 +319,8 @@ g.Decision-Task>rect {
   }
 
   &-chronological {
-    fill: #11939A;
-    stroke: #11939A;
+    fill: #5879DA;
+    stroke: #5879DA;
     stroke-width: 1.5px;
   }
 }
