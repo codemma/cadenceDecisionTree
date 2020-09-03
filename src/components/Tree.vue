@@ -187,6 +187,10 @@ export default {
             self.showRouteButton = false;
           }
         });
+      //Fix to put arrowheads over nodes
+      svg
+        .select(".output")
+        .insert(() => d3.select(".nodes").remove().node(), ".edgePaths");
 
       // TODO: Try to center the graph
       /*   var svg = d3.select("svg");
