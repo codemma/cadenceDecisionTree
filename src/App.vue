@@ -1,10 +1,11 @@
 <template>
   <div id="app">
-    <input v-model="runId" placeholder="Enter run ID" />
+    <!--  <input v-model="runId" placeholder="Enter run ID" />
     <p>Hint: 957bad90-9c99-4afb-8ccc-0e550a439a60</p>
-    <button v-on:click="onClick">Build Tree</button>
+    <button v-on:click="onClick">Build Tree</button>-->
     <div id="nav">
       <router-link
+        class="router-link"
         :to="{ name: 'tree', params: { runId: '957bad90-9c99-4afb-8ccc-0e550a439a60' }}"
       >Parent workflow</router-link>
       <router-link
@@ -37,6 +38,14 @@ export default {
 <style lang="stylus">
 button, input {
   margin-bottom: 20px;
+}
+
+#nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.router-link {
 }
 
 #app {
