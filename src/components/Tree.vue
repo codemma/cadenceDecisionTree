@@ -233,22 +233,20 @@ g.Decision-Task>rect {
   flex: 1;
   background-color: white;
   box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   border-radius: 2px;
   // border: 1px solid #e5e5e4;
   overflow-wrap: break-word;
   margin: 0 20px;
-  padding: 24px;
+  padding: 24px 0;
   overflow-y: scroll;
-  position: relative;
+  overflow-x: hidden;
+  width: 100%;
 
   > hr {
     border: 0;
     border-top: 1px solid #eaeaea;
     margin: 24px 0;
-    width: calc(100% + 48px);
+    width: 100%;
     padding: 0;
     left: 0;
   }
@@ -256,7 +254,7 @@ g.Decision-Task>rect {
   > h4 {
     width: 100%;
     text-align: left;
-    margin: 0;
+    margin: 0 24px;
   }
 
   &-text {
@@ -265,10 +263,6 @@ g.Decision-Task>rect {
 
     > div {
       overflow-wrap: break-word;
-
-      p:first-child {
-        margin-top: 0;
-      }
     }
   }
 
@@ -279,7 +273,7 @@ g.Decision-Task>rect {
   &-btn {
     width: 100%;
     color: white;
-    background-color: #11939A; // old #849df7
+    background-color: #11939A;
     font-weight: bold;
     border-radius: 2px;
     padding: 6px 0;
@@ -288,6 +282,29 @@ g.Decision-Task>rect {
     &:hover {
       cursor: pointer;
     }
+  }
+}
+
+.event-information-list {
+  > hr {
+    border: 0;
+    border-top: 1px solid #eaeaea;
+    margin: 20px 0;
+    width: 100%;
+    padding: 0;
+  }
+
+  > hr:last-child {
+    display: none;
+  }
+}
+
+.list-item {
+  margin: 0 24px;
+
+  &-content {
+    color: #7b7b7b; // #94989c;
+    font-weight: 500;
   }
 }
 
