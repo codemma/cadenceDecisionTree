@@ -1,10 +1,11 @@
 <template>
   <div class="tree">
-    <svg id="canvas" width="100%" height="100%" style="border: 1px solid black;">
+    <svg id="canvas">
       <g />
     </svg>
     <div class="event-info">
-      <h3>Event information</h3>
+      <h4>Event information</h4>
+      <hr />
       <div class="event-info-btn" v-on:click="route" v-if="showRouteButton">Route to child</div>
       <div class="event-info-text"></div>
     </div>
@@ -121,15 +122,15 @@ export default {
       if (parent) {
         this.parentArray.push(parent);
         this.graph.setEdge(parent, nodeId, {
-          style: "stroke: #000000; stroke-width: 2px;",
-          arrowheadStyle: "fill: #000000",
+          class: "edge-direct",
+          arrowheadClass: "arrowhead-direct",
         });
       }
       if (inferredChild) {
         this.parentArray.push(nodeId);
         this.graph.setEdge(nodeId, inferredChild, {
-          style: "stroke: #f66; stroke-width: 2px;",
-          arrowheadStyle: "fill: #f66",
+          class: "edge-inferred",
+          arrowheadClass: "arrowhead-inferred",
         });
       }
     },
@@ -138,8 +139,8 @@ export default {
         { chronologicalChild } = getNodeInfo(node, this.workflow);
       if (chronologicalChild) {
         this.graph.setEdge(nodeId, chronologicalChild, {
-          style: "stroke: #00B2EE; stroke-width: 2px; stroke-dasharray: 5, 5;",
-          arrowheadStyle: "fill: #00B2EE",
+          class: "edge-chronological",
+          arrowheadClass: "arrowhead-chronological",
         });
       }
     },
@@ -186,6 +187,10 @@ export default {
             self.showRouteButton = false;
           }
         });
+      //Fix to put arrowheads over nodes
+      svg
+        .select(".output")
+        .insert(() => d3.select(".nodes").remove().node(), ".edgePaths");
 
       // TODO: Try to center the graph
       /*   var svg = d3.select("svg");
@@ -209,15 +214,15 @@ div.tree {
   width: 100%;
   height: 100%;
   display: flex;
-  justify-content: center;
-  align-items: center;
   overflow: hidden;
-  padding: 1px;
-  margin-top: 20px;
+  margin: 20px 0;
 }
 
 #canvas {
   flex: 3;
+  background-color: white;
+  box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
+  margin-left: 20px;
 }
 
 g.Decision-Task>rect {
@@ -226,14 +231,33 @@ g.Decision-Task>rect {
 
 .event-info {
   flex: 1;
-  height: 100%;
+  background-color: white;
+  box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 1px solid black;
+  border-radius: 2px;
+  // border: 1px solid #e5e5e4;
   overflow-wrap: break-word;
+  margin: 0 20px;
+  padding: 24px;
   overflow-y: scroll;
-  margin: 20px;
+  position: relative;
+
+  > hr {
+    border: 0;
+    border-top: 1px solid #eaeaea;
+    margin: 24px 0;
+    width: calc(100% + 48px);
+    padding: 0;
+    left: 0;
+  }
+
+  > h4 {
+    width: 100%;
+    text-align: left;
+    margin: 0;
+  }
 
   &-text {
     text-align: left;
@@ -241,7 +265,10 @@ g.Decision-Task>rect {
 
     > div {
       overflow-wrap: break-word;
-      margin: 0px 20px;
+
+      p:first-child {
+        margin-top: 0;
+      }
     }
   }
 
@@ -250,12 +277,13 @@ g.Decision-Task>rect {
   }
 
   &-btn {
-    width: calc(100% - 40px);
+    width: 100%;
     color: white;
-    background-color: #849df7;
+    background-color: #11939A; // old #849df7
     font-weight: bold;
     border-radius: 2px;
     padding: 6px 0;
+    margin-bottom: 16px;
 
     &:hover {
       cursor: pointer;
@@ -263,31 +291,52 @@ g.Decision-Task>rect {
   }
 }
 
+.edge {
+  &-direct {
+    stroke: #000000;
+    stroke-width: 2px;
+  }
+
+  &-inferred {
+    stroke: #ECAB20;
+    stroke-width: 2px;
+  }
+
+  &-chronological {
+    stroke-dasharray: 5, 5;
+    stroke: #5879DA;
+    stroke-width: 2px;
+  }
+}
+
+.arrowhead {
+  &-direct {
+    stroke: #2c3e50;
+    fill: #2c3e50;
+    stroke-width: 1.5px;
+  }
+
+  &-inferred {
+    stroke: #ECAB20;
+    fill: #ECAB20;
+    stroke-width: 1.5px;
+  }
+
+  &-chronological {
+    fill: #5879DA;
+    stroke: #5879DA;
+    stroke-width: 1.5px;
+  }
+}
+
 text {
   font-weight: 300;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serf;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .node rect {
-  stroke: #999;
+  stroke: #b7b4b4;
   fill: #fff;
-  stroke-width: 1.5px;
+  stroke-width: 1px;
 }
-
-.edgePath path.path {
-  stroke: #333;
-  stroke-width: 1.5px;
-  fill: none;
-}
-
-/* #tooltip_template {
-  position: "absolute";
-  background-color: "white";
-  border: "solid";
-  border-width: "2px";
-  border-radius: "5px";
-  padding: "5px";
-  z-index: "1000";
-} */
 </style>

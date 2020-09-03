@@ -49,7 +49,7 @@ button, input {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  background-color: #f6f6f9;
   height: 100vh;
 }
 </style>
