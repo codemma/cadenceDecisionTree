@@ -5,6 +5,7 @@
     </svg>
     <div id="node-info-box">
       <h3>Info</h3>
+      <button v-on:click="route" v-if="showRouteButton">Route to child</button>
       <div id="node-info-box-text"></div>
     </div>
     <div id="tooltip" class="hidden">
@@ -31,6 +32,15 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      workflow: {},
+      graph: {},
+      parentArray: [],
+      showRouteButton: false,
+      routeId: "",
+    };
+  },
   watch: {
     runId: function () {
       this.parentArray = [];
@@ -39,13 +49,6 @@ export default {
   },
   mounted() {
     this.createGraph();
-  },
-  data() {
-    return {
-      workflow: {},
-      graph: {},
-      parentArray: [],
-    };
   },
 
   methods: {
@@ -67,11 +70,14 @@ export default {
         this.buildTree();
       });
     },
+    route() {
+      router.push({ name: "tree", params: { runId: this.routeId } });
+    },
     buildTree() {
       var nodeTemplate = Handlebars.compile($("#node-template").html());
       //Create nodes to render with Dagre D3
       this.workflow.forEach((node) => {
-        let { hoverText } = getNodeInfo(node, this.workflow),
+        let { hoverText, runId } = getNodeInfo(node, this.workflow),
           hovertext;
 
         if (hoverText !== undefined) {
@@ -84,14 +90,22 @@ export default {
           });
         }
 
-        this.graph.setNode(node.eventId, {
-          label: node.eventType,
-          class: node.eventType,
-          id: node.eventId,
-          hovertext: hovertext,
-          //label: nodeTemplate({ label: node.eventType }),
-          //labelType: "html",
-        });
+        if (runId) {
+          this.graph.setNode(node.eventId, {
+            label: node.eventType,
+            class: node.eventType,
+            id: node.eventId,
+            hovertext: hovertext,
+            runId: runId,
+          });
+        } else {
+          this.graph.setNode(node.eventId, {
+            label: node.eventType,
+            class: node.eventType,
+            id: node.eventId,
+            hovertext: hovertext,
+          });
+        }
       });
       //Set the direct and inferred relationships
       this.workflow.forEach((node) => {
@@ -135,7 +149,6 @@ export default {
         });
       }
     },
-
     renderGraph() {
       var self = this;
 
@@ -160,16 +173,6 @@ export default {
       // Run the renderer. This is what draws the final graph.
       render(inner, this.graph);
 
-      //Add click on childNode
-      inner
-        .selectAll(".ChildWorkflowExecutionStarted")
-        .on("click", function (id) {
-          let childRunId =
-            self.workflow[id - 1].childWorkflowExecutionStartedEventAttributes
-              .workflowExecution.runId;
-          router.push({ name: "Tree", params: { runId: childRunId } });
-        });
-
       //Select all nodes and add click event
       //Also trying out mouseover and mouseout
       inner
@@ -179,13 +182,15 @@ export default {
           return self.graph.node(v).hovertext;
         })
         .on("click", function (d) {
-          //console.log(d, this.dataset.hovertext);
-          d3.select("#tooltip")
-            .style("left", event.pageX - 10 + "px")
-            .style("top", event.pageY + 10 + "px")
-            .select("#info")
-            .html(this.dataset.hovertext);
           d3.select("#node-info-box-text").html(this.dataset.hovertext);
+
+          //Show button if node has a runID ref TODO: improve this solution
+          if (self.graph.node(d).runId) {
+            self.showRouteButton = true;
+            self.routeId = self.graph.node(d).runId;
+          } else {
+            self.showRouteButton = false;
+          }
         });
 
       // TODO: Try to center the graph

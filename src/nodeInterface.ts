@@ -6,6 +6,7 @@ interface nodeInfo {
   inferredParents?: number[];
   hoverText?: object;
   nodeText?: object;
+  runId?: string;
 }
 
 interface workflow {
