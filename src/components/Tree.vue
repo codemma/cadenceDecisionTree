@@ -261,6 +261,10 @@ g.Decision-Task>rect {
 
     > div {
       overflow-wrap: break-word;
+
+      p:first-child {
+        margin-top: 0;
+      }
     }
   }
 
@@ -275,6 +279,7 @@ g.Decision-Task>rect {
     font-weight: bold;
     border-radius: 2px;
     padding: 6px 0;
+    margin-bottom: 16px;
 
     &:hover {
       cursor: pointer;
