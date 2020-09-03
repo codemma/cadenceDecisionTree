@@ -7,6 +7,7 @@
       <h4>Event information</h4>
       <hr />
       <div class="event-info-btn" v-on:click="route" v-if="showRouteButton">Route to child</div>
+      <hr v-if="showRouteButton" />
       <div class="event-info-content"></div>
     </div>
   </div>
@@ -240,7 +241,6 @@ g.Decision-Task>rect {
   padding: 24px 0;
   overflow-y: scroll;
   overflow-x: hidden;
-  width: 100%;
 
   > hr {
     border: 0;
@@ -258,13 +258,12 @@ g.Decision-Task>rect {
   }
 
   &-btn {
-    width: 100%;
+    margin: 0 20px;
     color: white;
     background-color: #11939A;
     font-weight: bold;
     border-radius: 2px;
     padding: 6px 0;
-    margin-bottom: 16px;
 
     &:hover {
       cursor: pointer;
