@@ -3,16 +3,10 @@
     <svg id="canvas" width="100%" height="100%" style="border: 1px solid black;">
       <g />
     </svg>
-    <div id="node-info-box">
-      <h3>Info</h3>
-      <button v-on:click="route" v-if="showRouteButton">Route to child</button>
-      <div id="node-info-box-text"></div>
-    </div>
-    <div id="tooltip" class="hidden">
-      <div id="event-info-header">
-        <strong>Event information</strong>
-      </div>
-      <span id="info"></span>
+    <div class="event-info">
+      <h3>Event information</h3>
+      <div class="event-info-btn" v-on:click="route" v-if="showRouteButton">Route to child</div>
+      <div class="event-info-text"></div>
     </div>
   </div>
 </template>
@@ -182,7 +176,7 @@ export default {
           return self.graph.node(v).hovertext;
         })
         .on("click", function (d) {
-          d3.select("#node-info-box-text").html(this.dataset.hovertext);
+          d3.select(".event-info-text").html(this.dataset.hovertext);
 
           //Show button if node has a runID ref TODO: improve this solution
           if (self.graph.node(d).runId) {
@@ -223,56 +217,50 @@ div.tree {
 }
 
 #canvas {
-  flex: 2;
+  flex: 3;
 }
 
 g.Decision-Task>rect {
   fill: #00ffd0;
 }
 
-#event-info-header {
-  background: #FFEB3B;
-  padding: 10px;
-  margin: 0;
-  text-align: center;
-}
-
-#tooltip {
-  font-size: 14px;
-  position: absolute;
-  border: 2px solid black;
-  width: fit-content;
-  max-width: 400px;
-  overflow-wrap: break-word;
-  text-align: left;
-  height: auto;
-  background-color: #fff;
-  border-radius: 6px;
-  box-shadow: 0px 4px 33px 0px rgba(240, 240, 240, 1);
-  pointer-events: none;
-}
-
-#node-info-box {
+.event-info {
   flex: 1;
   height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   border: 1px solid black;
   overflow-wrap: break-word;
   overflow-y: scroll;
   margin: 20px;
-}
 
-#tooltip p {
-  margin: 0;
-  font-family: sans-serif;
-  line-height: 20px;
-}
+  &-text {
+    text-align: left;
+    width: 100%;
 
-#info-text-area {
-  margin: 20px;
-}
+    > div {
+      overflow-wrap: break-word;
+      margin: 0px 20px;
+    }
+  }
 
-#tooltip.hidden {
-  display: none;
+  &-text-container {
+    text-align: left;
+  }
+
+  &-btn {
+    width: calc(100% - 40px);
+    color: white;
+    background-color: #849df7;
+    font-weight: bold;
+    border-radius: 2px;
+    padding: 6px 0;
+
+    &:hover {
+      cursor: pointer;
+    }
+  }
 }
 
 text {
@@ -283,12 +271,6 @@ text {
 
 .node rect {
   stroke: #999;
-  fill: #fff;
-  stroke-width: 1.5px;
-}
-
-.node.tooltip {
-  stroke: rgb(196, 141, 141);
   fill: #fff;
   stroke-width: 1.5px;
 }
