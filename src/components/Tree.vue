@@ -4,7 +4,7 @@
       <g />
     </svg>
     <div class="event-info">
-      <h3>Event information</h3>
+      <h4>Event information</h4>
       <div class="event-info-btn" v-on:click="route" v-if="showRouteButton">Route to child</div>
       <div class="event-info-text"></div>
     </div>
@@ -210,7 +210,6 @@ div.tree {
   height: 100%;
   display: flex;
   justify-content: center;
-  align-items: center;
   overflow: hidden;
   padding: 1px;
   margin-top: 20px;
@@ -226,14 +225,23 @@ g.Decision-Task>rect {
 
 .event-info {
   flex: 1;
-  height: 100%;
+  background-color: white;
+  box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
   display: flex;
   flex-direction: column;
   align-items: center;
-  border: 1px solid black;
+  border-radius: 2px;
+  // border: 1px solid #e5e5e4;
   overflow-wrap: break-word;
+  margin: 0 20px;
+  padding: 26px;
   overflow-y: scroll;
-  margin: 20px;
+
+  > h4 {
+    width: 100%;
+    text-align: left;
+    margin: 0;
+  }
 
   &-text {
     text-align: left;
@@ -241,7 +249,6 @@ g.Decision-Task>rect {
 
     > div {
       overflow-wrap: break-word;
-      margin: 0px 20px;
     }
   }
 
@@ -250,7 +257,7 @@ g.Decision-Task>rect {
   }
 
   &-btn {
-    width: calc(100% - 40px);
+    width: 100%;
     color: white;
     background-color: #849df7;
     font-weight: bold;
