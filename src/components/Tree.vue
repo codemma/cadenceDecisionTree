@@ -122,15 +122,15 @@ export default {
       if (parent) {
         this.parentArray.push(parent);
         this.graph.setEdge(parent, nodeId, {
-          style: "stroke: #000000; stroke-width: 2px;",
-          arrowheadStyle: "fill: #000000",
+          class: "edge-direct",
+          arrowheadClass: "arrowhead-direct",
         });
       }
       if (inferredChild) {
         this.parentArray.push(nodeId);
         this.graph.setEdge(nodeId, inferredChild, {
-          style: "stroke: #f66; stroke-width: 2px;",
-          arrowheadStyle: "fill: #f66",
+          class: "edge-inferred",
+          arrowheadClass: "arrowhead-inferred",
         });
       }
     },
@@ -139,8 +139,8 @@ export default {
         { chronologicalChild } = getNodeInfo(node, this.workflow);
       if (chronologicalChild) {
         this.graph.setEdge(nodeId, chronologicalChild, {
-          style: "stroke: #00B2EE; stroke-width: 2px; stroke-dasharray: 5, 5;",
-          arrowheadStyle: "fill: #00B2EE",
+          class: "edge-chronological",
+          arrowheadClass: "arrowhead-chronological",
         });
       }
     },
@@ -287,31 +287,52 @@ g.Decision-Task>rect {
   }
 }
 
+.edge {
+  &-direct {
+    stroke: #000000;
+    stroke-width: 2px;
+  }
+
+  &-inferred {
+    stroke: #ECAB20;
+    stroke-width: 2px;
+  }
+
+  &-chronological {
+    stroke-dasharray: 5, 5;
+    stroke: #11939A;
+    stroke-width: 2px;
+  }
+}
+
+.arrowhead {
+  &-direct {
+    stroke: #2c3e50;
+    fill: #2c3e50;
+    stroke-width: 1.5px;
+  }
+
+  &-inferred {
+    stroke: #ECAB20;
+    fill: #ECAB20;
+    stroke-width: 1.5px;
+  }
+
+  &-chronological {
+    fill: #11939A;
+    stroke: #11939A;
+    stroke-width: 1.5px;
+  }
+}
+
 text {
   font-weight: 300;
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serf;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .node rect {
-  stroke: #999;
+  stroke: #b7b4b4;
   fill: #fff;
-  stroke-width: 1.5px;
+  stroke-width: 1px;
 }
-
-.edgePath path.path {
-  stroke: #333;
-  stroke-width: 1.5px;
-  fill: none;
-}
-
-/* #tooltip_template {
-  position: "absolute";
-  background-color: "white";
-  border: "solid";
-  border-width: "2px";
-  border-radius: "5px";
-  padding: "5px";
-  z-index: "1000";
-} */
 </style>
