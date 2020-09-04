@@ -1,6 +1,6 @@
 <template>
   <div class="graph-container">
-    <router-link class="router-link" :to="{ name: 'home' }">Home</router-link>
+    <router-link class="btn" :to="{ name: 'home' }">Home</router-link>
     <div class="tree">
       <svg id="canvas">
         <g />
@@ -235,10 +235,21 @@ div.tree {
   flex: 3;
   background-color: white;
   box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
+  border: 1px solid #eaeaea;
 }
 
 g.Decision-Task>rect {
   fill: #00ffd0;
+}
+
+.btn {
+  margin: 20px 20px 20px 0;
+  color: white;
+  background-color: #11939A;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 2px;
+  padding: 6px;
 }
 
 .event-info {
@@ -246,7 +257,7 @@ g.Decision-Task>rect {
   background-color: white;
   box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
   border-radius: 2px;
-  // border: 1px solid #e5e5e4;
+  border: 1px solid #eaeaea;
   overflow-wrap: break-word;
   margin: 0 20px;
   padding: 20px 0;
