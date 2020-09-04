@@ -7,7 +7,8 @@
       <h4>Event information</h4>
       <hr />
       <div class="event-info-btn" v-on:click="route" v-if="showRouteButton">Route to child</div>
-      <div class="event-info-text"></div>
+      <hr v-if="showRouteButton" />
+      <div class="event-info-content"></div>
     </div>
   </div>
 </template>
@@ -177,7 +178,7 @@ export default {
           return self.graph.node(v).hovertext;
         })
         .on("click", function (d) {
-          d3.select(".event-info-text").html(this.dataset.hovertext);
+          d3.select(".event-info-content").html(this.dataset.hovertext);
 
           //Show button if node has a runID ref TODO: improve this solution
           if (self.graph.node(d).runId) {
@@ -233,22 +234,19 @@ g.Decision-Task>rect {
   flex: 1;
   background-color: white;
   box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   border-radius: 2px;
   // border: 1px solid #e5e5e4;
   overflow-wrap: break-word;
   margin: 0 20px;
-  padding: 24px;
+  padding: 20px 0;
   overflow-y: scroll;
-  position: relative;
+  overflow-x: hidden;
 
   > hr {
     border: 0;
     border-top: 1px solid #eaeaea;
-    margin: 24px 0;
-    width: calc(100% + 48px);
+    margin: 20px 0;
+    width: 100%;
     padding: 0;
     left: 0;
   }
@@ -256,38 +254,51 @@ g.Decision-Task>rect {
   > h4 {
     width: 100%;
     text-align: left;
-    margin: 0;
-  }
-
-  &-text {
-    text-align: left;
-    width: 100%;
-
-    > div {
-      overflow-wrap: break-word;
-
-      p:first-child {
-        margin-top: 0;
-      }
-    }
-  }
-
-  &-text-container {
-    text-align: left;
+    margin: 0 24px;
   }
 
   &-btn {
-    width: 100%;
+    margin: 0 20px;
     color: white;
-    background-color: #11939A; // old #849df7
+    background-color: #11939A;
     font-weight: bold;
     border-radius: 2px;
     padding: 6px 0;
-    margin-bottom: 16px;
 
     &:hover {
       cursor: pointer;
     }
+  }
+}
+
+.event-information-list {
+  text-align: left;
+
+  > hr {
+    border: 0;
+    border-top: 1px solid #eaeaea;
+    margin: 16px 0;
+    width: 100%;
+    padding: 0;
+
+    &:last-child {
+      display: none;
+    }
+  }
+}
+
+.list-item {
+  margin: 0 24px;
+  overflow-wrap: break-word;
+
+  &-header {
+    font-weight: 600;
+    padding-bottom: 2px;
+  }
+
+  &-content {
+    color: #7b7b7b; // #94989c;
+    font-weight: 500;
   }
 }
 
