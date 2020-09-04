@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Tree from '../components/Tree.vue'
+import Home from '../components/Home.vue'
 
 Vue.use(VueRouter)
 
@@ -10,6 +11,11 @@ const routes: Array<RouteConfig> = [
     name: 'tree',
     props: true,
     component: Tree
+  },
+  {
+    path: '/',
+    name: 'home',
+    component: Home
   },
 ]
 
