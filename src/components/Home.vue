@@ -60,6 +60,11 @@
         :to="{ name: 'tree', params: { runId: 'fe80f571-639d-471b-b7a0-2fd49bc052cf' }}"
       >HelloSearchAttributes</router-link>
       <div class="explanation">how to use search attributes</div>
+      <router-link
+        class="router-link"
+        :to="{ name: 'tree', params: { runId: 'a57bb2c9-1f78-4cf8-b0b4-063932953deb' }}"
+      >HelloCron</router-link>
+      <div class="explanation">a cron workflow</div>
     </div>
   </div>
 </template>
@@ -73,12 +78,9 @@ export default {
 <!-- styling for the component -->
 <style scoped lang="stylus">
 #about {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  overflow-y: scroll;
 }
 
 .explanation {
