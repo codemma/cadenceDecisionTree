@@ -8,6 +8,9 @@
       <router-link
         :to="{ name: 'tree', params: { runId: 'afc9e3d9-cba6-4df1-b212-919c34addf5b' }}"
       >Failed workflow</router-link>
+      <router-link
+        :to="{ name: 'tree', params: { runId: '524629a5-f63e-47b0-a7b1-5e74304d9da3' }}"
+      >HelloActivity</router-link>
     </div>
   </div>
 </template>
