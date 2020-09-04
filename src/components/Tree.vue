@@ -232,7 +232,8 @@ div.tree {
 }
 
 .router-link {
-  margin: 20px;
+  margin: 10px;
+  color: black;
 }
 
 #canvas {
