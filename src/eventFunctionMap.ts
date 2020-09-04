@@ -131,11 +131,23 @@ let eventTypeMap: eventTypeMap = {
     return nodeInfo
   },
   'ChildWorkflowExecutionFailed': function (node: node, workflow: workflow) {
-    let { inferredChild, chronologicalChild } = findChild(node, workflow);
+    let attributesObj = node.childWorkflowExecutionFailedEventAttributes,
+      { inferredChild, chronologicalChild } = findChild(node, workflow);
     const nodeInfo: nodeInfo = {
-      parent: node.childWorkflowExecutionFailedEventAttributes.startedEventId,
+      parent: attributesObj.startedEventId,
       inferredChild: inferredChild,
-      chronologicalChild: chronologicalChild
+      chronologicalChild: chronologicalChild,
+      hoverText: {
+        id: node.eventId,
+        reason: attributesObj.reason,
+        domain: attributesObj.domain,
+        workflowType: attributesObj.workflowType.name,
+        initiatedEventId: attributesObj.initiatedEventId,
+        startedEventId: attributesObj.startedEventId,
+        runId: attributesObj.workflowExecution.runId,
+        workflowId: attributesObj.workflowExecution.workflowId
+      },
+
     }
     return nodeInfo
   },
@@ -290,6 +302,7 @@ let eventTypeMap: eventTypeMap = {
     const nodeInfo: nodeInfo = {
       parent: node.startChildWorkflowExecutionInitiatedEventAttributes.decisionTaskCompletedEventId,
       hoverText: {
+        id: node.eventId,
         domain: attributesObj.domain,
         input: attributesObj.input,
         workflowId: attributesObj.workflowId,
@@ -337,10 +350,11 @@ let eventTypeMap: eventTypeMap = {
   'UpsertWorkflowSearchAttributes': function (node: node) {
     //TODO: not sure about what is important to display here
     let attributesObj = node.upsertWorkflowSearchAttributesEventAttributes
+    var searchAttr = JSON.stringify(attributesObj.searchAttributes.indexedFields);
     const nodeInfo: nodeInfo = {
       parent: attributesObj.decisionTaskCompletedEventId,
       hoverText: {
-        searchAttributes: attributesObj.searchAttributes.indexedFields.CadenceChangeVersion,
+        searchAttributes: searchAttr,
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId,
       }
     }
@@ -382,7 +396,7 @@ let eventTypeMap: eventTypeMap = {
         initiator: attributesObj.initiator,
         newExecutionRunId: attributesObj.newExecutionRunId,
         workflowType: attributesObj.workflowType.name,
-        taskList: attributesObj.taskList,
+        taskList: attributesObj.taskList.name,
       }
     }
     return nodeInfo
@@ -400,9 +414,15 @@ let eventTypeMap: eventTypeMap = {
     return nodeInfo
   },
   'WorkflowExecutionSignaled': function (node: node, workflow: workflow) {
+    let attributesObj = node.workflowExecutionSignaledEventAttributes
     let { inferredChild } = findInferredChild(node, workflow);
     const nodeInfo: nodeInfo = {
-      inferredChild: inferredChild
+      inferredChild: inferredChild,
+      hoverText: {
+        signalName: attributesObj.signalName,
+        input: attributesObj.input,
+        identity: attributesObj.identity,
+      }
     }
     return nodeInfo
   },

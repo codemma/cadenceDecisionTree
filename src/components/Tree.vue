@@ -9,7 +9,8 @@
         <h4>Event information</h4>
         <hr />
         <div class="event-info-btn" v-on:click="route" v-if="showRouteButton">Route to child</div>
-        <hr v-if="showRouteButton" />
+        <div class="event-info-btn" v-on:click="route" v-if="newExecBtn">Route to new execution</div>
+        <hr v-if="showRouteButton || newExecBtn" />
         <div class="event-info-content"></div>
       </div>
     </div>
@@ -37,6 +38,8 @@ export default {
       graph: {},
       parentArray: [],
       showRouteButton: false,
+      btnName: "",
+      newExecBtn: false,
       routeId: "",
     };
   },
@@ -58,6 +61,7 @@ export default {
     },
     route() {
       this.showRouteButton = false;
+      this.newExecBtn = false;
       router.push({ name: "tree", params: { runId: this.routeId } });
     },
     setGraph() {
@@ -94,8 +98,16 @@ export default {
             },
           });
         }
-
-        if (runId) {
+        //TODO: improve this
+        if (hoverText.newExecutionRunId) {
+          this.graph.setNode(node.eventId, {
+            newExecutionRunId: hoverText.newExecutionRunId,
+            label: node.eventType,
+            class: node.eventType,
+            id: node.eventId,
+            hovertext: hovertext,
+          });
+        } else if (runId) {
           this.graph.setNode(node.eventId, {
             label: node.eventType,
             class: node.eventType,
@@ -188,13 +200,17 @@ export default {
         })
         .on("click", function (d) {
           d3.select(".event-info-content").html(this.dataset.hovertext);
-
-          //Show button if node has a runID ref TODO: improve this solution
-          if (self.graph.node(d).runId) {
+          //Show button if node has a runID or newExecutionID ref
+          //TODO: improve this solution
+          if (self.graph.node(d).newExecutionRunId) {
+            self.newExecBtn = true;
+            self.routeId = self.graph.node(d).newExecutionRunId;
+          } else if (self.graph.node(d).runId) {
             self.showRouteButton = true;
             self.routeId = self.graph.node(d).runId;
           } else {
             self.showRouteButton = false;
+            self.newExecBtn = false;
           }
         });
       //Fix to put arrowheads over nodes
@@ -368,14 +384,39 @@ g.Decision-Task>rect {
   }
 }
 
+.node.ChildWorkflowExecutionFailed rect {
+  fill: #ff6c6c;
+  stroke: #ff6c6c;
+}
+
+.node.WorkflowExecutionFailed rect {
+  fill: #ff6c6c;
+  stroke: #ff6c6c;
+}
+
+.node.ActivityTaskFailed rect {
+  fill: #ff6c6c;
+  stroke: #ff6c6c;
+}
+
 text {
   font-weight: 300;
   font-size: 16px;
+  cursor: none;
+
+  &:hover {
+    cursor: pointer;
+  }
 }
 
 .node rect {
   stroke: #b7b4b4;
   fill: #fff;
   stroke-width: 1px;
+  cursor: none;
+
+  &:hover {
+    cursor: pointer;
+  }
 }
 </style>
