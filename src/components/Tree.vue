@@ -99,7 +99,7 @@ export default {
           });
         }
         //TODO: improve this
-        if (hoverText.newExecutionRunId) {
+        if (hoverText !== undefined && hoverText.newExecutionRunId) {
           this.graph.setNode(node.eventId, {
             newExecutionRunId: hoverText.newExecutionRunId,
             label: node.eventType,
