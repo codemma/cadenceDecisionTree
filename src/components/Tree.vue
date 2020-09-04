@@ -384,6 +384,21 @@ g.Decision-Task>rect {
   }
 }
 
+.node.ChildWorkflowExecutionFailed rect {
+  fill: #ff6c6c;
+  stroke: #ff6c6c;
+}
+
+.node.WorkflowExecutionFailed rect {
+  fill: #ff6c6c;
+  stroke: #ff6c6c;
+}
+
+.node.ActivityTaskFailed rect {
+  fill: #ff6c6c;
+  stroke: #ff6c6c;
+}
+
 text {
   font-weight: 300;
   font-size: 16px;
