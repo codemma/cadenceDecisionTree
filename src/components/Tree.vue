@@ -1,14 +1,17 @@
 <template>
-  <div class="tree">
-    <svg id="canvas">
-      <g />
-    </svg>
-    <div class="event-info">
-      <h4>Event information</h4>
-      <hr />
-      <div class="event-info-btn" v-on:click="route" v-if="showRouteButton">Route to child</div>
-      <hr v-if="showRouteButton" />
-      <div class="event-info-content"></div>
+  <div class="graph-container">
+    <router-link class="router-link" :to="{ name: 'home' }">Home</router-link>
+    <div class="tree">
+      <svg id="canvas">
+        <g />
+      </svg>
+      <div class="event-info">
+        <h4>Event information</h4>
+        <hr />
+        <div class="event-info-btn" v-on:click="route" v-if="showRouteButton">Route to child</div>
+        <hr v-if="showRouteButton" />
+        <div class="event-info-content"></div>
+      </div>
     </div>
   </div>
 </template>
@@ -216,14 +219,26 @@ div.tree {
   height: 100%;
   display: flex;
   overflow: hidden;
-  margin: 20px 0;
+}
+
+.graph-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 20px;
+  justify-content: center;
+}
+
+.router-link {
+  margin: 20px;
 }
 
 #canvas {
   flex: 3;
   background-color: white;
   box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
-  margin-left: 20px;
 }
 
 g.Decision-Task>rect {
