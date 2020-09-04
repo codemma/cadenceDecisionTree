@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 module.exports = [
+=======
+[
+>>>>>>> fa0cd51... added HelloSearchAttributes workflow
   {
     "eventId": 1,
     "timestamp": 1599221075283105700,
