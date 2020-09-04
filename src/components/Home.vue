@@ -65,6 +65,11 @@
         :to="{ name: 'tree', params: { runId: 'a57bb2c9-1f78-4cf8-b0b4-063932953deb' }}"
       >HelloCron</router-link>
       <div class="explanation">a cron workflow</div>
+      <router-link
+        class="router-link"
+        :to="{ name: 'tree', params: { runId: 'signal-and-children' }}"
+      >Large workflow</router-link>
+      <div class="explanation">A larger workflow with signals</div>
     </div>
   </div>
 </template>
@@ -77,10 +82,12 @@ export default {
 </script>
 <!-- styling for the component -->
 <style scoped lang="stylus">
-#about {
+#home {
   text-align: center;
   color: #2c3e50;
   overflow-y: scroll;
+  height: 100%;
+  width: 100%;
 }
 
 .explanation {
