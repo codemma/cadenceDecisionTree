@@ -387,11 +387,21 @@ g.Decision-Task>rect {
 text {
   font-weight: 300;
   font-size: 16px;
+  cursor: none;
+
+  &:hover {
+    cursor: pointer;
+  }
 }
 
 .node rect {
   stroke: #b7b4b4;
   fill: #fff;
   stroke-width: 1px;
+  cursor: none;
+
+  &:hover {
+    cursor: pointer;
+  }
 }
 </style>
