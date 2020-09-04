@@ -11,6 +11,9 @@
       <router-link
         :to="{ name: 'tree', params: { runId: '524629a5-f63e-47b0-a7b1-5e74304d9da3' }}"
       >HelloActivity</router-link>
+      <router-link
+        :to="{ name: 'tree', params: { runId: '3432067e-fed0-4c4d-9a16-a3395e1eb1d8' }}"
+      >HelloActivityRetry</router-link>
     </div>
   </div>
 </template>
