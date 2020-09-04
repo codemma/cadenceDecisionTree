@@ -100,7 +100,6 @@ export default {
         }
         //TODO: improve this
         if (hoverText.newExecutionRunId) {
-          console.log(hoverText.newExecutionRunId);
           this.graph.setNode(node.eventId, {
             newExecutionRunId: hoverText.newExecutionRunId,
             label: node.eventType,
@@ -201,7 +200,6 @@ export default {
         })
         .on("click", function (d) {
           d3.select(".event-info-content").html(this.dataset.hovertext);
-
           //Show button if node has a runID or newExecutionID ref
           //TODO: improve this solution
           if (self.graph.node(d).newExecutionRunId) {
