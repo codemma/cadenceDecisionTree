@@ -231,11 +231,6 @@ div.tree {
   justify-content: center;
 }
 
-.router-link {
-  margin: 10px;
-  color: black;
-}
-
 #canvas {
   flex: 3;
   background-color: white;
