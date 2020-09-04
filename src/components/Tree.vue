@@ -42,7 +42,7 @@ export default {
   },
   watch: {
     runId: function () {
-      this.parentArray = [];
+      this.clearData();
       this.createGraph();
     },
   },
@@ -51,6 +51,15 @@ export default {
   },
 
   methods: {
+    clearData() {
+      this.parentArray = [];
+      //We clear the info content html when we route to child
+      d3.select(".event-info-content").html("");
+    },
+    route() {
+      this.showRouteButton = false;
+      router.push({ name: "tree", params: { runId: this.routeId } });
+    },
     setGraph() {
       this.graph = new dagreD3.graphlib.Graph()
         .setGraph({ align: "UL" }) //one option is also: {compound:true}
@@ -68,9 +77,6 @@ export default {
         this.workflow = workflow;
         this.buildTree();
       });
-    },
-    route() {
-      router.push({ name: "tree", params: { runId: this.routeId } });
     },
     buildTree() {
       var nodeTemplate = Handlebars.compile($("#node-template").html());

@@ -23,4 +23,10 @@ export default {};
   background-color: #f6f6f9;
   height: 100vh;
 }
+
+* {
+  padding: 0px;
+  margin: 0px;
+  box-sizing: border-box;
+}
 </style>
