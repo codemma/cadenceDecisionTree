@@ -1,14 +1,17 @@
 <template>
-  <div class="tree">
-    <svg id="canvas">
-      <g />
-    </svg>
-    <div class="event-info">
-      <h4>Event information</h4>
-      <hr />
-      <div class="event-info-btn" v-on:click="route" v-if="showRouteButton">Route to child</div>
-      <hr v-if="showRouteButton" />
-      <div class="event-info-content"></div>
+  <div class="graph-container">
+    <router-link class="btn" :to="{ name: 'home' }">Home</router-link>
+    <div class="tree">
+      <svg id="canvas">
+        <g />
+      </svg>
+      <div class="event-info">
+        <h4>Event information</h4>
+        <hr />
+        <div class="event-info-btn" v-on:click="route" v-if="showRouteButton">Route to child</div>
+        <hr v-if="showRouteButton" />
+        <div class="event-info-content"></div>
+      </div>
     </div>
   </div>
 </template>
@@ -216,18 +219,37 @@ div.tree {
   height: 100%;
   display: flex;
   overflow: hidden;
-  margin: 20px 0;
+}
+
+.graph-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 20px;
+  justify-content: center;
 }
 
 #canvas {
   flex: 3;
   background-color: white;
   box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
-  margin-left: 20px;
+  border: 1px solid #eaeaea;
 }
 
 g.Decision-Task>rect {
   fill: #00ffd0;
+}
+
+.btn {
+  margin: 20px 20px 20px 0;
+  color: white;
+  background-color: #11939A;
+  font-weight: bold;
+  text-decoration: none;
+  border-radius: 2px;
+  padding: 6px;
 }
 
 .event-info {
@@ -235,7 +257,7 @@ g.Decision-Task>rect {
   background-color: white;
   box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
   border-radius: 2px;
-  // border: 1px solid #e5e5e4;
+  border: 1px solid #eaeaea;
   overflow-wrap: break-word;
   margin: 0 20px;
   padding: 20px 0;
