@@ -174,7 +174,6 @@ export default {
       let currentWidth = parseInt(d3.select("#canvas").style("width"), 10);
       svg.attr("width", currentWidth);
     },
-
     renderGraph() {
       var self = this;
 
@@ -199,10 +198,8 @@ export default {
       });
       svg.call(zoom);
 
-      // Create the renderer
+      // Create and run the renderer
       var render = new dagreD3.render();
-
-      // Run the renderer. This is what draws the final graph.
       render(inner, this.graph);
 
       //Select all nodes and add click event
@@ -243,7 +240,6 @@ export default {
           )
           .scale(initialScale)
       );
-
       svg.attr("height", this.graph.graph().height * initialScale + 40);
     },
   },
