@@ -2,9 +2,11 @@
   <div class="graph-container">
     <router-link class="btn" :to="{ name: 'home' }">Home</router-link>
     <div class="tree">
-      <svg id="canvas" width="960" height="297.5">
-        <g />
-      </svg>
+      <div id="canvas">
+        <svg id="canvas-graph" width="960" height="100%">
+          <g />
+        </svg>
+      </div>
       <div class="event-info">
         <h4>Event information</h4>
         <hr />
@@ -176,17 +178,16 @@ export default {
       });
 
       // Set up an SVG group so that we can translate the final graph.
-      var svg = d3.select("#canvas"),
+      var svg = d3.select("#canvas-graph"),
         inner = svg.select("g");
       // Create the renderer
       var render = new dagreD3.render();
 
-      // Set up zoom
+      // Set up zoom support
       var zoom = d3.zoom().on("zoom", function () {
         inner.attr("transform", d3.event.transform);
       });
       svg.call(zoom);
-
       // Run the renderer. This is what draws the final graph.
       render(inner, this.graph);
 
@@ -219,9 +220,18 @@ export default {
         .insert(() => d3.select(".nodes").remove().node(), ".edgePaths");
 
       // Center the graph
-      var xCenterOffset = (svg.attr("width") - this.graph.graph().width) / 2;
-      inner.attr("transform", "translate(" + xCenterOffset + ", 20)");
-      svg.attr("height", this.graph.graph().height + 40);
+      var initialScale = 0.75;
+      svg.call(
+        zoom.transform,
+        d3.zoomIdentity
+          .translate(
+            (svg.attr("width") - this.graph.graph().width * initialScale) / 2,
+            20
+          )
+          .scale(initialScale)
+      );
+
+      svg.attr("height", this.graph.graph().height * initialScale + 40);
     },
   },
   computed: {},
@@ -248,6 +258,7 @@ div.tree {
 
 #canvas {
   flex: 3;
+  height: 100%;
   background-color: white;
   box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
   border: 1px solid #eaeaea;
