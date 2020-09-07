@@ -266,7 +266,6 @@ div.tree {
   flex-direction: column;
   align-items: flex-start;
   margin-left: 20px;
-  justify-content: center;
 }
 
 #canvas {
@@ -277,7 +276,6 @@ div.tree {
   border: 1px solid #eaeaea;
 
   &-graph {
-    height: 100%;
     height: 100%;
   }
 }
