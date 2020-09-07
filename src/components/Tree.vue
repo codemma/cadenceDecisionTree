@@ -2,9 +2,11 @@
   <div class="graph-container">
     <router-link class="btn" :to="{ name: 'home' }">Home</router-link>
     <div class="tree">
-      <svg id="canvas">
-        <g />
-      </svg>
+      <div id="canvas">
+        <svg id="canvas-graph">
+          <g />
+        </svg>
+      </div>
       <div class="event-info">
         <h4>Event information</h4>
         <hr />
@@ -166,6 +168,12 @@ export default {
         });
       }
     },
+    // A function that finishes to draw the chart for a specific device size.
+    drawChart(svg) {
+      // get the current width of the div where the graph appear, and attribute it to svg
+      let currentWidth = parseInt(d3.select("#canvas").style("width"), 10);
+      svg.attr("width", currentWidth);
+    },
     renderGraph() {
       var self = this;
 
@@ -176,22 +184,25 @@ export default {
       });
 
       // Set up an SVG group so that we can translate the final graph.
-      var svg = d3.select("#canvas"),
+      var svg = d3.select("#canvas-graph"),
         inner = svg.select("g");
-      // Create the renderer
-      var render = new dagreD3.render();
 
-      // Set up zoom
+      this.drawChart(svg);
+
+      // Add an event listener that run the function when dimension change
+      window.addEventListener("resize", this.drawChart(svg));
+
+      // Set up zoom support
       var zoom = d3.zoom().on("zoom", function () {
         inner.attr("transform", d3.event.transform);
       });
       svg.call(zoom);
 
-      // Run the renderer. This is what draws the final graph.
+      // Create and run the renderer
+      var render = new dagreD3.render();
       render(inner, this.graph);
 
       //Select all nodes and add click event
-      //Also trying out mouseover and mouseout
       inner
         .selectAll("g.node")
         //To access the node hovertext
@@ -218,17 +229,18 @@ export default {
         .select(".output")
         .insert(() => d3.select(".nodes").remove().node(), ".edgePaths");
 
-      // TODO: Try to center the graph
-      /*   var svg = d3.select("svg");
-
-      console.log(this.graph.graph().width);
-      console.log(svg.attr("width"));
-
       // Center the graph
-      var xCenterOffset = this.graph.graph().width / 2;
-      // console.log(xCenterOffset);
-      inner.attr("transform", "translate(" + xCenterOffset + ", 20)");
-      svg.attr("height", this.graph.graph().height + 40); */
+      var initialScale = 0.75;
+      svg.call(
+        zoom.transform,
+        d3.zoomIdentity
+          .translate(
+            (svg.attr("width") - this.graph.graph().width * initialScale) / 2,
+            20
+          )
+          .scale(initialScale)
+      );
+      svg.attr("height", this.graph.graph().height * initialScale + 40);
     },
   },
   computed: {},
@@ -250,18 +262,18 @@ div.tree {
   flex-direction: column;
   align-items: flex-start;
   margin-left: 20px;
-  justify-content: center;
 }
 
 #canvas {
   flex: 3;
+  height: 100%;
   background-color: white;
   box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
   border: 1px solid #eaeaea;
-}
 
-g.Decision-Task>rect {
-  fill: #00ffd0;
+  &-graph {
+    height: 100%;
+  }
 }
 
 .btn {
