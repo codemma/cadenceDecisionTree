@@ -3,7 +3,7 @@
     <router-link class="btn" :to="{ name: 'home' }">Home</router-link>
     <div class="tree">
       <div id="canvas">
-        <svg id="canvas-graph" width="960">
+        <svg id="canvas-graph">
           <g />
         </svg>
       </div>
@@ -168,6 +168,7 @@ export default {
         });
       }
     },
+
     renderGraph() {
       var self = this;
 
@@ -177,16 +178,25 @@ export default {
         node.rx = node.ry = 5;
       });
 
-      /*  let heightValue = 300;
-const widthValue = 600;
-
-      d3.select("svg").attr("viewBox", `0 0 ${widthValue} ${heightValue}`);
- */
       // Set up an SVG group so that we can translate the final graph.
       var svg = d3.select("#canvas-graph"),
         inner = svg.select("g");
       // Create the renderer
       var render = new dagreD3.render();
+
+      // A function that finishes to draw the chart for a specific device size.
+      function drawChart() {
+        // get the current width of the div where the chart appear, and attribute it to Svg
+        let currentWidth = parseInt(d3.select("#canvas").style("width"), 10);
+        svg.attr("width", currentWidth);
+
+        // Update the X scale and Axis (here the 20 is just to have a bit of margin)
+      }
+
+      drawChart();
+
+      // Add an event listener that run the function when dimension change
+      window.addEventListener("resize", drawChart);
 
       // Set up zoom support
       var zoom = d3.zoom().on("zoom", function () {
@@ -269,6 +279,7 @@ div.tree {
   border: 1px solid #eaeaea;
 
   &-graph {
+    height: 100%;
     height: 100%;
   }
 }
