@@ -3,7 +3,7 @@
     <router-link class="btn" :to="{ name: 'home' }">Home</router-link>
     <div class="tree">
       <div id="canvas">
-        <svg id="canvas-graph" width="960" height="100%">
+        <svg id="canvas-graph" width="960">
           <g />
         </svg>
       </div>
@@ -177,6 +177,11 @@ export default {
         node.rx = node.ry = 5;
       });
 
+      /*  let heightValue = 300;
+const widthValue = 600;
+
+      d3.select("svg").attr("viewBox", `0 0 ${widthValue} ${heightValue}`);
+ */
       // Set up an SVG group so that we can translate the final graph.
       var svg = d3.select("#canvas-graph"),
         inner = svg.select("g");
@@ -262,6 +267,10 @@ div.tree {
   background-color: white;
   box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
   border: 1px solid #eaeaea;
+
+  &-graph {
+    height: 100%;
+  }
 }
 
 .btn {
