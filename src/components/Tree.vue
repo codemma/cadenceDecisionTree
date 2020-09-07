@@ -2,7 +2,7 @@
   <div class="graph-container">
     <router-link class="btn" :to="{ name: 'home' }">Home</router-link>
     <div class="tree">
-      <svg id="canvas">
+      <svg id="canvas" width="960" height="297.5">
         <g />
       </svg>
       <div class="event-info">
@@ -218,17 +218,10 @@ export default {
         .select(".output")
         .insert(() => d3.select(".nodes").remove().node(), ".edgePaths");
 
-      // TODO: Try to center the graph
-      /*   var svg = d3.select("svg");
-
-      console.log(this.graph.graph().width);
-      console.log(svg.attr("width"));
-
       // Center the graph
-      var xCenterOffset = this.graph.graph().width / 2;
-      // console.log(xCenterOffset);
+      var xCenterOffset = (svg.attr("width") - this.graph.graph().width) / 2;
       inner.attr("transform", "translate(" + xCenterOffset + ", 20)");
-      svg.attr("height", this.graph.graph().height + 40); */
+      svg.attr("height", this.graph.graph().height + 40);
     },
   },
   computed: {},
@@ -258,10 +251,6 @@ div.tree {
   background-color: white;
   box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
   border: 1px solid #eaeaea;
-}
-
-g.Decision-Task>rect {
-  fill: #00ffd0;
 }
 
 .btn {
