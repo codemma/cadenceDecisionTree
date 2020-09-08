@@ -486,7 +486,7 @@ text {
   stroke-width: 1px;
   cursor: none;
 
-  border, &:hover {
+  &:hover {
     cursor: pointer;
   }
 }
