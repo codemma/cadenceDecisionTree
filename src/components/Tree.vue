@@ -106,14 +106,14 @@ export default {
             newExecutionRunId: hoverText.newExecutionRunId,
             label: node.eventType,
             class: node.eventType,
-            id: "name" + node.eventId,
+            id: "event-" + node.eventId,
             hovertext: hovertext,
           });
         } else if (runId) {
           this.graph.setNode(node.eventId, {
             label: node.eventType,
             class: node.eventType,
-            id: node.eventId,
+            id: "event-" + node.eventId,
             hovertext: hovertext,
             runId: runId,
           });
