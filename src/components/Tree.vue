@@ -234,7 +234,8 @@ export default {
         .attr("data-hovertext", function (v) {
           return self.graph.node(v).hovertext;
         })
-        .on("click", function (id) {
+        .on("mousedown", function (id) {
+          d3.event.stopPropagation();
           self.toggleSelectedNode(id, this);
 
           //Show button if node has a runID or newExecutionID ref
@@ -422,9 +423,15 @@ div.tree {
   }
 }
 
-.node.ChildWorkflowExecutionFailed rect {
-  fill: #ff6c6c;
-  stroke: #ff6c6c;
+node-color(color) {
+  fill: color;
+  stroke: color;
+}
+
+.node.ChildWorkflowExecutionFailed {
+  > rect {
+    node-color: #ff6c6c;
+  }
 }
 
 .node.WorkflowExecutionFailed rect {
