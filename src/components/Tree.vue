@@ -432,10 +432,18 @@ node-color(color, border = color, stroke = 1) {
 }
 
 failed-node() {
-  node-color: #ffcccc #ff6c6c 1;
+  node-color: #ffcccc #ff6c6c;
 
   &.selected {
     node-color: #ffcccc #ff6c6c 2.5;
+  }
+}
+
+completed-node() {
+  node-color: #dcffe6 #26bd77;
+
+  &.selected {
+    node-color: #dcffe6 #26bd77 2.5;
   }
 }
 
@@ -450,6 +458,10 @@ failed-node() {
 
   &.ActivityTaskFailed {
     failed-node();
+  }
+
+  &.WorkflowExecutionCompleted {
+    completed-node();
   }
 }
 
