@@ -423,29 +423,38 @@ div.tree {
   }
 }
 
-node-color(color) {
-  fill: color;
-  stroke: color;
-}
-
-.node.ChildWorkflowExecutionFailed {
+node-color(color, border = color, stroke = 1) {
   > rect {
-    node-color: #ff6c6c;
+    stroke-width: stroke;
+    fill: color;
+    stroke: border;
   }
 }
 
-.node.WorkflowExecutionFailed rect {
-  fill: #ff6c6c;
-  stroke: #ff6c6c;
+failed-node() {
+  node-color: #ffcccc #ff6c6c 1;
+
+  &.selected {
+    node-color: #ffcccc #ff6c6c 2.5;
+  }
 }
 
-.node.ActivityTaskFailed rect {
-  fill: #ff6c6c;
-  stroke: #ff6c6c;
+.node {
+  &.ChildWorkflowExecutionFailed {
+    failed-node();
+  }
+
+  &.WorkflowExecutionFailed {
+    failed-node();
+  }
+
+  &.ActivityTaskFailed {
+    failed-node();
+  }
 }
 
 text {
-  font-weight: 300;
+  font-weight: 400;
   font-size: 16px;
   cursor: none;
 
