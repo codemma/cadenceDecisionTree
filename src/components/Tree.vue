@@ -22,7 +22,6 @@
 <script>
 import * as d3 from "d3";
 import dagreD3 from "dagre-d3";
-//import * as workflow from "../data/marker-event";
 import { getNodeInfo } from "../eventFunctionMap.ts";
 import router from "../router";
 import Handlebars from "handlebars";
@@ -43,6 +42,7 @@ export default {
       btnName: "",
       newExecBtn: false,
       routeId: "",
+      clickedId: null,
     };
   },
   watch: {
@@ -106,14 +106,14 @@ export default {
             newExecutionRunId: hoverText.newExecutionRunId,
             label: node.eventType,
             class: node.eventType,
-            id: node.eventId,
+            id: "event-" + node.eventId,
             hovertext: hovertext,
           });
         } else if (runId) {
           this.graph.setNode(node.eventId, {
             label: node.eventType,
             class: node.eventType,
-            id: node.eventId,
+            id: "event-" + node.eventId,
             hovertext: hovertext,
             runId: runId,
           });
@@ -123,6 +123,7 @@ export default {
             class: node.eventType,
             id: node.eventId,
             hovertext: hovertext,
+            id: "event-" + node.eventId,
           });
         }
       });
@@ -174,6 +175,30 @@ export default {
       let currentWidth = parseInt(d3.select("#canvas").style("width"), 10);
       svg.attr("width", currentWidth);
     },
+
+    toggleSelectedNode(id, context) {
+      if (d3.select(context).classed("selected")) {
+        d3.select(context).classed("selected", false);
+
+        //Remove content from information box
+        d3.select(".event-info-content").html("");
+        self.clickedId = null;
+      } else {
+        //Deselect previous node
+        d3.select("#event-" + self.clickedId).classed("selected", false);
+        //Select current
+        d3.select("#event-" + id).classed("selected", true);
+        self.clickedId = id;
+        //Add the hover content to the info box
+        d3.select(".event-info-content").html(context.dataset.hovertext);
+      }
+
+      /*  d3.selectAll("g.node").each(function (i) {
+        if (i != d) {
+          d3.select(this).classed("selected", false);
+        }
+      }); */
+    },
     renderGraph() {
       var self = this;
 
@@ -209,16 +234,18 @@ export default {
         .attr("data-hovertext", function (v) {
           return self.graph.node(v).hovertext;
         })
-        .on("click", function (d) {
-          d3.select(".event-info-content").html(this.dataset.hovertext);
+        .on("mousedown", function (id) {
+          d3.event.stopPropagation();
+          self.toggleSelectedNode(id, this);
+
           //Show button if node has a runID or newExecutionID ref
           //TODO: improve this solution
-          if (self.graph.node(d).newExecutionRunId) {
+          if (self.graph.node(id).newExecutionRunId) {
             self.newExecBtn = true;
-            self.routeId = self.graph.node(d).newExecutionRunId;
-          } else if (self.graph.node(d).runId) {
+            self.routeId = self.graph.node(id).newExecutionRunId;
+          } else if (self.graph.node(id).runId) {
             self.showRouteButton = true;
-            self.routeId = self.graph.node(d).runId;
+            self.routeId = self.graph.node(id).runId;
           } else {
             self.showRouteButton = false;
             self.newExecBtn = false;
@@ -396,29 +423,61 @@ div.tree {
   }
 }
 
-.node.ChildWorkflowExecutionFailed rect {
-  fill: #ff6c6c;
-  stroke: #ff6c6c;
+node-color(color, border = color, stroke = 1) {
+  > rect {
+    stroke-width: stroke;
+    fill: color;
+    stroke: border;
+  }
 }
 
-.node.WorkflowExecutionFailed rect {
-  fill: #ff6c6c;
-  stroke: #ff6c6c;
+failed-node() {
+  node-color: #ffcccc #ff6c6c;
+
+  &.selected {
+    node-color: #ffcccc #ff6c6c 2.5;
+  }
 }
 
-.node.ActivityTaskFailed rect {
-  fill: #ff6c6c;
-  stroke: #ff6c6c;
+completed-node() {
+  node-color: #dcffe6 #26bd77;
+
+  &.selected {
+    node-color: #dcffe6 #26bd77 2.5;
+  }
+}
+
+.node {
+  &.ChildWorkflowExecutionFailed {
+    failed-node();
+  }
+
+  &.WorkflowExecutionFailed {
+    failed-node();
+  }
+
+  &.ActivityTaskFailed {
+    failed-node();
+  }
+
+  &.WorkflowExecutionCompleted {
+    completed-node();
+  }
 }
 
 text {
-  font-weight: 300;
+  font-weight: 400;
   font-size: 16px;
   cursor: none;
 
   &:hover {
     cursor: pointer;
   }
+}
+
+.node.selected rect {
+  stroke: #11939a;
+  stroke-width: 2px;
 }
 
 .node rect {
