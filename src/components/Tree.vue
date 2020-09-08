@@ -43,6 +43,7 @@ export default {
       btnName: "",
       newExecBtn: false,
       routeId: "",
+      clickedId: null,
     };
   },
   watch: {
@@ -106,7 +107,7 @@ export default {
             newExecutionRunId: hoverText.newExecutionRunId,
             label: node.eventType,
             class: node.eventType,
-            id: node.eventId,
+            id: "name" + node.eventId,
             hovertext: hovertext,
           });
         } else if (runId) {
@@ -123,6 +124,7 @@ export default {
             class: node.eventType,
             id: node.eventId,
             hovertext: hovertext,
+            id: "event-" + node.eventId,
           });
         }
       });
@@ -174,6 +176,30 @@ export default {
       let currentWidth = parseInt(d3.select("#canvas").style("width"), 10);
       svg.attr("width", currentWidth);
     },
+
+    toggleSelectedNode(id, context) {
+      if (d3.select(context).classed("selected")) {
+        d3.select(context).classed("selected", false);
+
+        //Remove content from information box
+        d3.select(".event-info-content").html("");
+        self.clickedId = null;
+      } else {
+        //Deselect previous node
+        d3.select("#event-" + self.clickedId).classed("selected", false);
+        //Select current
+        d3.select("#event-" + id).classed("selected", true);
+        self.clickedId = id;
+        //Add the hover content to the info box
+        d3.select(".event-info-content").html(context.dataset.hovertext);
+      }
+
+      /*  d3.selectAll("g.node").each(function (i) {
+        if (i != d) {
+          d3.select(this).classed("selected", false);
+        }
+      }); */
+    },
     renderGraph() {
       var self = this;
 
@@ -209,16 +235,17 @@ export default {
         .attr("data-hovertext", function (v) {
           return self.graph.node(v).hovertext;
         })
-        .on("click", function (d) {
-          d3.select(".event-info-content").html(this.dataset.hovertext);
+        .on("click", function (id) {
+          self.toggleSelectedNode(id, this);
+
           //Show button if node has a runID or newExecutionID ref
           //TODO: improve this solution
-          if (self.graph.node(d).newExecutionRunId) {
+          if (self.graph.node(id).newExecutionRunId) {
             self.newExecBtn = true;
-            self.routeId = self.graph.node(d).newExecutionRunId;
-          } else if (self.graph.node(d).runId) {
+            self.routeId = self.graph.node(id).newExecutionRunId;
+          } else if (self.graph.node(id).runId) {
             self.showRouteButton = true;
-            self.routeId = self.graph.node(d).runId;
+            self.routeId = self.graph.node(id).runId;
           } else {
             self.showRouteButton = false;
             self.newExecBtn = false;
@@ -421,13 +448,18 @@ text {
   }
 }
 
+.node.selected rect {
+  stroke: #11939a;
+  stroke-width: 2px;
+}
+
 .node rect {
   stroke: #b7b4b4;
   fill: #fff;
   stroke-width: 1px;
   cursor: none;
 
-  &:hover {
+  border, &:hover {
     cursor: pointer;
   }
 }
