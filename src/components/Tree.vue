@@ -1,23 +1,23 @@
 <template>
-  <div class="tree">
+  <div class="tree-graph">
     <div id="canvas">
-      <div class="event-header">
+      <div class="section-header">
         <router-link class="btn" :to="{ name: 'home' }">Home</router-link>
-        {{workflowName}}
+        <div class="section-header-text">{{workflowName}}</div>
       </div>
-      <hr class="divider" />
-      <svg id="canvas-graph">
+      <hr />
+      <svg id="graph">
         <g />
       </svg>
     </div>
     <div class="event-info">
-      <div class="event-header">
-        <h4>Event information</h4>
+      <div class="section-header">
+        <div class="section-header-text">Event information</div>
       </div>
-      <hr class="divider" />
+      <hr />
       <div class="event-info-btn" v-on:click="route" v-if="showRouteButton">Route to child</div>
       <div class="event-info-btn" v-on:click="route" v-if="newExecBtn">Route to new execution</div>
-      <hr class="btn-divider" v-if="showRouteButton || newExecBtn" />
+      <hr v-if="showRouteButton || newExecBtn" />
       <div class="event-info-content"></div>
     </div>
   </div>
@@ -215,7 +215,7 @@ export default {
       });
 
       // Set up an SVG group so that we can translate the final graph.
-      var svg = d3.select("#canvas-graph").attr("height", "100%");
+      var svg = d3.select("#graph").attr("height", "100%");
       var inner = svg.select("g");
 
       this.drawChart(svg);
@@ -281,7 +281,7 @@ export default {
 </script>
 
 <style lang="stylus">
-.tree {
+.tree-graph {
   width: 100%;
   height: 100%;
   display: flex;
@@ -293,7 +293,7 @@ export default {
   background-color: white;
   box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
   border: 1px solid #eaeaea;
-  overflow: auto;
+  overflow: hidden;
 }
 
 hr {
@@ -313,15 +313,14 @@ hr {
   padding: 6px;
 }
 
-.event-header {
+.section-header {
   height: 62px;
   display: flex;
-  margin-left: 20px;
+  margin-left: 24px;
   align-items: center;
 
-  > h4 {
-    width: 100%;
-    text-align: left;
+  &-text {
+    font-weight: bold;
   }
 }
 
