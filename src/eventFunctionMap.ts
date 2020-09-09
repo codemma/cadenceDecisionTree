@@ -121,11 +121,11 @@ let eventTypeMap: eventTypeMap = {
       parent: attributesObj.startedEventId,
       inferredChild: inferredChild,
       chronologicalChild: chronologicalChild,
-      runId: attributesObj.workflowExecution.runId,
       hoverText: {
         id: node.eventId,
         result: attributesObj.result,
         workflowType: attributesObj.workflowType.name,
+        childRunId: attributesObj.workflowExecution.runId,
       },
     }
     return nodeInfo
@@ -144,8 +144,8 @@ let eventTypeMap: eventTypeMap = {
         workflowType: attributesObj.workflowType.name,
         initiatedEventId: attributesObj.initiatedEventId,
         startedEventId: attributesObj.startedEventId,
-        runId: attributesObj.workflowExecution.runId,
-        workflowId: attributesObj.workflowExecution.workflowId
+        childRunId: attributesObj.workflowExecution.runId,
+        childWorkflowId: attributesObj.workflowExecution.workflowId
       },
 
     }
@@ -158,14 +158,13 @@ let eventTypeMap: eventTypeMap = {
       parent: attributesObj.initiatedEventId,
       inferredChild: inferredChild,
       chronologicalChild: chronologicalChild,
-      runId: attributesObj.workflowExecution.runId,
       hoverText: {
         id: node.eventId,
         domain: attributesObj.domain,
         workflowType: attributesObj.workflowType.name,
         initiatedEventId: attributesObj.initiatedEventId,
         workflowId: attributesObj.workflowExecution.workflowId,
-        runId: attributesObj.workflowExecution.runId
+        childRunId: attributesObj.workflowExecution.runId
       }
     }
     return nodeInfo
