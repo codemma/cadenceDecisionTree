@@ -1,20 +1,24 @@
 <template>
-  <div class="graph-container">
-    <router-link class="btn" :to="{ name: 'home' }">Home</router-link>
-    <div class="tree">
-      <div id="canvas">
-        <svg id="canvas-graph">
-          <g />
-        </svg>
+  <div class="tree">
+    <div id="canvas">
+      <div class="event-header">
+        <router-link class="btn" :to="{ name: 'home' }">Home</router-link>
+        {{workflowName}}
       </div>
-      <div class="event-info">
+      <hr class="divider" />
+      <svg id="canvas-graph">
+        <g />
+      </svg>
+    </div>
+    <div class="event-info">
+      <div class="event-header">
         <h4>Event information</h4>
-        <hr />
-        <div class="event-info-btn" v-on:click="route" v-if="showRouteButton">Route to child</div>
-        <div class="event-info-btn" v-on:click="route" v-if="newExecBtn">Route to new execution</div>
-        <hr v-if="showRouteButton || newExecBtn" />
-        <div class="event-info-content"></div>
       </div>
+      <hr class="divider" />
+      <div class="event-info-btn" v-on:click="route" v-if="showRouteButton">Route to child</div>
+      <div class="event-info-btn" v-on:click="route" v-if="newExecBtn">Route to new execution</div>
+      <hr class="btn-divider" v-if="showRouteButton || newExecBtn" />
+      <div class="event-info-content"></div>
     </div>
   </div>
 </template>
@@ -43,6 +47,7 @@ export default {
       newExecBtn: false,
       routeId: "",
       clickedId: null,
+      workflowName: "",
     };
   },
   watch: {
@@ -56,14 +61,22 @@ export default {
   },
 
   methods: {
+    createGraph() {
+      this.setGraph();
+      this.loadWorkflow().then((workflow) => {
+        this.workflow = workflow;
+        this.workflowName =
+          workflow[0].workflowExecutionStartedEventAttributes.workflowType.name;
+        this.buildTree();
+      });
+    },
     clearData() {
       this.parentArray = [];
-      //We clear the info content html when we route to child
+      this.showRouteButton = false;
+      this.newExecBtn = false;
       d3.select(".event-info-content").html("");
     },
     route() {
-      this.showRouteButton = false;
-      this.newExecBtn = false;
       router.push({ name: "tree", params: { runId: this.routeId } });
     },
     setGraph() {
@@ -76,13 +89,6 @@ export default {
     async loadWorkflow() {
       let workflow = require("../demo-data/" + this.runId + ".js");
       return workflow;
-    },
-    createGraph() {
-      this.setGraph();
-      this.loadWorkflow().then((workflow) => {
-        this.workflow = workflow;
-        this.buildTree();
-      });
     },
     buildTree() {
       var nodeTemplate = Handlebars.compile($("#node-template").html());
@@ -209,8 +215,8 @@ export default {
       });
 
       // Set up an SVG group so that we can translate the final graph.
-      var svg = d3.select("#canvas-graph"),
-        inner = svg.select("g");
+      var svg = d3.select("#canvas-graph").attr("height", "100%");
+      var inner = svg.select("g");
 
       this.drawChart(svg);
 
@@ -275,42 +281,49 @@ export default {
 </script>
 
 <style lang="stylus">
-div.tree {
+.tree {
   width: 100%;
   height: 100%;
   display: flex;
-  overflow: hidden;
-}
-
-.graph-container {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin-left: 20px;
+  border: 1px solid;
+  padding: 24px;
 }
 
 #canvas {
   flex: 3;
-  height: 100%;
   background-color: white;
   box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
   border: 1px solid #eaeaea;
+  overflow: auto;
+}
 
-  &-graph {
-    height: 100%;
-  }
+hr {
+  border: 0;
+  border-top: 1px solid #eaeaea;
+  width: 100%;
+  padding: 0;
 }
 
 .btn {
-  margin: 20px 20px 20px 0;
+  margin-left: 20px;
   color: white;
   background-color: #11939A;
   font-weight: bold;
   text-decoration: none;
   border-radius: 2px;
   padding: 6px;
+}
+
+.event-header {
+  height: 62px;
+  display: flex;
+  margin-left: 20px;
+  align-items: center;
+
+  > h4 {
+    width: 100%;
+    text-align: left;
+  }
 }
 
 .event-info {
@@ -320,28 +333,19 @@ div.tree {
   border-radius: 2px;
   border: 1px solid #eaeaea;
   overflow-wrap: break-word;
-  margin: 0 20px;
-  padding: 20px 0;
   overflow-y: scroll;
   overflow-x: hidden;
+  margin-left: 24px;
 
-  > hr {
+  hr {
     border: 0;
     border-top: 1px solid #eaeaea;
-    margin: 20px 0;
     width: 100%;
     padding: 0;
-    left: 0;
-  }
-
-  > h4 {
-    width: 100%;
-    text-align: left;
-    margin: 0 24px;
   }
 
   &-btn {
-    margin: 0 20px;
+    margin: 16px 20px;
     color: white;
     background-color: #11939A;
     font-weight: bold;
@@ -358,12 +362,6 @@ div.tree {
   text-align: left;
 
   > hr {
-    border: 0;
-    border-top: 1px solid #eaeaea;
-    margin: 16px 0;
-    width: 100%;
-    padding: 0;
-
     &:last-child {
       display: none;
     }
@@ -371,7 +369,7 @@ div.tree {
 }
 
 .list-item {
-  margin: 0 24px;
+  margin: 16px 24px;
   overflow-wrap: break-word;
 
   &-header {
