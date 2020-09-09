@@ -106,32 +106,15 @@ export default {
             },
           });
         }
-        //TODO: improve this
-        if (hoverText !== undefined && hoverText.newExecutionRunId) {
-          this.graph.setNode(node.eventId, {
-            newExecutionRunId: hoverText.newExecutionRunId,
-            label: node.eventType,
-            class: node.eventType,
-            id: "event-" + node.eventId,
-            hovertext: hovertext,
-          });
-        } else if (runId) {
-          this.graph.setNode(node.eventId, {
-            label: node.eventType,
-            class: node.eventType,
-            id: "event-" + node.eventId,
-            hovertext: hovertext,
-            runId: runId,
-          });
-        } else {
-          this.graph.setNode(node.eventId, {
-            label: node.eventType,
-            class: node.eventType,
-            id: node.eventId,
-            hovertext: hovertext,
-            id: "event-" + node.eventId,
-          });
-        }
+        this.graph.setNode(node.eventId, {
+          label: node.eventType,
+          class: node.eventType,
+          id: node.eventId,
+          hovertext: hovertext,
+          id: "event-" + node.eventId,
+          runId: runId,
+          newExecutionRunId: hoverText.newExecutionRunId,
+        });
       });
       //Set the direct and inferred relationships
       this.workflow.forEach((node) => {
