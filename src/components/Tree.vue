@@ -15,9 +15,8 @@
         <div class="section-header-text">Event information</div>
       </div>
       <hr />
-      <div class="event-info-btn" v-on:click="route" v-if="showRouteButton">Show child workflow</div>
-      <div class="event-info-btn" v-on:click="route" v-if="newExecBtn">Show new execution</div>
-      <hr v-if="showRouteButton || newExecBtn" />
+      <div class="event-info-btn" v-on:click="route" v-if="routeBtn">{{btnText}}</div>
+      <hr v-if="routeBtn || newExecBtn" />
       <div class="event-info-content"></div>
     </div>
   </div>
@@ -42,8 +41,8 @@ export default {
       workflow: {},
       graph: {},
       parentArray: [],
-      showRouteButton: false,
-      btnName: "",
+      routeBtn: false,
+      btnText: "",
       newExecBtn: false,
       routeId: "",
       clickedId: null,
@@ -72,7 +71,7 @@ export default {
     },
     clearData() {
       this.parentArray = [];
-      this.showRouteButton = false;
+      this.routeBtn = false;
       this.newExecBtn = false;
       d3.select(".event-info-content").html("");
     },
@@ -94,7 +93,7 @@ export default {
       var nodeTemplate = Handlebars.compile($("#node-template").html());
       //Create nodes to render with Dagre D3
       this.workflow.forEach((node) => {
-        let { hoverText, runId } = getNodeInfo(node, this.workflow),
+        let { hoverText, childRunId } = getNodeInfo(node, this.workflow),
           hovertext;
 
         if (hoverText !== undefined) {
@@ -109,11 +108,10 @@ export default {
         this.graph.setNode(node.eventId, {
           label: node.eventType,
           class: node.eventType,
+          eventInfo: hoverText,
           id: node.eventId,
           hovertext: hovertext,
           id: "event-" + node.eventId,
-          runId: runId,
-          newExecutionRunId: hoverText.newExecutionRunId,
         });
       });
       //Set the direct and inferred relationships
@@ -224,21 +222,36 @@ export default {
           return self.graph.node(v).hovertext;
         })
         .on("mousedown", function (id) {
+          self.routeBtn = false;
           d3.event.stopPropagation();
           self.toggleSelectedNode(id, this);
 
+          let event = self.graph.node(id).eventInfo;
+
+          if (event.childRunId) {
+            self.routeBtn = true;
+            self.routeId = event.childRunId;
+            self.btnText = "Show child workflow";
+          } else if (event.parentRunId) {
+            console.log("parent");
+          } else if (event.newExecutionRunId) {
+            self.routeBtn = true;
+            self.routeId = event.newExecutionRunId;
+            self.btnText = "Show next execution";
+          }
+
           //Show button if node has a runID or newExecutionID ref
           //TODO: improve this solution
-          if (self.graph.node(id).newExecutionRunId) {
+          /*  if (self.graph.node(id).newExecutionRunId) {
             self.newExecBtn = true;
             self.routeId = self.graph.node(id).newExecutionRunId;
-          } else if (self.graph.node(id).runId) {
+          } else if (self.graph.node(id).childRunId) {
             self.showRouteButton = true;
-            self.routeId = self.graph.node(id).runId;
+            self.routeId = self.graph.node(id).childRunId;
           } else {
             self.showRouteButton = false;
             self.newExecBtn = false;
-          }
+          } */
         });
       //Fix to put arrowheads over nodes
       svg
