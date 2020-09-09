@@ -7,13 +7,21 @@ function getNodeInfo(node: node, workflow: workflow) {
 let eventTypeMap: eventTypeMap = {
   'WorkflowExecutionStarted': function (node: node, workflow: workflow) {
     let attributesObj = node.workflowExecutionStartedEventAttributes,
-      { inferredChild } = findChild(node, workflow);
+      { inferredChild } = findChild(node, workflow),
+      taskList = JSON.stringify(attributesObj.taskList),
+      parentWorkflowExecution = JSON.stringify(attributesObj.parentWorkflowExecution);
+
+
     const nodeInfo: nodeInfo = {
       inferredChild: inferredChild,
+      parentWorkflow: attributesObj.parentWorkflowExecution,
       hoverText: {
         id: node.eventId,
+        parentWorkflowDomain: attributesObj.parentWorkflowDomain,
+        parentInitiatedEventId: attributesObj.parentInitiatedEventId,
+        parentWorkflowExecution: parentWorkflowExecution,
+        taskList: taskList,
         workflowType: attributesObj.workflowType.name,
-        taskList: attributesObj.taskList.name,
         input: attributesObj.input,
       },
     }

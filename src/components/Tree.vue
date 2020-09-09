@@ -3,6 +3,11 @@
     <div id="canvas">
       <div class="section-header">
         <router-link class="btn" :to="{ name: 'home' }">Home</router-link>
+        <router-link
+          v-if="parentRunId"
+          class="btn"
+          :to="{ name: 'tree', params: { runId: parentRunId } }"
+        >Go to parent</router-link>
         <div class="section-header-text">{{workflowName}}</div>
       </div>
       <hr />
@@ -15,8 +20,8 @@
         <div class="section-header-text">Event information</div>
       </div>
       <hr />
-      <div class="event-info-btn" v-on:click="route" v-if="routeBtn">{{btnText}}</div>
-      <hr v-if="routeBtn || newExecBtn" />
+      <div class="event-info-btn" v-on:click="route" v-if="routeId">{{btnText}}</div>
+      <hr v-if="routeId" />
       <div class="event-info-content"></div>
     </div>
   </div>
@@ -41,12 +46,11 @@ export default {
       workflow: {},
       graph: {},
       parentArray: [],
-      routeBtn: false,
-      btnText: "",
-      newExecBtn: false,
-      routeId: "",
+      parentRunId: null,
+      btnText: null,
+      routeId: null,
       clickedId: null,
-      workflowName: "",
+      workflowName: null,
     };
   },
   watch: {
@@ -58,7 +62,6 @@ export default {
   mounted() {
     this.createGraph();
   },
-
   methods: {
     createGraph() {
       this.setGraph();
@@ -71,8 +74,8 @@ export default {
     },
     clearData() {
       this.parentArray = [];
-      this.routeBtn = false;
-      this.newExecBtn = false;
+      this.routeId = "";
+      this.parentRunId = "";
       d3.select(".event-info-content").html("");
     },
     route() {
@@ -93,8 +96,16 @@ export default {
       var nodeTemplate = Handlebars.compile($("#node-template").html());
       //Create nodes to render with Dagre D3
       this.workflow.forEach((node) => {
-        let { hoverText, childRunId } = getNodeInfo(node, this.workflow),
+        let { hoverText, childRunId, parentWorkflow } = getNodeInfo(
+            node,
+            this.workflow
+          ),
           hovertext;
+
+        //We have a child workflow, show parent btn
+        if (parentWorkflow) {
+          this.parentRunId = parentWorkflow.runId;
+        }
 
         if (hoverText !== undefined) {
           hovertext = nodeTemplate({ hoverText: hoverText });
@@ -222,37 +233,20 @@ export default {
           return self.graph.node(v).hovertext;
         })
         .on("mousedown", function (id) {
-          self.routeBtn = false;
           d3.event.stopPropagation();
           self.toggleSelectedNode(id, this);
 
           let event = self.graph.node(id).eventInfo;
 
           if (event.childRunId) {
-            self.routeBtn = true;
             self.routeId = event.childRunId;
             self.btnText = "Show child workflow";
-          } else if (event.parentRunId) {
-            console.log("parent");
           } else if (event.newExecutionRunId) {
-            self.routeBtn = true;
             self.routeId = event.newExecutionRunId;
             self.btnText = "Show next execution";
-          }
-
-          //Show button if node has a runID or newExecutionID ref
-          //TODO: improve this solution
-          /*  if (self.graph.node(id).newExecutionRunId) {
-            self.newExecBtn = true;
-            self.routeId = self.graph.node(id).newExecutionRunId;
-          } else if (self.graph.node(id).childRunId) {
-            self.showRouteButton = true;
-            self.routeId = self.graph.node(id).childRunId;
-          } else {
-            self.showRouteButton = false;
-            self.newExecBtn = false;
-          } */
+          } else self.routeId = null;
         });
+
       //Fix to put arrowheads over nodes
       svg
         .select(".output")
@@ -318,10 +312,9 @@ hr {
   display: flex;
   align-items: center;
 
-  .btn {
+  /* .btn {
     position: absolute;
-  }
-
+  } */
   &-text {
     flex: 1;
     margin-right: auto;
