@@ -240,10 +240,19 @@ let eventTypeMap: eventTypeMap = {
     return nodeInfo
   },
   'ExternalWorkflowExecutionSignaled': function (node: node, workflow: workflow) {
-    let { inferredChild } = findChild(node, workflow);
+    let attributesObj = node.externalWorkflowExecutionSignaledEventAttributes,
+      { inferredChild } = findChild(node, workflow);
+    let workflowExecution = JSON.stringify(attributesObj.workflowExecution);
     const nodeInfo: nodeInfo = {
-      parent: node.externalWorkflowExecutionSignaledEventAttributes.initiatedEventId,
-      inferredChild: inferredChild
+      parent: attributesObj.initiatedEventId,
+      inferredChild: inferredChild,
+      hoverText: {
+        id: node.eventId,
+        initiatedEventId: attributesObj.initiatedEventId,
+        domain: attributesObj.domain,
+        workflowExecution: workflowExecution,
+        control: attributesObj.control
+      },
     }
     return nodeInfo
   },
@@ -285,8 +294,20 @@ let eventTypeMap: eventTypeMap = {
     return nodeInfo
   },
   'SignalExternalWorkflowExecutionInitiated': function (node: node) {
+    let attributesObj = node.signalExternalWorkflowExecutionInitiatedEventAttributes
+    let workflowExecution = JSON.stringify(attributesObj.workflowExecution);
     const nodeInfo: nodeInfo = {
-      parent: node.signalExternalWorkflowExecutionInitiatedEventAttributes.decisionTaskCompletedEventId,
+      parent: attributesObj.decisionTaskCompletedEventId,
+      hoverText: {
+        id: node.eventId,
+        decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId,
+        domain: attributesObj.domain,
+        input: attributesObj.input,
+        signalName: attributesObj.signalName,
+        control: attributesObj.control,
+        childWorkflowOnly: attributesObj.childWorkflowOnly,
+        workflowExecution: workflowExecution,
+      }
     }
     return nodeInfo
   },
