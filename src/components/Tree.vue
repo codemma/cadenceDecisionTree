@@ -316,11 +316,18 @@ hr {
 .section-header {
   height: 62px;
   display: flex;
-  margin-left: 24px;
   align-items: center;
 
+  .btn {
+    position: absolute;
+  }
+
   &-text {
+    flex: 1;
+    margin-right: auto;
     font-weight: bold;
+    text-align: center;
+    justify-self: center;
   }
 }
 
