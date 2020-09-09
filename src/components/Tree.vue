@@ -301,7 +301,7 @@ hr {
   margin-left: 20px;
   color: white;
   background-color: #11939A;
-  font-weight: bold;
+  font-weight: 600;
   text-decoration: none;
   border-radius: 2px;
   padding: 6px;
@@ -311,16 +311,13 @@ hr {
   height: 62px;
   display: flex;
   align-items: center;
+  position: relative;
 
-  /* .btn {
-    position: absolute;
-  } */
   &-text {
-    flex: 1;
-    margin-right: auto;
     font-weight: bold;
-    text-align: center;
-    justify-self: center;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%);
   }
 }
 
@@ -338,7 +335,7 @@ hr {
     margin: 16px 20px;
     color: white;
     background-color: #11939A;
-    font-weight: bold;
+    font-weight: 600;
     border-radius: 2px;
     padding: 6px 0;
 
@@ -360,7 +357,6 @@ hr {
 
 .list-item {
   margin: 16px 24px;
-  overflow-wrap: break-word;
 
   &-header {
     font-weight: 600;
@@ -368,7 +364,7 @@ hr {
   }
 
   &-content {
-    color: #7b7b7b; // #94989c;
+    color: #7b7b7b;
     font-weight: 500;
   }
 }
