@@ -285,7 +285,6 @@ export default {
   width: 100%;
   height: 100%;
   display: flex;
-  border: 1px solid;
   padding: 24px;
 }
 
@@ -334,15 +333,7 @@ hr {
   border: 1px solid #eaeaea;
   overflow-wrap: break-word;
   overflow-y: scroll;
-  overflow-x: hidden;
   margin-left: 24px;
-
-  hr {
-    border: 0;
-    border-top: 1px solid #eaeaea;
-    width: 100%;
-    padding: 0;
-  }
 
   &-btn {
     margin: 16px 20px;
