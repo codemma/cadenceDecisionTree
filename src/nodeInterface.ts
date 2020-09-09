@@ -5,6 +5,7 @@ interface nodeInfo {
   chronologicalParent?: number;
   inferredParents?: number[];
   hoverText?: object;
+  parentWorkflow?: object;
 }
 
 interface workflow {
