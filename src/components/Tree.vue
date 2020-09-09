@@ -15,8 +15,8 @@
         <div class="section-header-text">Event information</div>
       </div>
       <hr />
-      <div class="event-info-btn" v-on:click="route" v-if="showRouteButton">Route to child</div>
-      <div class="event-info-btn" v-on:click="route" v-if="newExecBtn">Route to new execution</div>
+      <div class="event-info-btn" v-on:click="route" v-if="showRouteButton">Show child workflow</div>
+      <div class="event-info-btn" v-on:click="route" v-if="newExecBtn">Show new execution</div>
       <hr v-if="showRouteButton || newExecBtn" />
       <div class="event-info-content"></div>
     </div>
@@ -286,6 +286,10 @@ export default {
   height: 100%;
   display: flex;
   padding: 24px;
+}
+
+#graph {
+  height: 100%;
 }
 
 #canvas {
