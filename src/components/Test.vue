@@ -1,31 +1,8 @@
 <template>
-  <div class="tree-graph">
-    <div id="canvas">
-      <div class="section-header">
-        <router-link class="btn" :to="{ name: 'home' }">Home</router-link>
-        <router-link
-          v-if="parentRunId"
-          class="btn"
-          :to="{ name: 'tree', params: { runId: parentRunId } }"
-        >Go to parent</router-link>
-        <div class="section-header-text">{{workflowName}}</div>
-      </div>
-      <hr />
-      <div v-if="!workflowLoading" id="loading"></div>
-      <Test v-if="workflowLoading" :workflow="workflow"></Test>
-      <svg id="graph">
-        <g />
-      </svg>
-    </div>
-    <div class="event-info">
-      <div class="section-header">
-        <div class="section-header-text">Event information</div>
-      </div>
-      <hr />
-      <div class="event-info-btn" v-on:click="route" v-if="routeId">{{btnText}}</div>
-      <hr v-if="routeId" />
-      <div class="event-info-content"></div>
-    </div>
+  <div>
+    <svg id="graph">
+      <g />
+    </svg>
   </div>
 </template>
 
@@ -35,19 +12,17 @@ import dagreD3 from "dagre-d3";
 import { getNodeInfo } from "../eventFunctionMap.ts";
 import router from "../router";
 import Handlebars from "handlebars";
-import Test from "@/components/Test.vue";
 import $ from "jquery";
 export default {
   props: {
-    runId: {
-      type: String,
+    workflow: {
+      type: Array,
       required: true,
     },
   },
   data() {
     return {
-      workflow: null,
-      workflowLoading: false,
+      //workflow: {},
       graph: {},
       parentArray: [],
       parentRunId: null,
@@ -57,9 +32,6 @@ export default {
       workflowName: null,
     };
   },
-  components: {
-    Test,
-  },
   watch: {
     runId: function () {
       this.clearData();
@@ -67,26 +39,19 @@ export default {
     },
   },
   mounted() {
-    this.loadWorkflow().then((workflow) => {
-      //console.log(workflow);
-      this.workflow = workflow;
-      console.log(1, this.workflow);
-      this.workflowLoading = true;
-      this.workflowName =
-        workflow[0].workflowExecutionStartedEventAttributes.workflowType.name;
-      // this.buildTree();
-    });
-    //this.createGraph();
+    this.createGraph();
   },
   methods: {
     createGraph() {
-      this.setGraph();
-      this.loadWorkflow().then((workflow) => {
+      this.setGraph().then(() => {
+        this.buildTree();
+      });
+      /*    this.loadWorkflow().then((workflow) => {
         this.workflow = workflow;
         this.workflowName =
           workflow[0].workflowExecutionStartedEventAttributes.workflowType.name;
         this.buildTree();
-      });
+      }); */
     },
     clearData() {
       this.parentArray = [];
@@ -97,7 +62,7 @@ export default {
     route() {
       router.push({ name: "tree", params: { runId: this.routeId } });
     },
-    setGraph() {
+    async setGraph() {
       this.graph = new dagreD3.graphlib.Graph()
         .setGraph({ align: "UL" }) //one option is also: {compound:true}
         .setDefaultEdgeLabel(function () {
@@ -111,6 +76,7 @@ export default {
     buildTree() {
       var nodeTemplate = Handlebars.compile($("#node-template").html());
       //Create nodes to render with Dagre D3
+      console.log(3, this.workflow);
       this.workflow.forEach((node) => {
         let { hoverText, childRunId, parentWorkflow } = getNodeInfo(
             node,
@@ -132,6 +98,7 @@ export default {
             },
           });
         }
+        console.log("graph", this.graph, node.eventType);
         this.graph.setNode(node.eventId, {
           label: node.eventType,
           class: node.eventType,
