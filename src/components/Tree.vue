@@ -3,6 +3,11 @@
     <div id="canvas">
       <div class="section-header">
         <router-link class="btn" :to="{ name: 'home' }">Home</router-link>
+        <router-link
+          v-if="parentRunId"
+          class="btn"
+          :to="{ name: 'tree', params: { runId: parentRunId } }"
+        >Go to parent</router-link>
         <div class="section-header-text">{{workflowName}}</div>
       </div>
       <hr />
@@ -15,9 +20,8 @@
         <div class="section-header-text">Event information</div>
       </div>
       <hr />
-      <div class="event-info-btn" v-on:click="route" v-if="showRouteButton">Show child workflow</div>
-      <div class="event-info-btn" v-on:click="route" v-if="newExecBtn">Show new execution</div>
-      <hr v-if="showRouteButton || newExecBtn" />
+      <div class="event-info-btn" v-on:click="route" v-if="routeId">{{btnText}}</div>
+      <hr v-if="routeId" />
       <div class="event-info-content"></div>
     </div>
   </div>
@@ -42,12 +46,11 @@ export default {
       workflow: {},
       graph: {},
       parentArray: [],
-      showRouteButton: false,
-      btnName: "",
-      newExecBtn: false,
-      routeId: "",
+      parentRunId: null,
+      btnText: null,
+      routeId: null,
       clickedId: null,
-      workflowName: "",
+      workflowName: null,
     };
   },
   watch: {
@@ -59,7 +62,6 @@ export default {
   mounted() {
     this.createGraph();
   },
-
   methods: {
     createGraph() {
       this.setGraph();
@@ -72,8 +74,8 @@ export default {
     },
     clearData() {
       this.parentArray = [];
-      this.showRouteButton = false;
-      this.newExecBtn = false;
+      this.routeId = "";
+      this.parentRunId = "";
       d3.select(".event-info-content").html("");
     },
     route() {
@@ -94,8 +96,16 @@ export default {
       var nodeTemplate = Handlebars.compile($("#node-template").html());
       //Create nodes to render with Dagre D3
       this.workflow.forEach((node) => {
-        let { hoverText, runId } = getNodeInfo(node, this.workflow),
+        let { hoverText, childRunId, parentWorkflow } = getNodeInfo(
+            node,
+            this.workflow
+          ),
           hovertext;
+
+        //We have a child workflow, show parent btn
+        if (parentWorkflow) {
+          this.parentRunId = parentWorkflow.runId;
+        }
 
         if (hoverText !== undefined) {
           hovertext = nodeTemplate({ hoverText: hoverText });
@@ -106,32 +116,14 @@ export default {
             },
           });
         }
-        //TODO: improve this
-        if (hoverText !== undefined && hoverText.newExecutionRunId) {
-          this.graph.setNode(node.eventId, {
-            newExecutionRunId: hoverText.newExecutionRunId,
-            label: node.eventType,
-            class: node.eventType,
-            id: "event-" + node.eventId,
-            hovertext: hovertext,
-          });
-        } else if (runId) {
-          this.graph.setNode(node.eventId, {
-            label: node.eventType,
-            class: node.eventType,
-            id: "event-" + node.eventId,
-            hovertext: hovertext,
-            runId: runId,
-          });
-        } else {
-          this.graph.setNode(node.eventId, {
-            label: node.eventType,
-            class: node.eventType,
-            id: node.eventId,
-            hovertext: hovertext,
-            id: "event-" + node.eventId,
-          });
-        }
+        this.graph.setNode(node.eventId, {
+          label: node.eventType,
+          class: node.eventType,
+          eventInfo: hoverText,
+          id: node.eventId,
+          hovertext: hovertext,
+          id: "event-" + node.eventId,
+        });
       });
       //Set the direct and inferred relationships
       this.workflow.forEach((node) => {
@@ -244,19 +236,17 @@ export default {
           d3.event.stopPropagation();
           self.toggleSelectedNode(id, this);
 
-          //Show button if node has a runID or newExecutionID ref
-          //TODO: improve this solution
-          if (self.graph.node(id).newExecutionRunId) {
-            self.newExecBtn = true;
-            self.routeId = self.graph.node(id).newExecutionRunId;
-          } else if (self.graph.node(id).runId) {
-            self.showRouteButton = true;
-            self.routeId = self.graph.node(id).runId;
-          } else {
-            self.showRouteButton = false;
-            self.newExecBtn = false;
-          }
+          let event = self.graph.node(id).eventInfo;
+
+          if (event.childRunId) {
+            self.routeId = event.childRunId;
+            self.btnText = "Show child workflow";
+          } else if (event.newExecutionRunId) {
+            self.routeId = event.newExecutionRunId;
+            self.btnText = "Show next execution";
+          } else self.routeId = null;
         });
+
       //Fix to put arrowheads over nodes
       svg
         .select(".output")
@@ -311,7 +301,7 @@ hr {
   margin-left: 20px;
   color: white;
   background-color: #11939A;
-  font-weight: bold;
+  font-weight: 600;
   text-decoration: none;
   border-radius: 2px;
   padding: 6px;
@@ -321,17 +311,13 @@ hr {
   height: 62px;
   display: flex;
   align-items: center;
-
-  .btn {
-    position: absolute;
-  }
+  position: relative;
 
   &-text {
-    flex: 1;
-    margin-right: auto;
     font-weight: bold;
-    text-align: center;
-    justify-self: center;
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%);
   }
 }
 
@@ -349,7 +335,7 @@ hr {
     margin: 16px 20px;
     color: white;
     background-color: #11939A;
-    font-weight: bold;
+    font-weight: 600;
     border-radius: 2px;
     padding: 6px 0;
 
@@ -371,7 +357,6 @@ hr {
 
 .list-item {
   margin: 16px 24px;
-  overflow-wrap: break-word;
 
   &-header {
     font-weight: 600;
@@ -379,7 +364,7 @@ hr {
   }
 
   &-content {
-    color: #7b7b7b; // #94989c;
+    color: #7b7b7b;
     font-weight: 500;
   }
 }

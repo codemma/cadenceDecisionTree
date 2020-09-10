@@ -7,13 +7,21 @@ function getNodeInfo(node: node, workflow: workflow) {
 let eventTypeMap: eventTypeMap = {
   'WorkflowExecutionStarted': function (node: node, workflow: workflow) {
     let attributesObj = node.workflowExecutionStartedEventAttributes,
-      { inferredChild } = findChild(node, workflow);
+      { inferredChild } = findChild(node, workflow),
+      taskList = JSON.stringify(attributesObj.taskList),
+      parentWorkflowExecution = JSON.stringify(attributesObj.parentWorkflowExecution);
+
+
     const nodeInfo: nodeInfo = {
       inferredChild: inferredChild,
+      parentWorkflow: attributesObj.parentWorkflowExecution,
       hoverText: {
         id: node.eventId,
+        parentWorkflowDomain: attributesObj.parentWorkflowDomain,
+        parentInitiatedEventId: attributesObj.parentInitiatedEventId,
+        parentWorkflowExecution: parentWorkflowExecution,
+        taskList: taskList,
         workflowType: attributesObj.workflowType.name,
-        taskList: attributesObj.taskList.name,
         input: attributesObj.input,
       },
     }
@@ -121,11 +129,11 @@ let eventTypeMap: eventTypeMap = {
       parent: attributesObj.startedEventId,
       inferredChild: inferredChild,
       chronologicalChild: chronologicalChild,
-      runId: attributesObj.workflowExecution.runId,
       hoverText: {
         id: node.eventId,
         result: attributesObj.result,
         workflowType: attributesObj.workflowType.name,
+        childRunId: attributesObj.workflowExecution.runId,
       },
     }
     return nodeInfo
@@ -144,8 +152,8 @@ let eventTypeMap: eventTypeMap = {
         workflowType: attributesObj.workflowType.name,
         initiatedEventId: attributesObj.initiatedEventId,
         startedEventId: attributesObj.startedEventId,
-        runId: attributesObj.workflowExecution.runId,
-        workflowId: attributesObj.workflowExecution.workflowId
+        childRunId: attributesObj.workflowExecution.runId,
+        childWorkflowId: attributesObj.workflowExecution.workflowId
       },
 
     }
@@ -158,14 +166,13 @@ let eventTypeMap: eventTypeMap = {
       parent: attributesObj.initiatedEventId,
       inferredChild: inferredChild,
       chronologicalChild: chronologicalChild,
-      runId: attributesObj.workflowExecution.runId,
       hoverText: {
         id: node.eventId,
         domain: attributesObj.domain,
         workflowType: attributesObj.workflowType.name,
         initiatedEventId: attributesObj.initiatedEventId,
         workflowId: attributesObj.workflowExecution.workflowId,
-        runId: attributesObj.workflowExecution.runId
+        childRunId: attributesObj.workflowExecution.runId
       }
     }
     return nodeInfo
@@ -240,10 +247,19 @@ let eventTypeMap: eventTypeMap = {
     return nodeInfo
   },
   'ExternalWorkflowExecutionSignaled': function (node: node, workflow: workflow) {
-    let { inferredChild } = findChild(node, workflow);
+    let attributesObj = node.externalWorkflowExecutionSignaledEventAttributes,
+      { inferredChild } = findChild(node, workflow);
+    let workflowExecution = JSON.stringify(attributesObj.workflowExecution);
     const nodeInfo: nodeInfo = {
-      parent: node.externalWorkflowExecutionSignaledEventAttributes.initiatedEventId,
-      inferredChild: inferredChild
+      parent: attributesObj.initiatedEventId,
+      inferredChild: inferredChild,
+      hoverText: {
+        id: node.eventId,
+        initiatedEventId: attributesObj.initiatedEventId,
+        domain: attributesObj.domain,
+        workflowExecution: workflowExecution,
+        control: attributesObj.control
+      },
     }
     return nodeInfo
   },
@@ -285,8 +301,20 @@ let eventTypeMap: eventTypeMap = {
     return nodeInfo
   },
   'SignalExternalWorkflowExecutionInitiated': function (node: node) {
+    let attributesObj = node.signalExternalWorkflowExecutionInitiatedEventAttributes
+    let workflowExecution = JSON.stringify(attributesObj.workflowExecution);
     const nodeInfo: nodeInfo = {
-      parent: node.signalExternalWorkflowExecutionInitiatedEventAttributes.decisionTaskCompletedEventId,
+      parent: attributesObj.decisionTaskCompletedEventId,
+      hoverText: {
+        id: node.eventId,
+        decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId,
+        domain: attributesObj.domain,
+        input: attributesObj.input,
+        signalName: attributesObj.signalName,
+        control: attributesObj.control,
+        childWorkflowOnly: attributesObj.childWorkflowOnly,
+        workflowExecution: workflowExecution,
+      }
     }
     return nodeInfo
   },
