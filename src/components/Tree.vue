@@ -1,6 +1,7 @@
 <template>
   <div class="tree-graph">
     <div id="canvas">
+      {{this.$store.state.routeId}}
       <div class="section-header">
         <router-link class="btn" :to="{ name: 'home' }">Home</router-link>
         <router-link
@@ -32,6 +33,7 @@ import * as d3 from "d3";
 import dagreD3 from "dagre-d3";
 import { getNodeInfo } from "../eventFunctionMap.ts";
 import router from "../router";
+import store from "../store";
 import Handlebars from "handlebars";
 import $ from "jquery";
 export default {
@@ -240,6 +242,9 @@ export default {
 
           if (event.childRunId) {
             self.routeId = event.childRunId;
+            store.commit("change", {
+              route: event.childRunId,
+            });
             self.btnText = "Show child workflow";
           } else if (event.newExecutionRunId) {
             self.routeId = event.newExecutionRunId;
