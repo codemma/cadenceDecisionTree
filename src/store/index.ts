@@ -8,7 +8,7 @@ const store = new Vuex.Store({
     routeId: ''
   },
   mutations: {
-    change(state, route) {
+    childRoute(state, route) {
       state.routeId = route
     }
   },

@@ -1,7 +1,6 @@
 <template>
   <div class="tree-graph">
     <div id="canvas">
-      {{this.$store.state.routeId}}
       <div class="section-header">
         <router-link class="btn" :to="{ name: 'home' }">Home</router-link>
         <router-link
@@ -242,7 +241,7 @@ export default {
 
           if (event.childRunId) {
             self.routeId = event.childRunId;
-            store.commit("change", {
+            store.commit("childRoute", {
               route: event.childRunId,
             });
             self.btnText = "Show child workflow";
