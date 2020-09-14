@@ -80,6 +80,7 @@ export default {
 
         //We have a child workflow, show parent btn
         if (parentWorkflow) {
+          store.commit("parentRoute", parentWorkflow.runId);
           this.parentRunId = parentWorkflow.runId;
         }
 
@@ -216,13 +217,9 @@ export default {
           let event = self.graph.node(id).eventInfo;
 
           if (event.childRunId) {
-            store.commit("childRoute", {
-              route: event.childRunId,
-            });
+            store.commit("childRoute", event.childRunId);
           } else if (event.newExecutionRunId) {
-            store.commit("newExecutionRoute", {
-              route: event.newExecutionRunId,
-            });
+            store.commit("newExecutionRoute", event.newExecutionRunId);
           } else {
             store.commit("toggleChildBtn");
           }
