@@ -60,19 +60,12 @@ export default {
       this.parentRunId = "";
       d3.select(".event-info-content").html("");
     },
-    route() {
-      router.push({ name: "tree", params: { runId: this.routeId } });
-    },
     async setGraph() {
       this.graph = new dagreD3.graphlib.Graph()
         .setGraph({ align: "UL" }) //one option is also: {compound:true}
         .setDefaultEdgeLabel(function () {
           return {}; //Neccessary to display arrows between nodes
         });
-    },
-    async loadWorkflow() {
-      let workflow = require("../demo-data/" + this.runId + ".js");
-      return workflow;
     },
     buildTree() {
       var nodeTemplate = Handlebars.compile($("#node-template").html());
