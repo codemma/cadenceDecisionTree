@@ -8,7 +8,6 @@
           class="btn"
           :to="{ name: 'tree', params: { runId: parentRoute } }"
         >Go to parent</router-link>
-        {{ this.$store.getters.parentRoute }}
         <div class="section-header-text">{{workflowName}}</div>
       </div>
       <hr />
