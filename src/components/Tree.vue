@@ -8,12 +8,12 @@
           class="btn"
           :to="{ name: 'tree', params: { runId: parentRunId } }"
         >Go to parent</router-link>
-        <div class="section-header-text">{{workflowName}}</div>
+        <div
+          class="section-header-text"
+        >{{workflowName}} Clickedid; {{this.$store.getters.childRouteId}}</div>
       </div>
       <hr />
-
       <div v-if="!workflowLoading" id="loading"></div>
-
       <Test v-if="workflowLoading" :workflow="workflow"></Test>
     </div>
     <div class="event-info">
@@ -21,7 +21,8 @@
         <div class="section-header-text">Event information</div>
       </div>
       <hr />
-      <div class="event-info-btn" v-on:click="route" v-if="routeId">{{btnText}}</div>
+      {{this.$store.getters.childBtn}}
+      <div class="event-info-btn" v-on:click="route" v-if="this.$store.getters.childBtn">{{btnText}}</div>
       <hr v-if="routeId" />
       <div class="event-info-content"></div>
     </div>
@@ -64,6 +65,15 @@ export default {
     runId: function () {
       this.clearData();
       this.createGraph();
+    },
+    //Watch for changes in the store for child route
+    "$store.getters.childRouteId": function () {
+      this.routeId = this.$store.getters.childRouteId.route;
+      this.btnText = "Show child workflow";
+    },
+    "$store.getters.newExecutionId": function () {
+      this.routeId = this.$store.getters.newExecutionId.route;
+      this.btnText = "Show next execution";
     },
   },
   mounted() {
@@ -213,83 +223,6 @@ export default {
         //Add the hover content to the info box
         d3.select(".event-info-content").html(context.dataset.hovertext);
       }
-
-      /*  d3.selectAll("g.node").each(function (i) {
-        if (i != d) {
-          d3.select(this).classed("selected", false);
-        }
-      }); */
-    },
-    renderGraph() {
-      var self = this;
-
-      this.graph.nodes().forEach(function (v) {
-        var node = self.graph.node(v);
-        // Round the corners of the nodes
-        node.rx = node.ry = 5;
-      });
-
-      // Set up an SVG group so that we can translate the final graph.
-      var svg = d3.select("#graph").attr("height", "100%");
-      var inner = svg.select("g");
-
-      this.drawChart(svg);
-
-      // Add an event listener that run the function when dimension change
-      window.addEventListener("resize", this.drawChart(svg));
-
-      // Set up zoom support
-      var zoom = d3.zoom().on("zoom", function () {
-        inner.attr("transform", d3.event.transform);
-      });
-      svg.call(zoom);
-
-      // Create and run the renderer
-      var render = new dagreD3.render();
-      render(inner, this.graph);
-
-      //Select all nodes and add click event
-      inner
-        .selectAll("g.node")
-        //To access the node hovertext
-        .attr("data-hovertext", function (v) {
-          return self.graph.node(v).hovertext;
-        })
-        .on("mousedown", function (id) {
-          d3.event.stopPropagation();
-          self.toggleSelectedNode(id, this);
-
-          let event = self.graph.node(id).eventInfo;
-
-          if (event.childRunId) {
-            self.routeId = event.childRunId;
-            store.commit("childRoute", {
-              route: event.childRunId,
-            });
-            self.btnText = "Show child workflow";
-          } else if (event.newExecutionRunId) {
-            self.routeId = event.newExecutionRunId;
-            self.btnText = "Show next execution";
-          } else self.routeId = null;
-        });
-
-      //Fix to put arrowheads over nodes
-      svg
-        .select(".output")
-        .insert(() => d3.select(".nodes").remove().node(), ".edgePaths");
-
-      // Center the graph
-      var initialScale = 0.75;
-      svg.call(
-        zoom.transform,
-        d3.zoomIdentity
-          .translate(
-            (svg.attr("width") - this.graph.graph().width * initialScale) / 2,
-            20
-          )
-          .scale(initialScale)
-      );
-      svg.attr("height", this.graph.graph().height * initialScale + 40);
     },
   },
   computed: {},
