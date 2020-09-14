@@ -70,7 +70,7 @@ export default {
     buildTree() {
       var nodeTemplate = Handlebars.compile($("#node-template").html());
       //Create nodes to render with Dagre D3
-      console.log(3, this.workflow);
+      //console.log(3, this.workflow);
       this.workflow.forEach((node) => {
         let { hoverText, childRunId, parentWorkflow } = getNodeInfo(
             node,
@@ -92,7 +92,7 @@ export default {
             },
           });
         }
-        console.log("graph", this.graph, node.eventType);
+        //console.log("graph", this.graph, node.eventType);
         this.graph.setNode(node.eventId, {
           label: node.eventType,
           class: node.eventType,
