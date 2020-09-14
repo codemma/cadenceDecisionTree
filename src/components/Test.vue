@@ -12,6 +12,7 @@ import dagreD3 from "dagre-d3";
 import { getNodeInfo } from "../eventFunctionMap.ts";
 import router from "../router";
 import Handlebars from "handlebars";
+import store from "../store";
 import $ from "jquery";
 export default {
   props: {
@@ -222,12 +223,16 @@ export default {
           let event = self.graph.node(id).eventInfo;
 
           if (event.childRunId) {
-            self.routeId = event.childRunId;
-            self.btnText = "Show child workflow";
+            store.commit("childRoute", {
+              route: event.childRunId,
+            });
           } else if (event.newExecutionRunId) {
-            self.routeId = event.newExecutionRunId;
-            self.btnText = "Show next execution";
-          } else self.routeId = null;
+            store.commit("newExecutionRoute", {
+              route: event.newExecutionRunId,
+            });
+          } else {
+            store.commit("toggleChildBtn");
+          }
         });
 
       //Fix to put arrowheads over nodes
