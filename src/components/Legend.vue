@@ -2,7 +2,7 @@
   <div v-on:click="showLegend =!showLegend" class="legend">
     <div v-if="!showLegend" class="legend-example">
       <div class="arrow-container">
-        <span class="pic arrow chron"></span>
+        <span class="arrow chron"></span>
         <hr class="chron" />
       </div>
     </div>
@@ -25,7 +25,6 @@
 
 <script>
 export default {
-  props: {},
   data() {
     return {
       showLegend: false,
@@ -44,10 +43,6 @@ export default {
       ],
     };
   },
-  watch: {},
-  mounted() {},
-  methods: {},
-  computed: {},
 };
 </script>
 
@@ -105,13 +100,6 @@ hr.divider {
 .text {
   margin-top: 10px;
   max-width: 300px;
-}
-
-.pic {
-  display: inline-block;
-  vertical-align: middle;
-  width: 0;
-  height: 0;
 }
 
 .arrow-container {
