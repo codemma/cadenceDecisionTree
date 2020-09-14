@@ -6,7 +6,7 @@
         <hr class="chron" />
       </div>
     </div>
-    <div v-if="showLegend" class="legend-content">
+    <div v-if="showLegend">
       <transition-group appear name="fade">
         <div v-for="connection in connections" :key="connection">
           <div class="legend-example">
@@ -16,7 +16,7 @@
             </div>
             <div class="text">{{connection.text}}</div>
           </div>
-          <hr />
+          <hr class="divider" />
         </div>
       </transition-group>
     </div>
@@ -60,39 +60,38 @@ export default {
   position: absolute;
   right: 20px;
   top: 80px;
+  cursor: pointer;
 
   &-example {
     display: flex;
-    margin: 20px;
+    margin: 18px 20px;
     flex-direction: column;
     text-align: left;
+  }
+}
 
-    hr {
-      width: 60px;
-      margin-left: 4px;
+hr {
+  width: 60px;
+  margin-left: 4px;
 
-      &.direct {
-        border-top: 2px solid black;
-      }
-
-      &.chron {
-        border-top: 2px dashed #5879DA;
-      }
-
-      &.inferred {
-        border-top: 2px dashed #ECAB20;
-      }
-    }
+  &.direct {
+    border-top: 2px solid black;
   }
 
-  &-content {
-    > hr {
-      border: 0;
-      border-top: 1px solid #eaeaea;
-      width: 100%;
-      padding: 0;
-    }
+  &.chron {
+    border-top: 2px dashed #5879DA;
   }
+
+  &.inferred {
+    border-top: 2px dashed #ECAB20;
+  }
+}
+
+hr.divider {
+  border: 0;
+  border-top: 1px solid #eaeaea;
+  width: 100%;
+  padding: 0;
 }
 
 .fade-enter-active, .fade-leave-active {
