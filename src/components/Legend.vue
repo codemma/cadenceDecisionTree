@@ -8,7 +8,7 @@
     </div>
     <div v-if="showLegend" class="legend-content">
       <transition-group appear name="fade">
-        <div v-for="connection in connections" :key="connection" class="wrapper">
+        <div v-for="connection in connections" :key="connection">
           <div class="legend-example">
             <div class="arrow-container">
               <span :class="connection.name" class="pic arrow"></span>
@@ -56,10 +56,6 @@ export default {
   background-color: white;
   border: 1px solid #eaeaea;
   box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
   width: fit-content;
   position: absolute;
   right: 20px;
@@ -92,7 +88,6 @@ export default {
   &-content {
     > hr {
       border: 0;
-      margin: 0;
       border-top: 1px solid #eaeaea;
       width: 100%;
       padding: 0;
@@ -111,11 +106,6 @@ export default {
 .text {
   margin-top: 10px;
   max-width: 300px;
-}
-
-.break {
-  flex-basis: 100%;
-  height: 0;
 }
 
 .pic {
@@ -145,9 +135,5 @@ export default {
   &.inferred {
     border-right: 6px solid #ECAB20;
   }
-}
-
-ul {
-  list-style-position: inside;
 }
 </style>
