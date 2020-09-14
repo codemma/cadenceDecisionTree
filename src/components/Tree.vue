@@ -11,7 +11,9 @@
         <div class="section-header-text">{{workflowName}}</div>
       </div>
       <hr />
+
       <div v-if="!workflowLoading" id="loading"></div>
+
       <Test v-if="workflowLoading" :workflow="workflow"></Test>
     </div>
     <div class="event-info">
@@ -79,7 +81,7 @@ export default {
   },
   methods: {
     delayedShow() {
-      let delay = 1500;
+      let delay = 1000;
       setTimeout(() => {
         this.workflowLoading = true;
       }, delay);
@@ -312,6 +314,7 @@ export default {
   box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
   border: 1px solid #eaeaea;
   overflow: hidden;
+  position: relative;
 }
 
 hr {
@@ -491,7 +494,11 @@ text {
   border-radius: 50%;
   border-top-color: #fff;
   animation: spin 1s ease-in-out infinite;
-  -webkit-animation: spin 1s ease-in-out infinite;
+  /* Center vertically and horizontally */
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -25px 0 0 -25px; /* apply negative top and left margins to truly center the element */
 }
 
 @keyframes spin {
