@@ -8,9 +8,7 @@
           class="btn"
           :to="{ name: 'tree', params: { runId: parentRunId } }"
         >Go to parent</router-link>
-        <div
-          class="section-header-text"
-        >{{workflowName}} Clickedid; {{this.$store.getters.childRouteId}}</div>
+        <div class="section-header-text">{{workflowName}}</div>
       </div>
       <hr />
       <div v-if="!workflowLoading" id="loading"></div>
@@ -21,7 +19,6 @@
         <div class="section-header-text">Event information</div>
       </div>
       <hr />
-      {{this.$store.getters.childBtn}}
       <div class="event-info-btn" v-on:click="route" v-if="this.$store.getters.childBtn">{{btnText}}</div>
       <hr v-if="routeId" />
       <div class="event-info-content"></div>
@@ -64,7 +61,8 @@ export default {
   watch: {
     runId: function () {
       this.clearData();
-      this.createGraph();
+      this.setWorkFlow();
+      //this.createGraph();
     },
     //Watch for changes in the store for child route
     "$store.getters.childRouteId": function () {
@@ -77,16 +75,7 @@ export default {
     },
   },
   mounted() {
-    this.loadWorkflow().then((workflow) => {
-      //console.log(workflow);
-      this.workflow = workflow;
-      console.log(1, this.workflow);
-      //this.workflowLoading = true;
-      this.workflowName =
-        workflow[0].workflowExecutionStartedEventAttributes.workflowType.name;
-      this.delayedShow();
-      // this.buildTree();
-    });
+    this.setWorkFlow();
     //this.createGraph();
   },
   methods: {
@@ -107,6 +96,7 @@ export default {
     },
     clearData() {
       this.parentArray = [];
+      this.workflowLoading = false;
       this.routeId = "";
       this.parentRunId = "";
       d3.select(".event-info-content").html("");
@@ -120,6 +110,18 @@ export default {
         .setDefaultEdgeLabel(function () {
           return {}; //Neccessary to display arrows between nodes
         });
+    },
+    setWorkFlow() {
+      this.loadWorkflow().then((workflow) => {
+        //console.log(workflow);
+        this.workflow = workflow;
+        console.log(1, this.workflow);
+        //this.workflowLoading = true;
+        this.workflowName =
+          workflow[0].workflowExecutionStartedEventAttributes.workflowType.name;
+        this.delayedShow();
+        // this.buildTree();
+      });
     },
     async loadWorkflow() {
       let workflow = require("../demo-data/" + this.runId + ".js");
@@ -170,7 +172,7 @@ export default {
           this.setChron(node);
         }
       });
-      this.renderGraph();
+      //this.renderGraph();
     },
     setDirectAndInferred(node) {
       let nodeId = node.eventId,
