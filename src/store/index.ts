@@ -5,15 +5,27 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
   state: {
-    routeId: ''
+    childRouteId: '',
+    newExecutionId: '',
+    childBtn: false,
   },
   mutations: {
     childRoute(state, route) {
-      state.routeId = route
+      state.childRouteId = route;
+      state.childBtn = !state.childBtn
+    },
+    newExecutionRoute(state, route) {
+      state.newExecutionId = route,
+        state.childBtn = !state.childBtn
+    },
+    toggleChildBtn(state) {
+      state.childBtn = false
     }
   },
   getters: {
-    routeId: state => state.routeId
+    childRouteId: state => state.childRouteId,
+    newExecutionId: state => state.newExecutionId,
+    childBtn: state => state.childBtn
   }
 })
 
