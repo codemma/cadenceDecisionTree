@@ -4,10 +4,11 @@
       <div class="section-header">
         <router-link class="btn" :to="{ name: 'home' }">Home</router-link>
         <router-link
-          v-if="parentRunId"
+          v-if="parentRoute"
           class="btn"
-          :to="{ name: 'tree', params: { runId: parentRunId } }"
+          :to="{ name: 'tree', params: { runId: parentRoute } }"
         >Go to parent</router-link>
+        {{ this.$store.getters.parentRoute }}
         <div class="section-header-text">{{workflowName}}</div>
       </div>
       <hr />
@@ -66,11 +67,11 @@ export default {
     },
     //Watch for changes in the store for child route
     "$store.getters.childRouteId": function () {
-      this.routeId = this.$store.getters.childRouteId.route;
+      this.routeId = this.$store.getters.childRouteId;
       this.btnText = "Show child workflow";
     },
     "$store.getters.newExecutionId": function () {
-      this.routeId = this.$store.getters.newExecutionId.route;
+      this.routeId = this.$store.getters.newExecutionId;
       this.btnText = "Show next execution";
     },
   },
@@ -84,15 +85,6 @@ export default {
       setTimeout(() => {
         this.workflowLoading = true;
       }, delay);
-    },
-    createGraph() {
-      this.setGraph();
-      this.loadWorkflow().then((workflow) => {
-        this.workflow = workflow;
-        this.workflowName =
-          workflow[0].workflowExecutionStartedEventAttributes.workflowType.name;
-        this.buildTree();
-      });
     },
     clearData() {
       this.parentArray = [];
@@ -112,6 +104,7 @@ export default {
         });
     },
     setWorkFlow() {
+      store.commit("resetState");
       this.loadWorkflow().then((workflow) => {
         //console.log(workflow);
         this.workflow = workflow;
@@ -227,7 +220,11 @@ export default {
       }
     },
   },
-  computed: {},
+  computed: {
+    parentRoute() {
+      return this.$store.getters.parentRoute;
+    },
+  },
 };
 </script>
 
