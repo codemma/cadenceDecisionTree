@@ -13,9 +13,6 @@
       <hr />
       <div v-if="!workflowLoading" id="loading"></div>
       <Test v-if="workflowLoading" :workflow="workflow"></Test>
-      <svg id="graph">
-        <g />
-      </svg>
     </div>
     <div class="event-info">
       <div class="section-header">
@@ -72,14 +69,21 @@ export default {
       //console.log(workflow);
       this.workflow = workflow;
       console.log(1, this.workflow);
-      this.workflowLoading = true;
+      //this.workflowLoading = true;
       this.workflowName =
         workflow[0].workflowExecutionStartedEventAttributes.workflowType.name;
+      this.delayedShow();
       // this.buildTree();
     });
     //this.createGraph();
   },
   methods: {
+    delayedShow() {
+      let delay = 1500;
+      setTimeout(() => {
+        this.workflowLoading = true;
+      }, delay);
+    },
     createGraph() {
       this.setGraph();
       this.loadWorkflow().then((workflow) => {
