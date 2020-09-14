@@ -34,6 +34,7 @@ import * as d3 from "d3";
 import dagreD3 from "dagre-d3";
 import { getNodeInfo } from "../eventFunctionMap.ts";
 import router from "../router";
+import store from "../store";
 import Handlebars from "handlebars";
 import Test from "@/components/Test.vue";
 import $ from "jquery";
@@ -256,6 +257,9 @@ export default {
 
           if (event.childRunId) {
             self.routeId = event.childRunId;
+            store.commit("childRoute", {
+              route: event.childRunId,
+            });
             self.btnText = "Show child workflow";
           } else if (event.newExecutionRunId) {
             self.routeId = event.newExecutionRunId;
