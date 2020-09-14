@@ -7,29 +7,18 @@
       </div>
     </div>
     <div v-if="showLegend" class="legend-content">
-      <div class="legend-example">
-        <div class="arrow-container">
-          <span class="pic arrow chron"></span>
-          <hr class="chron" />
+      <transition-group appear name="fade">
+        <div v-for="connection in connections" :key="connection" class="wrapper">
+          <div class="legend-example">
+            <div class="arrow-container">
+              <span :class="connection.name" class="pic arrow"></span>
+              <hr :class="connection.name" />
+            </div>
+            <div class="text">{{connection.text}}</div>
+          </div>
+          <hr />
         </div>
-        <div class="text">Represents chronological connections</div>
-      </div>
-      <hr />
-      <div class="legend-example">
-        <div class="arrow-container">
-          <span class="pic arrow direct"></span>
-          <hr class="direct" />
-        </div>
-        <div class="text">Represents chronological connections</div>
-      </div>
-      <hr />
-      <div class="legend-example">
-        <div class="arrow-container">
-          <span class="pic arrow inferred"></span>
-          <hr class="inferred" />
-        </div>
-        <div class="text">Represents chronological connections</div>
-      </div>
+      </transition-group>
     </div>
   </div>
 </template>
@@ -40,6 +29,19 @@ export default {
   data() {
     return {
       showLegend: false,
+      connections: [
+        { name: "chron", text: "Represents chronological connections" },
+        {
+          name: "direct",
+          text:
+            "Represents direct connections, when a child has the id of the parent",
+        },
+        {
+          name: "inferred",
+          text:
+            "Represents connections between a signal and its triggered child ",
+        },
+      ],
     };
   },
   watch: {},
@@ -96,6 +98,14 @@ export default {
       padding: 0;
     }
   }
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 1s;
+}
+
+.fade-enter, .fade-leave-to {
+  opacity: 0;
 }
 
 .text {
