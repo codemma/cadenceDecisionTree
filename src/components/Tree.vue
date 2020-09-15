@@ -6,7 +6,7 @@
         <div class="btn" v-on:click="route(parentRoute)" v-if="parentRoute">Go to parent</div>
         <div class="section-header-text">{{workflowName}}</div>
       </div>
-      <hr />
+      <hr class="divider" />
       <div v-if="!workflowLoading" id="loading"></div>
       <Test v-if="workflowLoading" :workflow="workflow"></Test>
     </div>
@@ -16,7 +16,7 @@
       </div>
       <hr class="divider" />
       <div v-if="hasChildBtn" class="event-info-btn" v-on:click="route(childRouteId)">{{btnText}}</div>
-      <hr v-if="hasChildBtn" />
+      <hr v-if="hasChildBtn" class="divider" />
       <div ref="eventInfo" class="event-info-content"></div>
     </div>
   </div>
@@ -101,6 +101,8 @@ export default {
 
 <style lang="stylus">
 .tree-graph {
+  width: 100%;
+  height: 100%;
   display: flex;
   padding: 24px;
 }
