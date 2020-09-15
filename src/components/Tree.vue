@@ -17,7 +17,7 @@
       <hr />
       <div v-if="hasChildBtn" class="event-info-btn" v-on:click="route(childRouteId)">{{btnText}}</div>
       <hr v-if="hasChildBtn" />
-      <div class="event-info-content"></div>
+      <div ref="eventInfo" class="event-info-content"></div>
     </div>
   </div>
 </template>
@@ -49,6 +49,7 @@ export default {
   watch: {
     //We want to load a new workflow everytime we get a new runId
     runId: function () {
+      this.resetData();
       this.setWorkFlow();
     },
   },
@@ -57,12 +58,14 @@ export default {
   },
   methods: {
     route(runId) {
-      this.workflowLoading = false;
-      d3.select(".event-info-content").html("");
       router.push({ name: "tree", params: { runId: runId } });
     },
-    setWorkFlow() {
+    resetData() {
       store.commit("resetState"); //We reset the state every time we load a new workflow
+      this.$refs.eventInfo.innerHTML = ""; //Empty the event-info container
+      this.workflowLoading = false;
+    },
+    setWorkFlow() {
       this.loadWorkflow().then((workflow) => {
         this.workflow = workflow;
         this.workflowName =
@@ -71,7 +74,7 @@ export default {
       });
     },
     delayedShow() {
-      let delay = 1000;
+      let delay = 500;
       setTimeout(() => {
         this.workflowLoading = true;
       }, delay);
@@ -184,110 +187,6 @@ hr {
   }
 }
 
-.list-item {
-  margin: 16px 24px;
-
-  &-header {
-    font-weight: 600;
-    padding-bottom: 2px;
-  }
-
-  &-content {
-    color: #7b7b7b;
-    font-weight: 500;
-  }
-}
-
-.edge {
-  &-direct {
-    stroke: #000000;
-    stroke-width: 2px;
-  }
-
-  &-inferred {
-    stroke: #ECAB20;
-    stroke-width: 2px;
-  }
-
-  &-chronological {
-    stroke-dasharray: 5, 5;
-    stroke: #5879DA;
-    stroke-width: 2px;
-  }
-}
-
-.arrowhead {
-  &-direct {
-    stroke: #2c3e50;
-    fill: #2c3e50;
-    stroke-width: 1.5px;
-  }
-
-  &-inferred {
-    stroke: #ECAB20;
-    fill: #ECAB20;
-    stroke-width: 1.5px;
-  }
-
-  &-chronological {
-    fill: #5879DA;
-    stroke: #5879DA;
-    stroke-width: 1.5px;
-  }
-}
-
-node-color(color, border = color, stroke = 1) {
-  > rect {
-    stroke-width: stroke;
-    fill: color;
-    stroke: border;
-  }
-}
-
-failed-node() {
-  node-color: #ffcccc #ff6c6c;
-
-  &.selected {
-    node-color: #ffcccc #ff6c6c 2.5;
-  }
-}
-
-completed-node() {
-  node-color: #dcffe6 #26bd77;
-
-  &.selected {
-    node-color: #dcffe6 #26bd77 2.5;
-  }
-}
-
-.node {
-  &.ChildWorkflowExecutionFailed {
-    failed-node();
-  }
-
-  &.WorkflowExecutionFailed {
-    failed-node();
-  }
-
-  &.ActivityTaskFailed {
-    failed-node();
-  }
-
-  &.WorkflowExecutionCompleted {
-    completed-node();
-  }
-}
-
-text {
-  font-weight: 400;
-  font-size: 16px;
-  cursor: none;
-
-  &:hover {
-    cursor: pointer;
-  }
-}
-
 #loading {
   display: inline-block;
   width: 50px;
@@ -296,11 +195,10 @@ text {
   border-radius: 50%;
   border-top-color: #fff;
   animation: spin 1s ease-in-out infinite;
-  /* Center vertically and horizontally */
   position: absolute;
   top: 50%;
   left: 50%;
-  margin: -25px 0 0 -25px; /* apply negative top and left margins to truly center the element */
+  margin: -25px 0 0 -25px;
 }
 
 @keyframes spin {
@@ -312,22 +210,6 @@ text {
 @keyframes spin {
   to {
     -webkit-transform: rotate(360deg);
-  }
-}
-
-.node.selected rect {
-  stroke: #11939a;
-  stroke-width: 2px;
-}
-
-.node rect {
-  stroke: #b7b4b4;
-  fill: #fff;
-  stroke-width: 1px;
-  cursor: none;
-
-  &:hover {
-    cursor: pointer;
   }
 }
 </style>
