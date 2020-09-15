@@ -3,11 +3,7 @@
     <div id="canvas">
       <div class="section-header">
         <router-link class="btn" :to="{ name: 'home' }">Home</router-link>
-        <router-link
-          v-if="parentRoute"
-          class="btn"
-          :to="{ name: 'tree', params: { runId: parentRoute } }"
-        >Go to parent</router-link>
+        <div class="btn" v-on:click="route(parentRoute)" v-if="parentRoute">Go to parent</div>
         <div class="section-header-text">{{workflowName}}</div>
       </div>
       <hr />
@@ -19,7 +15,7 @@
         <div class="section-header-text">Event information</div>
       </div>
       <hr />
-      <div class="event-info-btn" v-on:click="route" v-if="hasChildBtn">{{btnText}}</div>
+      <div v-if="hasChildBtn" class="event-info-btn" v-on:click="route(childRouteId)">{{btnText}}</div>
       <hr v-if="hasChildBtn" />
       <div class="event-info-content"></div>
     </div>
@@ -46,11 +42,6 @@ export default {
     return {
       workflow: null,
       workflowLoading: false,
-      graph: {},
-      parentArray: [],
-      parentRunId: null,
-      // btnText: null,
-      routeId: null,
       clickedId: null,
       workflowName: null,
     };
@@ -83,8 +74,8 @@ export default {
       this.parentRunId = "";
       d3.select(".event-info-content").html("");
     },
-    route() {
-      router.push({ name: "tree", params: { runId: this.routeId } });
+    route(runId) {
+      router.push({ name: "tree", params: { runId: runId } });
     },
     setWorkFlow() {
       store.commit("resetState");
@@ -109,13 +100,12 @@ export default {
       return this.$store.getters.parentRoute;
     },
     hasChildBtn() {
-      this.routeId = this.$store.getters.childRouteId;
       return this.$store.getters.childBtn;
     },
     btnText() {
       return this.$store.getters.btnText;
     },
-    routeId() {
+    childRouteId() {
       return this.$store.getters.childRouteId;
     },
   },
