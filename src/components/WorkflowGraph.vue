@@ -1,5 +1,6 @@
 <template>
   <div>
+    <Legend />
     <svg id="graph">
       <g />
     </svg>
@@ -14,12 +15,16 @@ import router from "../router";
 import Handlebars from "handlebars";
 import store from "../store";
 import $ from "jquery";
+import Legend from "@/components/Legend.vue";
 export default {
   props: {
     workflow: {
       type: Array,
       required: true,
     },
+  },
+  components: {
+    Legend,
   },
   data() {
     return {

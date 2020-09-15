@@ -33,6 +33,9 @@ export default {
       required: true,
     },
   },
+  components: {
+    WorkflowGraph,
+  },
   data() {
     return {
       workflow: null,
