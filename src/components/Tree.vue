@@ -11,6 +11,7 @@
         <div class="section-header-text">{{workflowName}}</div>
       </div>
       <hr />
+      <Legend />
       <svg id="graph">
         <g />
       </svg>
@@ -34,6 +35,7 @@ import { getNodeInfo } from "../eventFunctionMap.ts";
 import router from "../router";
 import store from "../store";
 import Handlebars from "handlebars";
+import Legend from "@/components/Legend.vue";
 import $ from "jquery";
 export default {
   props: {
@@ -41,6 +43,9 @@ export default {
       type: String,
       required: true,
     },
+  },
+  components: {
+    Legend,
   },
   data() {
     return {
@@ -292,6 +297,7 @@ export default {
   box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
   border: 1px solid #eaeaea;
   overflow: hidden;
+  position: relative;
 }
 
 hr {
