@@ -3,40 +3,29 @@
     <div id="canvas">
       <div class="section-header">
         <router-link class="btn" :to="{ name: 'home' }">Home</router-link>
-        <router-link
-          v-if="parentRunId"
-          class="btn"
-          :to="{ name: 'tree', params: { runId: parentRunId } }"
-        >Go to parent</router-link>
+        <div class="btn" v-on:click="route(parentRoute)" v-if="parentRoute">Go to parent</div>
         <div class="section-header-text">{{workflowName}}</div>
       </div>
-      <hr />
-      <Legend />
-      <svg id="graph">
-        <g />
-      </svg>
+      <hr class="divider" />
+      <div v-if="!workflowLoading" id="loading"></div>
+      <WorkflowGraph v-if="workflowLoading" :workflow="workflow" />
     </div>
     <div class="event-info">
       <div class="section-header">
         <div class="section-header-text">Event information</div>
       </div>
-      <hr />
-      <div class="event-info-btn" v-on:click="route" v-if="routeId">{{btnText}}</div>
-      <hr v-if="routeId" />
-      <div class="event-info-content"></div>
+      <hr class="divider" />
+      <div v-if="hasChildBtn" class="event-info-btn" v-on:click="route(childRouteId)">{{btnText}}</div>
+      <hr v-if="hasChildBtn" class="divider" />
+      <div ref="eventInfo" class="event-info-content"></div>
     </div>
   </div>
 </template>
 
 <script>
-import * as d3 from "d3";
-import dagreD3 from "dagre-d3";
-import { getNodeInfo } from "../eventFunctionMap.ts";
 import router from "../router";
 import store from "../store";
-import Handlebars from "handlebars";
-import Legend from "@/components/Legend.vue";
-import $ from "jquery";
+import WorkflowGraph from "@/components/WorkflowGraph.vue";
 export default {
   props: {
     runId: {
@@ -45,237 +34,71 @@ export default {
     },
   },
   components: {
-    Legend,
+    WorkflowGraph,
   },
   data() {
     return {
-      workflow: {},
-      graph: {},
-      parentArray: [],
-      parentRunId: null,
-      btnText: null,
-      routeId: null,
+      workflow: null,
+      workflowLoading: false,
       clickedId: null,
       workflowName: null,
     };
   },
+  components: {
+    WorkflowGraph,
+  },
   watch: {
+    //We want to load a new workflow everytime we get a new runId
     runId: function () {
-      this.clearData();
-      this.createGraph();
+      this.resetData();
+      this.setWorkFlow();
     },
   },
   mounted() {
-    this.createGraph();
+    this.setWorkFlow();
   },
   methods: {
-    createGraph() {
-      this.setGraph();
+    route(runId) {
+      router.push({ name: "tree", params: { runId: runId } });
+    },
+    resetData() {
+      store.commit("resetState"); //We reset the state every time we load a new workflow
+      this.$refs.eventInfo.innerHTML = ""; //Empty the event-info container
+      this.workflowLoading = false;
+    },
+    setWorkFlow() {
       this.loadWorkflow().then((workflow) => {
         this.workflow = workflow;
         this.workflowName =
           workflow[0].workflowExecutionStartedEventAttributes.workflowType.name;
-        this.buildTree();
+        this.delayedShow();
       });
     },
-    clearData() {
-      this.parentArray = [];
-      this.routeId = "";
-      this.parentRunId = "";
-      d3.select(".event-info-content").html("");
-    },
-    route() {
-      router.push({ name: "tree", params: { runId: this.routeId } });
-    },
-    setGraph() {
-      this.graph = new dagreD3.graphlib.Graph()
-        .setGraph({ align: "UL" }) //one option is also: {compound:true}
-        .setDefaultEdgeLabel(function () {
-          return {}; //Neccessary to display arrows between nodes
-        });
+    delayedShow() {
+      let delay = 500;
+      setTimeout(() => {
+        this.workflowLoading = true;
+      }, delay);
     },
     async loadWorkflow() {
       let workflow = require("../demo-data/" + this.runId + ".js");
       return workflow;
     },
-    buildTree() {
-      var nodeTemplate = Handlebars.compile($("#node-template").html());
-      //Create nodes to render with Dagre D3
-      this.workflow.forEach((node) => {
-        let { hoverText, childRunId, parentWorkflow } = getNodeInfo(
-            node,
-            this.workflow
-          ),
-          hovertext;
-
-        //We have a child workflow, show parent btn
-        if (parentWorkflow) {
-          this.parentRunId = parentWorkflow.runId;
-        }
-
-        if (hoverText !== undefined) {
-          hovertext = nodeTemplate({ hoverText: hoverText });
-        } else {
-          hovertext = nodeTemplate({
-            hoverText: {
-              test: "TODO",
-            },
-          });
-        }
-        this.graph.setNode(node.eventId, {
-          label: node.eventType,
-          class: node.eventType,
-          eventInfo: hoverText,
-          id: node.eventId,
-          hovertext: hovertext,
-          id: "event-" + node.eventId,
-        });
-      });
-      //Set the direct and inferred relationships
-      this.workflow.forEach((node) => {
-        this.setDirectAndInferred(node);
-      });
-
-      //Set the chronological relationships.
-      //If the node is not referred to as a parent it should be connected back to the graph with a chron child
-      this.workflow.forEach((node) => {
-        if (!this.parentArray.includes(node.eventId)) {
-          this.setChron(node);
-        }
-      });
-      this.renderGraph();
+  },
+  computed: {
+    parentRoute() {
+      return this.$store.getters.parentRoute;
     },
-    setDirectAndInferred(node) {
-      let nodeId = node.eventId,
-        { parent, inferredChild } = getNodeInfo(node, this.workflow);
-      if (parent) {
-        this.parentArray.push(parent);
-        this.graph.setEdge(parent, nodeId, {
-          class: "edge-direct",
-          arrowheadClass: "arrowhead-direct",
-        });
-      }
-      if (inferredChild) {
-        this.parentArray.push(nodeId);
-        this.graph.setEdge(nodeId, inferredChild, {
-          class: "edge-inferred",
-          arrowheadClass: "arrowhead-inferred",
-        });
-      }
+    hasChildBtn() {
+      return this.$store.getters.childBtn;
     },
-    setChron(node) {
-      let nodeId = node.eventId,
-        { chronologicalChild } = getNodeInfo(node, this.workflow);
-      if (chronologicalChild) {
-        this.graph.setEdge(nodeId, chronologicalChild, {
-          class: "edge-chronological",
-          arrowheadClass: "arrowhead-chronological",
-        });
-      }
+    btnText() {
+      return this.$store.getters.btnText;
     },
-    // A function that finishes to draw the chart for a specific device size.
-    drawChart(svg) {
-      // get the current width of the div where the graph appear, and attribute it to svg
-      let currentWidth = parseInt(d3.select("#canvas").style("width"), 10);
-      svg.attr("width", currentWidth);
-    },
-
-    toggleSelectedNode(id, context) {
-      if (d3.select(context).classed("selected")) {
-        d3.select(context).classed("selected", false);
-
-        //Remove content from information box
-        d3.select(".event-info-content").html("");
-        self.clickedId = null;
-      } else {
-        //Deselect previous node
-        d3.select("#event-" + self.clickedId).classed("selected", false);
-        //Select current
-        d3.select("#event-" + id).classed("selected", true);
-        self.clickedId = id;
-        //Add the hover content to the info box
-        d3.select(".event-info-content").html(context.dataset.hovertext);
-      }
-
-      /*  d3.selectAll("g.node").each(function (i) {
-        if (i != d) {
-          d3.select(this).classed("selected", false);
-        }
-      }); */
-    },
-    renderGraph() {
-      var self = this;
-
-      this.graph.nodes().forEach(function (v) {
-        var node = self.graph.node(v);
-        // Round the corners of the nodes
-        node.rx = node.ry = 5;
-      });
-
-      // Set up an SVG group so that we can translate the final graph.
-      var svg = d3.select("#graph").attr("height", "100%");
-      var inner = svg.select("g");
-
-      this.drawChart(svg);
-
-      // Add an event listener that run the function when dimension change
-      window.addEventListener("resize", this.drawChart(svg));
-
-      // Set up zoom support
-      var zoom = d3.zoom().on("zoom", function () {
-        inner.attr("transform", d3.event.transform);
-      });
-      svg.call(zoom);
-
-      // Create and run the renderer
-      var render = new dagreD3.render();
-      render(inner, this.graph);
-
-      //Select all nodes and add click event
-      inner
-        .selectAll("g.node")
-        //To access the node hovertext
-        .attr("data-hovertext", function (v) {
-          return self.graph.node(v).hovertext;
-        })
-        .on("mousedown", function (id) {
-          d3.event.stopPropagation();
-          self.toggleSelectedNode(id, this);
-
-          let event = self.graph.node(id).eventInfo;
-
-          if (event.childRunId) {
-            self.routeId = event.childRunId;
-            store.commit("childRoute", {
-              route: event.childRunId,
-            });
-            self.btnText = "Show child workflow";
-          } else if (event.newExecutionRunId) {
-            self.routeId = event.newExecutionRunId;
-            self.btnText = "Show next execution";
-          } else self.routeId = null;
-        });
-
-      //Fix to put arrowheads over nodes
-      svg
-        .select(".output")
-        .insert(() => d3.select(".nodes").remove().node(), ".edgePaths");
-
-      // Center the graph
-      var initialScale = 0.75;
-      svg.call(
-        zoom.transform,
-        d3.zoomIdentity
-          .translate(
-            (svg.attr("width") - this.graph.graph().width * initialScale) / 2,
-            20
-          )
-          .scale(initialScale)
-      );
-      svg.attr("height", this.graph.graph().height * initialScale + 40);
+    childRouteId() {
+      return this.$store.getters.childRouteId;
     },
   },
-  computed: {},
 };
 </script>
 
@@ -300,10 +123,9 @@ export default {
   position: relative;
 }
 
-hr {
+hr.divider {
   border: 0;
   border-top: 1px solid #eaeaea;
-  width: 100%;
   padding: 0;
 }
 
@@ -348,10 +170,7 @@ hr {
     font-weight: 600;
     border-radius: 2px;
     padding: 6px 0;
-
-    &:hover {
-      cursor: pointer;
-    }
+    cursor: pointer;
   }
 }
 
@@ -365,123 +184,30 @@ hr {
   }
 }
 
-.list-item {
-  margin: 16px 24px;
+/* ---- Loadig icon  ---- */
+#loading {
+  display: inline-block;
+  width: 50px;
+  height: 50px;
+  border: 3px solid #11939A;
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s ease-in-out infinite;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -25px 0 0 -25px;
+}
 
-  &-header {
-    font-weight: 600;
-    padding-bottom: 2px;
-  }
-
-  &-content {
-    color: #7b7b7b;
-    font-weight: 500;
+@keyframes spin {
+  to {
+    -webkit-transform: rotate(360deg);
   }
 }
 
-.edge {
-  &-direct {
-    stroke: #000000;
-    stroke-width: 2px;
-  }
-
-  &-inferred {
-    stroke: #ECAB20;
-    stroke-width: 2px;
-  }
-
-  &-chronological {
-    stroke-dasharray: 5, 5;
-    stroke: #5879DA;
-    stroke-width: 2px;
-  }
-}
-
-.arrowhead {
-  &-direct {
-    stroke: #2c3e50;
-    fill: #2c3e50;
-    stroke-width: 1.5px;
-  }
-
-  &-inferred {
-    stroke: #ECAB20;
-    fill: #ECAB20;
-    stroke-width: 1.5px;
-  }
-
-  &-chronological {
-    fill: #5879DA;
-    stroke: #5879DA;
-    stroke-width: 1.5px;
-  }
-}
-
-node-color(color, border = color, stroke = 1) {
-  > rect {
-    stroke-width: stroke;
-    fill: color;
-    stroke: border;
-  }
-}
-
-failed-node() {
-  node-color: #ffcccc #ff6c6c;
-
-  &.selected {
-    node-color: #ffcccc #ff6c6c 2.5;
-  }
-}
-
-completed-node() {
-  node-color: #dcffe6 #26bd77;
-
-  &.selected {
-    node-color: #dcffe6 #26bd77 2.5;
-  }
-}
-
-.node {
-  &.ChildWorkflowExecutionFailed {
-    failed-node();
-  }
-
-  &.WorkflowExecutionFailed {
-    failed-node();
-  }
-
-  &.ActivityTaskFailed {
-    failed-node();
-  }
-
-  &.WorkflowExecutionCompleted {
-    completed-node();
-  }
-}
-
-text {
-  font-weight: 400;
-  font-size: 16px;
-  cursor: none;
-
-  &:hover {
-    cursor: pointer;
-  }
-}
-
-.node.selected rect {
-  stroke: #11939a;
-  stroke-width: 2px;
-}
-
-.node rect {
-  stroke: #b7b4b4;
-  fill: #fff;
-  stroke-width: 1px;
-  cursor: none;
-
-  &:hover {
-    cursor: pointer;
+@keyframes spin {
+  to {
+    -webkit-transform: rotate(360deg);
   }
 }
 </style>
