@@ -217,9 +217,15 @@ export default {
           let event = self.graph.node(id).eventInfo;
 
           if (event.childRunId) {
-            store.commit("childRoute", event.childRunId);
+            store.commit("childRoute", {
+              routeId: event.childRunId,
+              btnText: "Show child workflow",
+            });
           } else if (event.newExecutionRunId) {
-            store.commit("newExecutionRoute", event.newExecutionRunId);
+            store.commit("childRoute", {
+              routeId: event.newExecutionRunId,
+              btnText: "Show next execution",
+            });
           } else {
             store.commit("toggleChildBtn");
           }
