@@ -223,90 +223,6 @@ export default {
 </script>
 
 <style lang="stylus">
-.tree-graph {
-  width: 100%;
-  height: 100%;
-  display: flex;
-  padding: 24px;
-}
-
-#graph {
-  height: 100%;
-}
-
-#canvas {
-  flex: 3;
-  background-color: white;
-  box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
-  border: 1px solid #eaeaea;
-  overflow: hidden;
-}
-
-hr {
-  border: 0;
-  border-top: 1px solid #eaeaea;
-  width: 100%;
-  padding: 0;
-}
-
-.btn {
-  margin-left: 20px;
-  color: white;
-  background-color: #11939A;
-  font-weight: 600;
-  text-decoration: none;
-  border-radius: 2px;
-  padding: 6px;
-}
-
-.section-header {
-  height: 62px;
-  display: flex;
-  align-items: center;
-  position: relative;
-
-  &-text {
-    font-weight: bold;
-    position: absolute;
-    left: 50%;
-    transform: translate(-50%);
-  }
-}
-
-.event-info {
-  flex: 1;
-  background-color: white;
-  box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
-  border-radius: 2px;
-  border: 1px solid #eaeaea;
-  overflow-wrap: break-word;
-  overflow-y: scroll;
-  margin-left: 24px;
-
-  &-btn {
-    margin: 16px 20px;
-    color: white;
-    background-color: #11939A;
-    font-weight: 600;
-    border-radius: 2px;
-    padding: 6px 0;
-
-    &:hover {
-      cursor: pointer;
-    }
-  }
-}
-
-.event-information-list {
-  text-align: left;
-
-  > hr {
-    &:last-child {
-      display: none;
-    }
-  }
-}
-
 .list-item {
   margin: 16px 24px;
 
@@ -408,29 +324,6 @@ text {
 
   &:hover {
     cursor: pointer;
-  }
-}
-
-#loading {
-  display: inline-block;
-  width: 50px;
-  height: 50px;
-  border: 3px solid #11939A;
-  border-radius: 50%;
-  border-top-color: #fff;
-  animation: spin 1s ease-in-out infinite;
-  -webkit-animation: spin 1s ease-in-out infinite;
-}
-
-@keyframes spin {
-  to {
-    -webkit-transform: rotate(360deg);
-  }
-}
-
-@keyframes spin {
-  to {
-    -webkit-transform: rotate(360deg);
   }
 }
 
