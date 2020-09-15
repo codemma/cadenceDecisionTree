@@ -8,7 +8,7 @@
       </div>
       <hr class="divider" />
       <div v-if="!workflowLoading" id="loading"></div>
-      <Test v-if="workflowLoading" :workflow="workflow"></Test>
+      <WorkflowGraph v-if="workflowLoading" :workflow="workflow" />
     </div>
     <div class="event-info">
       <div class="section-header">
@@ -25,7 +25,7 @@
 <script>
 import router from "../router";
 import store from "../store";
-import Test from "@/components/Test.vue";
+import WorkflowGraph from "@/components/WorkflowGraph.vue";
 export default {
   props: {
     runId: {
@@ -42,7 +42,7 @@ export default {
     };
   },
   components: {
-    Test,
+    WorkflowGraph,
   },
   watch: {
     //We want to load a new workflow everytime we get a new runId
