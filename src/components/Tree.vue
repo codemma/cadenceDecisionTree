@@ -25,12 +25,9 @@
 <script>
 import * as d3 from "d3";
 import dagreD3 from "dagre-d3";
-import { getNodeInfo } from "../eventFunctionMap.ts";
 import router from "../router";
 import store from "../store";
-import Handlebars from "handlebars";
 import Test from "@/components/Test.vue";
-import $ from "jquery";
 export default {
   props: {
     runId: {
@@ -50,45 +47,34 @@ export default {
     Test,
   },
   watch: {
+    //We want to load a new workflow everytime we get a new runId
     runId: function () {
-      this.clearData();
       this.setWorkFlow();
-      //this.createGraph();
     },
   },
   mounted() {
     this.setWorkFlow();
-    //this.createGraph();
   },
   methods: {
+    route(runId) {
+      this.workflowLoading = false;
+      d3.select(".event-info-content").html("");
+      router.push({ name: "tree", params: { runId: runId } });
+    },
+    setWorkFlow() {
+      store.commit("resetState"); //We reset the state every time we load a new workflow
+      this.loadWorkflow().then((workflow) => {
+        this.workflow = workflow;
+        this.workflowName =
+          workflow[0].workflowExecutionStartedEventAttributes.workflowType.name;
+        this.delayedShow();
+      });
+    },
     delayedShow() {
       let delay = 1000;
       setTimeout(() => {
         this.workflowLoading = true;
       }, delay);
-    },
-    clearData() {
-      this.parentArray = [];
-      this.workflowLoading = false;
-      this.routeId = "";
-      this.parentRunId = "";
-      d3.select(".event-info-content").html("");
-    },
-    route(runId) {
-      router.push({ name: "tree", params: { runId: runId } });
-    },
-    setWorkFlow() {
-      store.commit("resetState");
-      this.loadWorkflow().then((workflow) => {
-        //console.log(workflow);
-        this.workflow = workflow;
-        console.log(1, this.workflow);
-        //this.workflowLoading = true;
-        this.workflowName =
-          workflow[0].workflowExecutionStartedEventAttributes.workflowType.name;
-        this.delayedShow();
-        // this.buildTree();
-      });
     },
     async loadWorkflow() {
       let workflow = require("../demo-data/" + this.runId + ".js");
