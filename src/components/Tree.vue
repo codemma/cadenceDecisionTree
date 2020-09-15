@@ -14,7 +14,7 @@
       <div class="section-header">
         <div class="section-header-text">Event information</div>
       </div>
-      <hr />
+      <hr class="divider" />
       <div v-if="hasChildBtn" class="event-info-btn" v-on:click="route(childRouteId)">{{btnText}}</div>
       <hr v-if="hasChildBtn" />
       <div ref="eventInfo" class="event-info-content"></div>
@@ -103,8 +103,6 @@ export default {
 
 <style lang="stylus">
 .tree-graph {
-  width: 100%;
-  height: 100%;
   display: flex;
   padding: 24px;
 }
@@ -122,10 +120,9 @@ export default {
   position: relative;
 }
 
-hr {
+hr.divider {
   border: 0;
   border-top: 1px solid #eaeaea;
-  width: 100%;
   padding: 0;
 }
 
@@ -170,10 +167,7 @@ hr {
     font-weight: 600;
     border-radius: 2px;
     padding: 6px 0;
-
-    &:hover {
-      cursor: pointer;
-    }
+    cursor: pointer;
   }
 }
 
@@ -187,6 +181,7 @@ hr {
   }
 }
 
+/* ---- Loadig icon  ---- */
 #loading {
   display: inline-block;
   width: 50px;
