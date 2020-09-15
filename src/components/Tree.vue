@@ -55,6 +55,7 @@ export default {
     },
   },
   mounted() {
+    store.commit("resetState");
     this.setWorkFlow();
   },
   methods: {

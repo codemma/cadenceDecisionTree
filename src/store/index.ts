@@ -7,7 +7,7 @@ const getDefaultState = () => {
     newExecutionId: '',
     parentRouteId: '',
     childBtn: false,
-    btnText: ''
+    btnText: '',
   }
 }
 // initial state
@@ -31,7 +31,6 @@ const store = new Vuex.Store({
       state.childBtn = false
     },
     parentRoute(state, route) {
-      console.log(route)
       state.parentRouteId = route
     },
     resetState(state) {
