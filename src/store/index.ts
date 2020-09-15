@@ -20,7 +20,7 @@ const store = new Vuex.Store({
   mutations: {
     childRoute(state, param) {
       state.childRouteId = param.routeId;
-      state.childBtn = !state.childBtn;
+      state.childBtn = true;
       state.btnText = param.btnText;
     },
     newExecutionRoute(state, route) {
