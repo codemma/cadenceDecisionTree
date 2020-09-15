@@ -23,44 +23,20 @@ export default {
   },
   data() {
     return {
-      //workflow: {},
       graph: {},
       parentArray: [],
-      parentRunId: null,
-      btnText: null,
-      routeId: null,
       clickedId: null,
-      workflowName: null,
     };
-  },
-  watch: {
-    runId: function () {
-      this.clearData();
-      this.createGraph();
-    },
   },
   mounted() {
     this.createGraph();
   },
   methods: {
     createGraph() {
-      this.setGraph().then(() => {
-        this.buildTree();
-      });
-      /*    this.loadWorkflow().then((workflow) => {
-        this.workflow = workflow;
-        this.workflowName =
-          workflow[0].workflowExecutionStartedEventAttributes.workflowType.name;
-        this.buildTree();
-      }); */
+      this.setGraph();
+      this.buildTree();
     },
-    clearData() {
-      this.parentArray = [];
-      this.routeId = "";
-      this.parentRunId = "";
-      d3.select(".event-info-content").html("");
-    },
-    async setGraph() {
+    setGraph() {
       this.graph = new dagreD3.graphlib.Graph()
         .setGraph({ align: "UL" }) //one option is also: {compound:true}
         .setDefaultEdgeLabel(function () {
@@ -69,8 +45,8 @@ export default {
     },
     buildTree() {
       var nodeTemplate = Handlebars.compile($("#node-template").html());
+
       //Create nodes to render with Dagre D3
-      //console.log(3, this.workflow);
       this.workflow.forEach((node) => {
         let { hoverText, childRunId, parentWorkflow } = getNodeInfo(
             node,
@@ -81,7 +57,6 @@ export default {
         //We have a child workflow, show parent btn
         if (parentWorkflow) {
           store.commit("parentRoute", parentWorkflow.runId);
-          this.parentRunId = parentWorkflow.runId;
         }
 
         if (hoverText !== undefined) {
