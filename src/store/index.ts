@@ -7,6 +7,7 @@ const getDefaultState = () => {
     newExecutionId: '',
     parentRouteId: '',
     childBtn: false,
+    btnText: ''
   }
 }
 // initial state
@@ -17,9 +18,10 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
   state: state,
   mutations: {
-    childRoute(state, route) {
-      state.childRouteId = route;
-      state.childBtn = !state.childBtn
+    childRoute(state, param) {
+      state.childRouteId = param.routeId;
+      state.childBtn = !state.childBtn;
+      state.btnText = param.btnText;
     },
     newExecutionRoute(state, route) {
       state.newExecutionId = route,
@@ -40,6 +42,7 @@ const store = new Vuex.Store({
     childRouteId: state => state.childRouteId,
     newExecutionId: state => state.newExecutionId,
     childBtn: state => state.childBtn,
+    btnText: state => state.btnText,
     parentRoute: state => state.parentRouteId
   }
 })
