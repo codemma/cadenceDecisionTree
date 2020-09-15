@@ -23,8 +23,6 @@
 </template>
 
 <script>
-import * as d3 from "d3";
-import dagreD3 from "dagre-d3";
 import router from "../router";
 import store from "../store";
 import Test from "@/components/Test.vue";
