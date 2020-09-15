@@ -68,7 +68,6 @@ export default {
             },
           });
         }
-        //console.log("graph", this.graph, node.eventType);
         this.graph.setNode(node.eventId, {
           label: node.eventType,
           class: node.eventType,
@@ -143,12 +142,6 @@ export default {
         //Add the hover content to the info box
         d3.select(".event-info-content").html(context.dataset.hovertext);
       }
-
-      /*  d3.selectAll("g.node").each(function (i) {
-        if (i != d) {
-          d3.select(this).classed("selected", false);
-        }
-      }); */
     },
     renderGraph() {
       var self = this;
