@@ -19,8 +19,8 @@
         <div class="section-header-text">Event information</div>
       </div>
       <hr />
-      <div class="event-info-btn" v-on:click="route" v-if="this.$store.getters.childBtn">{{btnText}}</div>
-      <hr v-if="routeId" />
+      <div class="event-info-btn" v-on:click="route" v-if="hasChildBtn">{{btnText}}</div>
+      <hr v-if="hasChildBtn" />
       <div class="event-info-content"></div>
     </div>
   </div>
@@ -49,7 +49,7 @@ export default {
       graph: {},
       parentArray: [],
       parentRunId: null,
-      btnText: null,
+      // btnText: null,
       routeId: null,
       clickedId: null,
       workflowName: null,
@@ -63,15 +63,6 @@ export default {
       this.clearData();
       this.setWorkFlow();
       //this.createGraph();
-    },
-    //Watch for changes in the store for child route
-    "$store.getters.childRouteId": function () {
-      this.routeId = this.$store.getters.childRouteId;
-      this.btnText = "Show child workflow";
-    },
-    "$store.getters.newExecutionId": function () {
-      this.routeId = this.$store.getters.newExecutionId;
-      this.btnText = "Show next execution";
     },
   },
   mounted() {
@@ -95,13 +86,6 @@ export default {
     route() {
       router.push({ name: "tree", params: { runId: this.routeId } });
     },
-    setGraph() {
-      this.graph = new dagreD3.graphlib.Graph()
-        .setGraph({ align: "UL" }) //one option is also: {compound:true}
-        .setDefaultEdgeLabel(function () {
-          return {}; //Neccessary to display arrows between nodes
-        });
-    },
     setWorkFlow() {
       store.commit("resetState");
       this.loadWorkflow().then((workflow) => {
@@ -119,109 +103,20 @@ export default {
       let workflow = require("../demo-data/" + this.runId + ".js");
       return workflow;
     },
-    buildTree() {
-      var nodeTemplate = Handlebars.compile($("#node-template").html());
-      //Create nodes to render with Dagre D3
-      this.workflow.forEach((node) => {
-        let { hoverText, childRunId, parentWorkflow } = getNodeInfo(
-            node,
-            this.workflow
-          ),
-          hovertext;
-
-        //We have a child workflow, show parent btn
-        if (parentWorkflow) {
-          this.parentRunId = parentWorkflow.runId;
-        }
-
-        if (hoverText !== undefined) {
-          hovertext = nodeTemplate({ hoverText: hoverText });
-        } else {
-          hovertext = nodeTemplate({
-            hoverText: {
-              test: "TODO",
-            },
-          });
-        }
-        this.graph.setNode(node.eventId, {
-          label: node.eventType,
-          class: node.eventType,
-          eventInfo: hoverText,
-          id: node.eventId,
-          hovertext: hovertext,
-          id: "event-" + node.eventId,
-        });
-      });
-      //Set the direct and inferred relationships
-      this.workflow.forEach((node) => {
-        this.setDirectAndInferred(node);
-      });
-
-      //Set the chronological relationships.
-      //If the node is not referred to as a parent it should be connected back to the graph with a chron child
-      this.workflow.forEach((node) => {
-        if (!this.parentArray.includes(node.eventId)) {
-          this.setChron(node);
-        }
-      });
-      //this.renderGraph();
-    },
-    setDirectAndInferred(node) {
-      let nodeId = node.eventId,
-        { parent, inferredChild } = getNodeInfo(node, this.workflow);
-      if (parent) {
-        this.parentArray.push(parent);
-        this.graph.setEdge(parent, nodeId, {
-          class: "edge-direct",
-          arrowheadClass: "arrowhead-direct",
-        });
-      }
-      if (inferredChild) {
-        this.parentArray.push(nodeId);
-        this.graph.setEdge(nodeId, inferredChild, {
-          class: "edge-inferred",
-          arrowheadClass: "arrowhead-inferred",
-        });
-      }
-    },
-    setChron(node) {
-      let nodeId = node.eventId,
-        { chronologicalChild } = getNodeInfo(node, this.workflow);
-      if (chronologicalChild) {
-        this.graph.setEdge(nodeId, chronologicalChild, {
-          class: "edge-chronological",
-          arrowheadClass: "arrowhead-chronological",
-        });
-      }
-    },
-    // A function that finishes to draw the chart for a specific device size.
-    drawChart(svg) {
-      // get the current width of the div where the graph appear, and attribute it to svg
-      let currentWidth = parseInt(d3.select("#canvas").style("width"), 10);
-      svg.attr("width", currentWidth);
-    },
-
-    toggleSelectedNode(id, context) {
-      if (d3.select(context).classed("selected")) {
-        d3.select(context).classed("selected", false);
-
-        //Remove content from information box
-        d3.select(".event-info-content").html("");
-        self.clickedId = null;
-      } else {
-        //Deselect previous node
-        d3.select("#event-" + self.clickedId).classed("selected", false);
-        //Select current
-        d3.select("#event-" + id).classed("selected", true);
-        self.clickedId = id;
-        //Add the hover content to the info box
-        d3.select(".event-info-content").html(context.dataset.hovertext);
-      }
-    },
   },
   computed: {
     parentRoute() {
       return this.$store.getters.parentRoute;
+    },
+    hasChildBtn() {
+      this.routeId = this.$store.getters.childRouteId;
+      return this.$store.getters.childBtn;
+    },
+    btnText() {
+      return this.$store.getters.btnText;
+    },
+    routeId() {
+      return this.$store.getters.childRouteId;
     },
   },
 };
