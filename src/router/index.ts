@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Tree from '../components/Tree.vue'
-import Home from '../components/Home.vue'
+import Cytoscape from '../components/Cytoscape.vue'
 
 Vue.use(VueRouter)
 
@@ -14,8 +14,8 @@ const routes: Array<RouteConfig> = [
   },
   {
     path: '/',
-    name: 'home',
-    component: Home
+    name: 'cytoscape',
+    component: Cytoscape
   },
 ]
 

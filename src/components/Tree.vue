@@ -9,6 +9,7 @@
       <hr class="divider" />
       <div v-if="!workflowLoading" id="loading"></div>
       <WorkflowGraph v-if="workflowLoading" :workflow="workflow" />
+      <Cytoscape />
     </div>
     <div class="event-info">
       <div class="section-header">
@@ -26,6 +27,7 @@
 import router from "../router";
 import store from "../store";
 import WorkflowGraph from "@/components/WorkflowGraph.vue";
+import Cytoscape from "@/components/Cytoscape.vue";
 export default {
   props: {
     runId: {
@@ -35,6 +37,7 @@ export default {
   },
   components: {
     WorkflowGraph,
+    Cytoscape,
   },
   data() {
     return {

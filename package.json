@@ -8,6 +8,8 @@
   },
   "dependencies": {
     "core-js": "^3.6.5",
+    "cytoscape": "^3.16.0",
+    "cytoscape-dagre": "^2.3.0",
     "d3": "^5.16.0",
     "dagre-d3": "^0.6.4",
     "handlebars": "^4.7.6",
