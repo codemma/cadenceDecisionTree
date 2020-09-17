@@ -9,7 +9,6 @@
       <hr class="divider" />
       <div v-if="!workflowLoading" id="loading"></div>
       <WorkflowGraph v-if="workflowLoading" :workflow="workflow" />
-      <Cytoscape />
     </div>
     <div class="event-info">
       <div class="section-header">
@@ -34,10 +33,6 @@ export default {
       type: String,
       required: true,
     },
-  },
-  components: {
-    WorkflowGraph,
-    Cytoscape,
   },
   data() {
     return {
