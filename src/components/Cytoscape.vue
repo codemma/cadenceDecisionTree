@@ -1,6 +1,8 @@
 <template>
   <div id="view">
-    <!--     <button v-on:click="addNode">push</button> -->
+    <!--    {{nodes}}
+    <span style="{padding-top:" 5em}>{{edges}}</span>-->
+
     <div id="cy"></div>
   </div>
 </template>
@@ -14,17 +16,35 @@ cytoscape.use(dagre);
 export default {
   name: "Cytoscape",
   components: {},
-  created: function () {},
-  data: function () {
+  data() {
     return {
-      input: "",
-      output: "",
-      msg: "vue to cytoscape",
-      count: 0,
+      nodes: [],
+      edges: [],
+      cy,
     };
   },
   methods: {
-    addNode: function () {
+    createNodes() {
+      console.log("in crate nodes");
+      var i;
+      let nodes = [];
+      let edges = [];
+      let target;
+      let name = "";
+      for (i = 0; i < 1000; i++) {
+        name = "n" + i;
+        target = i + 1;
+        // console.log(name);
+        nodes.push({ data: { id: i, name: name } });
+      }
+      for (i = 0; i < 999; i++) {
+        target = i + 1;
+        edges.push({ data: { source: i, target: target } });
+      }
+      this.nodes = nodes;
+      this.edges = edges;
+    },
+    /*  addNode: function () {
       console.info("hello" + this.cy);
       this.cy.add([
         {
@@ -41,13 +61,37 @@ export default {
           },
         },
       ]);
-    },
+    }, */
     view_init: function () {
       this.cy = cytoscape({
+        autoungrabify: true,
         container: document.getElementById("cy"),
         //boxSelectionEnabled: false,
         //autounselectify: true,
-        style: cytoscape
+        //autolock: true,
+        style: [
+          // what a node looks like?
+          {
+            selector: "node",
+            style: {
+              content: "data(name)",
+              "text-valign": "center",
+              "background-color": "#ededed",
+            },
+          },
+          // what an edge looks like?
+          {
+            selector: "edge",
+            style: {
+              "curve-style": "bezier",
+              width: 1,
+              "target-arrow-shape": "triangle",
+              "line-color": "#333333",
+              "target-arrow-color": "#333333",
+            },
+          },
+        ],
+        /* style: cytoscape
           .stylesheet()
           .selector("node")
           .css({
@@ -67,27 +111,10 @@ export default {
             "line-color": "#ffaaaa",
             "target-arrow-color": "#ffaaaa",
             "curve-style": "bezier",
-          }),
+          }), */
         elements: {
-          nodes: [
-            { data: { id: "cat" } },
-            { data: { id: "bird" } },
-            { data: { id: "ladybug" } },
-            { data: { id: "aphid" } },
-            { data: { id: "rose" } },
-            { data: { id: "grasshopper" } },
-            { data: { id: "plant" } },
-            { data: { id: "wheat" } },
-          ],
-          edges: [
-            { data: { source: "cat", target: "bird" } },
-            { data: { source: "bird", target: "ladybug" } },
-            { data: { source: "bird", target: "grasshopper" } },
-            { data: { source: "grasshopper", target: "plant" } },
-            { data: { source: "grasshopper", target: "wheat" } },
-            { data: { source: "ladybug", target: "aphid" } },
-            { data: { source: "aphid", target: "rose" } },
-          ],
+          nodes: this.nodes,
+          edges: this.edges,
         },
         layout: {
           name: "dagre",
@@ -96,7 +123,12 @@ export default {
     },
   },
   computed: {},
-  mounted: function () {
+  mounted() {
+    const t0 = performance.now();
+    this.createNodes();
+    const t1 = performance.now();
+    console.log(`Call to doSomething took ${t1 - t0} milliseconds.`);
+
     this.view_init();
   },
 };
