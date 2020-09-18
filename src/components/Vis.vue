@@ -61,7 +61,6 @@ export default {
           hierarchical: {
             direction: "UD",
             sortMethod: "directed",
-            nodeSpacing: 200,
           },
         },
         nodes: {
@@ -80,20 +79,21 @@ export default {
 
   methods: {
     createNodes() {
+      var options = {};
       var i;
-      let nodes = [];
-      let edges = [];
+      let nodes = new DataSet(options);
+      let edges = new DataSet(options);
       let target;
       let name = "";
       for (i = 0; i < 50; i++) {
         name = "n" + i;
         target = i + 1;
         // console.log(name);
-        nodes.push({ id: i, label: i.toString() });
+        nodes.add({ id: i, label: i.toString() });
       }
       for (i = 0; i < 49; i++) {
         target = i + 1;
-        edges.push({ from: i, to: target });
+        edges.add({ from: i, to: target });
       }
       this.nodes = nodes;
       this.edges = edges;
@@ -117,8 +117,6 @@ export default {
     network.setOptions({
       physics: { enabled: false },
     });
-
-    console.log(this.network.body.data.nodes);
   },
 };
 </script>
