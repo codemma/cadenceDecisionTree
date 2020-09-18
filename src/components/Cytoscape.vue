@@ -31,13 +31,13 @@ export default {
       let edges = [];
       let target;
       let name = "";
-      for (i = 0; i < 1000; i++) {
+      for (i = 0; i < 5; i++) {
         name = "n" + i;
         target = i + 1;
         // console.log(name);
         nodes.push({ data: { id: i, name: name } });
       }
-      for (i = 0; i < 999; i++) {
+      for (i = 0; i < 4; i++) {
         target = i + 1;
         edges.push({ data: { source: i, target: target } });
       }
@@ -69,7 +69,7 @@ export default {
         //boxSelectionEnabled: false,
         //autounselectify: true,
         //autolock: true,
-        style: [
+        /*  style: [
           // what a node looks like?
           {
             selector: "node",
@@ -90,8 +90,8 @@ export default {
               "target-arrow-color": "#333333",
             },
           },
-        ],
-        /* style: cytoscape
+        ], */
+        style: cytoscape
           .stylesheet()
           .selector("node")
           .css({
@@ -111,7 +111,7 @@ export default {
             "line-color": "#ffaaaa",
             "target-arrow-color": "#ffaaaa",
             "curve-style": "bezier",
-          }), */
+          }),
         elements: {
           nodes: this.nodes,
           edges: this.edges,
