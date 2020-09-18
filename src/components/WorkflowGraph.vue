@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="workflowgraph">
     <Legend />
     <svg id="graph">
       <g />
@@ -127,7 +127,10 @@ export default {
     // A function that finishes to draw the chart for a specific device size.
     drawChart(svg) {
       // get the current width of the div where the graph appear, and attribute it to svg
-      let currentWidth = parseInt(d3.select("#canvas").style("width"), 10);
+      let currentWidth = parseInt(
+        d3.select(".workflowgraph").style("width"),
+        10
+      );
       svg.attr("width", currentWidth);
     },
 
@@ -228,6 +231,10 @@ export default {
 </script>
 
 <style lang="stylus">
+.workflowgraph {
+  width: 50%;
+}
+
 .list-item {
   margin: 16px 24px;
 
