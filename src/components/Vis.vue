@@ -1,73 +1,68 @@
 <template>
-  <div>
-    <!--   <script
+  <!--   <script
       type="text/javascript"
       src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"
-    ></script>-->
-    <div id="mynetwork"></div>
-  </div>
+  ></script>-->
+  <div id="mynetwork"></div>
 </template>
 
 <script>
 import { DataSet, Network } from "vis-network/standalone";
+import { getNodeInfo } from "../eventFunctionMap.ts";
+import router from "../router";
+import store from "../store";
 //var vis = require("vis-network");
 //import { Network } from "vis/index-network";
 //import "vis/dist/vis-network.min.css";
 
 export default {
   name: "Vis",
+  props: {
+    workflow: {
+      type: Array,
+      required: false,
+    },
+  },
   components: {},
   data() {
     return {
       nodes: "",
       edges: "",
-      /*  nodes: [
-        { id: 0, label: 0 },
-        { id: 1, label: 1 },
-        { id: 2, label: 2 },
-        { id: 3, label: 3 },
-        { id: 4, label: 4 },
-      ],
-      edges: [
-        { from: 0, to: 1 },
-        { from: 1, to: 2 },
-        { from: 2, to: 3 },
-        { from: 3, to: 4 },
-      ], */
+      parentArray: [],
       options: {
         interaction: {
           dragNodes: false,
         },
         physics: {
-          forceAtlas2Based: {
-            gravitationalConstant: -26,
-            centralGravity: 0.005,
-            springLength: 230,
-            springConstant: 0.18,
-            avoidOverlap: 1.5,
-          },
-          maxVelocity: 146,
-          solver: "forceAtlas2Based",
-          timestep: 0.35,
-          stabilization: {
-            enabled: true,
-            iterations: 1000,
-            updateInterval: 25,
+          enabled: true,
+          hierarchicalRepulsion: {
+            centralGravity: 0.0,
+            springLength: 200,
+            springConstant: 0.01,
+            nodeDistance: 150,
+            damping: 0.09,
           },
         },
         manipulation: {
           enabled: false,
         },
         layout: {
-          improvedLayout: false,
+          improvedLayout: true,
           hierarchical: {
             enabled: true,
-            direction: "UD",
-            sortMethod: "directed",
-            nodeSpacing: 10,
+            levelSeparation: 150,
+            nodeSpacing: 400,
+            treeSpacing: 200,
+            blockShifting: false,
+            edgeMinimization: false,
+            parentCentralization: true,
+            shakeTowards: "roots",
+            direction: "UD", // UD, DU, LR, RL
+            sortMethod: "directed", // hubsize, directed
           },
         },
         nodes: {
+          shape: "box",
           physics: false,
           shapeProperties: {
             interpolation: false, // 'true' for intensive zooming
@@ -82,6 +77,83 @@ export default {
   },
 
   methods: {
+    buildTree() {
+      this.workflow.forEach((node) => {
+        let { hoverText, childRunId, parentWorkflow } = getNodeInfo(
+            node,
+            this.workflow
+          ),
+          hovertext;
+
+        //We have a child workflow, show parent btn
+        if (parentWorkflow) {
+          store.commit("parentRoute", parentWorkflow.runId);
+        }
+
+        /*   if (hoverText !== undefined) {
+          hovertext = nodeTemplate({ hoverText: hoverText });
+        } else {
+          hovertext = nodeTemplate({
+            hoverText: {
+              test: "TODO",
+            },
+          });
+        } */
+        this.nodes.add({ id: node.eventId, label: node.eventType });
+        /* this.graph.setNode(node.eventId, {
+          label: node.eventType,
+          class: node.eventType,
+          eventInfo: hoverText,
+          id: node.eventId,
+          hovertext: hovertext,
+          id: "event-" + node.eventId,
+        }); */
+      });
+      //Set the direct and inferred relationships
+      this.workflow.forEach((node) => {
+        this.setDirectAndInferred(node);
+      });
+
+      //Set the chronological relationships.
+      //If the node is not referred to as a parent it should be connected back to the graph with a chron child
+      this.workflow.forEach((node) => {
+        if (!this.parentArray.includes(node.eventId)) {
+          this.setChron(node);
+        }
+      });
+      //this.renderGraph();
+    },
+    setDirectAndInferred(node) {
+      let nodeId = node.eventId,
+        { parent, inferredChild } = getNodeInfo(node, this.workflow);
+      if (parent) {
+        this.parentArray.push(parent);
+        this.edges.add({ from: parent, to: nodeId });
+        /*  this.graph.setEdge(parent, nodeId, {
+          class: "edge-direct",
+          arrowheadClass: "arrowhead-direct",
+        }); */
+      }
+      if (inferredChild) {
+        this.parentArray.push(nodeId);
+        this.edges.add({ from: nodeId, to: inferredChild });
+        /*  this.graph.setEdge(nodeId, inferredChild, {
+          class: "edge-inferred",
+          arrowheadClass: "arrowhead-inferred",
+        }); */
+      }
+    },
+    setChron(node) {
+      let nodeId = node.eventId,
+        { chronologicalChild } = getNodeInfo(node, this.workflow);
+      if (chronologicalChild) {
+        this.edges.add({ from: nodeId, to: chronologicalChild });
+        /*  this.graph.setEdge(nodeId, chronologicalChild, {
+          class: "edge-chronological",
+          arrowheadClass: "arrowhead-chronological",
+        }); */
+      }
+    },
     createNodes() {
       var options = {};
       var i;
@@ -99,10 +171,6 @@ export default {
         target = i + 1;
         this.edges.add({ from: i, to: target });
       }
-
-      console.log("hello2", this.edges);
-      /*  this.nodes = nodes;
-      this.edges = edges; */
     },
   },
 
@@ -117,7 +185,12 @@ export default {
 
   mounted() {
     this.container = document.getElementById("mynetwork");
-    this.createNodes();
+    var options = {};
+    this.nodes = new DataSet(options);
+    this.edges = new DataSet(options);
+
+    this.buildTree();
+
     let network = new Network(this.container, this.graph_data, this.options);
 
     var self = this;
@@ -131,7 +204,7 @@ export default {
 };
 </script>
 <style scoped>
-#cy {
+#mynetwork {
   width: 100%;
   height: 80%;
   position: absolute;

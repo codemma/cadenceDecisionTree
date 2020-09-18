@@ -2,6 +2,7 @@ import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
 import Tree from '../components/Tree.vue'
 import Vis from '../components/Vis.vue'
+import Home from '../components/Home.vue'
 
 Vue.use(VueRouter)
 
@@ -14,8 +15,8 @@ const routes: Array<RouteConfig> = [
   },
   {
     path: '/',
-    name: 'vis',
-    component: Vis
+    name: 'home',
+    component: Home
   },
 ]
 
