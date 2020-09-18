@@ -19,6 +19,8 @@ export default {
   components: {},
   data() {
     return {
+      nodes: "",
+      edges: "",
       /*  nodes: [
         { id: 0, label: 0 },
         { id: 1, label: 1 },
@@ -59,8 +61,10 @@ export default {
         layout: {
           improvedLayout: false,
           hierarchical: {
+            enabled: true,
             direction: "UD",
             sortMethod: "directed",
+            nodeSpacing: 10,
           },
         },
         nodes: {
@@ -81,22 +85,24 @@ export default {
     createNodes() {
       var options = {};
       var i;
-      let nodes = new DataSet(options);
-      let edges = new DataSet(options);
+      this.nodes = new DataSet(options);
+      this.edges = new DataSet(options);
       let target;
       let name = "";
       for (i = 0; i < 50; i++) {
         name = "n" + i;
         target = i + 1;
         // console.log(name);
-        nodes.add({ id: i, label: i.toString() });
+        this.nodes.add({ id: i, label: i.toString() });
       }
       for (i = 0; i < 49; i++) {
         target = i + 1;
-        edges.add({ from: i, to: target });
+        this.edges.add({ from: i, to: target });
       }
-      this.nodes = nodes;
-      this.edges = edges;
+
+      console.log("hello2", this.edges);
+      /*  this.nodes = nodes;
+      this.edges = edges; */
     },
   },
 
@@ -112,10 +118,14 @@ export default {
   mounted() {
     this.container = document.getElementById("mynetwork");
     this.createNodes();
-    console.log(this.options);
     let network = new Network(this.container, this.graph_data, this.options);
-    network.setOptions({
-      physics: { enabled: false },
+
+    var self = this;
+
+    network.on("click", function (properties) {
+      var ids = properties.nodes;
+      var clickedNodes = self.nodes.get(ids);
+      console.log("clicked nodes:", clickedNodes[0].id);
     });
   },
 };
