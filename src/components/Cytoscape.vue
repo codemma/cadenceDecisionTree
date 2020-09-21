@@ -8,6 +8,7 @@
 import dagre from "cytoscape-dagre";
 import { getNodeInfo } from "../eventFunctionMap.ts";
 var cytoscape = require("cytoscape");
+import store from "../store";
 
 cytoscape.use(dagre);
 
@@ -61,7 +62,6 @@ export default {
         if (parentWorkflow) {
           store.commit("parentRoute", parentWorkflow.runId);
         }
-
         /*   if (hoverText !== undefined) {
           hovertext = nodeTemplate({ hoverText: hoverText });
         } else {
@@ -71,6 +71,7 @@ export default {
             },
           });
         } */
+
         this.nodes.push({ data: { id: node.eventId, name: node.eventType } });
       });
       //Set the direct and inferred relationships
@@ -202,13 +203,11 @@ export default {
   },
   computed: {},
   mounted() {
+    this.buildTree();
     const t0 = performance.now();
-    this.buildTree().then(() => {
-      this.view_init();
-    });
-    console.log(this.edges);
+    this.view_init();
     const t1 = performance.now();
-    console.log(`Call to doSomething took ${t1 - t0} milliseconds.`);
+    console.log(`Call to vieInit took ${t1 - t0} milliseconds.`);
   },
 };
 </script>
