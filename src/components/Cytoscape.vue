@@ -26,7 +26,7 @@ export default {
       nodes: [],
       edges: [],
       parentArray: [],
-      cy: "",
+      cy: {},
     };
   },
   methods: {
@@ -142,40 +142,16 @@ export default {
       ]);
     }, */
     view_init: function () {
-      cytoscape({
+      let cy = cytoscape({
         autoungrabify: true,
         container: document.getElementById("cy"),
-        //boxSelectionEnabled: false,
-        //autounselectify: true,
-        //autolock: true,
-        /*  style: [
-          // what a node looks like?
-          {
-            selector: "node",
-            style: {
-              content: "data(name)",
-              "text-valign": "center",
-              "background-color": "#ededed",
-            },
-          },
-          // what an edge looks like?
-          {
-            selector: "edge",
-            style: {
-              "curve-style": "bezier",
-              width: 1,
-              "target-arrow-shape": "triangle",
-              "line-color": "#333333",
-              "target-arrow-color": "#333333",
-            },
-          },
-        ], */
         style: cytoscape
           .stylesheet()
           .selector("node")
           .css({
             height: 80,
             width: 200,
+            "min-zoomed-font-size": 100,
             "background-fit": "cover",
             "border-color": "#000",
             "border-width": 3,
@@ -185,7 +161,7 @@ export default {
           })
           .selector("edge")
           .css({
-            width: 6,
+            width: 3,
             "target-arrow-shape": "triangle",
             "line-color": "#ffaaaa",
             "target-arrow-color": "#ffaaaa",
@@ -198,6 +174,9 @@ export default {
         layout: {
           name: "dagre",
         },
+      });
+      cy.on("tap", "node", function (evt) {
+        console.log(evt.target.id());
       });
     },
   },
