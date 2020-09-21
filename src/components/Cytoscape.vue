@@ -1,14 +1,12 @@
 <template>
   <div id="view">
-    <!--    {{nodes}}
-    <span style="{padding-top:" 5em}>{{edges}}</span>-->
-
     <div id="cy"></div>
   </div>
 </template>
 
 <script>
 import dagre from "cytoscape-dagre";
+import { getNodeInfo } from "../eventFunctionMap.ts";
 var cytoscape = require("cytoscape");
 
 cytoscape.use(dagre);
@@ -16,11 +14,18 @@ cytoscape.use(dagre);
 export default {
   name: "Cytoscape",
   components: {},
+  props: {
+    workflow: {
+      type: Array,
+      required: true,
+    },
+  },
   data() {
     return {
       nodes: [],
       edges: [],
-      cy,
+      parentArray: [],
+      cy: "",
     };
   },
   methods: {
@@ -44,6 +49,79 @@ export default {
       this.nodes = nodes;
       this.edges = edges;
     },
+    async buildTree() {
+      this.workflow.forEach((node) => {
+        let { hoverText, childRunId, parentWorkflow } = getNodeInfo(
+            node,
+            this.workflow
+          ),
+          hovertext;
+
+        //We have a child workflow, show parent btn
+        if (parentWorkflow) {
+          store.commit("parentRoute", parentWorkflow.runId);
+        }
+
+        /*   if (hoverText !== undefined) {
+          hovertext = nodeTemplate({ hoverText: hoverText });
+        } else {
+          hovertext = nodeTemplate({
+            hoverText: {
+              test: "TODO",
+            },
+          });
+        } */
+        this.nodes.push({ data: { id: node.eventId, name: node.eventType } });
+      });
+      //Set the direct and inferred relationships
+      this.workflow.forEach((node) => {
+        this.setDirectAndInferred(node);
+      });
+
+      //Set the chronological relationships.
+      //If the node is not referred to as a parent it should be connected back to the graph with a chron child
+      this.workflow.forEach((node) => {
+        if (!this.parentArray.includes(node.eventId)) {
+          this.setChron(node);
+        }
+      });
+      //this.renderGraph();
+    },
+    setDirectAndInferred(node) {
+      let nodeId = node.eventId,
+        { parent, inferredChild } = getNodeInfo(node, this.workflow);
+      if (parent) {
+        this.parentArray.push(parent);
+        this.edges.push({ data: { source: parent, target: nodeId } });
+        /*  this.graph.setEdge(parent, nodeId, {
+          class: "edge-direct",
+          arrowheadClass: "arrowhead-direct",
+        }); */
+      }
+      if (inferredChild) {
+        this.parentArray.push(nodeId);
+        this.edges.push({ data: { source: nodeId, target: inferredChild } });
+        //this.edges.add({ from: nodeId, to: inferredChild });
+        /*  this.graph.setEdge(nodeId, inferredChild, {
+          class: "edge-inferred",
+          arrowheadClass: "arrowhead-inferred",
+        }); */
+      }
+    },
+    setChron(node) {
+      let nodeId = node.eventId,
+        { chronologicalChild } = getNodeInfo(node, this.workflow);
+      if (chronologicalChild) {
+        this.edges.push({
+          data: { source: nodeId, target: chronologicalChild },
+        });
+        /*  this.edges.add({ from: nodeId, to: chronologicalChild }); */
+        /*  this.graph.setEdge(nodeId, chronologicalChild, {
+          class: "edge-chronological",
+          arrowheadClass: "arrowhead-chronological",
+        }); */
+      }
+    },
     /*  addNode: function () {
       console.info("hello" + this.cy);
       this.cy.add([
@@ -63,7 +141,7 @@ export default {
       ]);
     }, */
     view_init: function () {
-      this.cy = cytoscape({
+      cytoscape({
         autoungrabify: true,
         container: document.getElementById("cy"),
         //boxSelectionEnabled: false,
@@ -96,7 +174,7 @@ export default {
           .selector("node")
           .css({
             height: 80,
-            width: 80,
+            width: 200,
             "background-fit": "cover",
             "border-color": "#000",
             "border-width": 3,
@@ -125,11 +203,12 @@ export default {
   computed: {},
   mounted() {
     const t0 = performance.now();
-    this.createNodes();
+    this.buildTree().then(() => {
+      this.view_init();
+    });
+    console.log(this.edges);
     const t1 = performance.now();
     console.log(`Call to doSomething took ${t1 - t0} milliseconds.`);
-
-    this.view_init();
   },
 };
 </script>
