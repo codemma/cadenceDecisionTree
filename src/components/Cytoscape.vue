@@ -169,6 +169,22 @@ export default {
         console.log(evt.target.id());
       });
 
+      cy.on("zoom", function (evt) {
+        console.log("zoom", cy.zoom());
+        let ext = cy.extent();
+        let nodesInView = cy.nodes().filter((n) => {
+          let bb = n.boundingBox();
+          return (
+            bb.x1 > ext.x1 && bb.x2 < ext.x2 && bb.y1 > ext.y1 && bb.y2 < ext.y2
+          );
+        });
+        console.log("in view", nodesInView);
+      });
+
+      cy.on("pan", function (evt) {
+        console.log("pan");
+      });
+
       return cy;
     },
   },
