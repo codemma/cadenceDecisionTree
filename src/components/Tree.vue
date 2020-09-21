@@ -8,7 +8,8 @@
       </div>
       <hr class="divider" />
       <div v-if="!workflowLoading" id="loading"></div>
-      <Vis v-if="workflowLoading" :workflow="workflow" />
+      <!-- <Workflowgraph v-if="workflowLoading" :workflow="workflow" /> -->
+      <Cytoscape v-if="workflowLoading" :workflow="workflow" />
     </div>
     <div class="event-info">
       <div class="section-header">
@@ -25,7 +26,10 @@
 <script>
 import router from "../router";
 import store from "../store";
-import Vis from "@/components/Vis.vue";
+import Workflowgraph from "../components/WorkflowGraph";
+import Vis from "../components/Vis";
+import Cytoscape from "../components/Cytoscape";
+
 /* import Cytoscape from "@/components/Cytoscape.vue"; */
 export default {
   props: {
@@ -44,6 +48,8 @@ export default {
   },
   components: {
     Vis,
+    Workflowgraph,
+    Cytoscape,
   },
   watch: {
     //We want to load a new workflow everytime we get a new runId
