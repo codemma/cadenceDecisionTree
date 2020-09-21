@@ -1,9 +1,12 @@
 <template>
-  <!--   <script
+  <div>
+    <!--   <script
       type="text/javascript"
       src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"
-  ></script>-->
-  <div id="mynetwork"></div>
+    ></script>-->
+    <div id="mynetwork"></div>
+    <div id="settings"></div>
+  </div>
 </template>
 
 <script>
@@ -28,51 +31,10 @@ export default {
     return {
       nodes: "",
       edges: "",
+      btnContainer: "",
       parentArray: [],
-      options: {
-        interaction: {
-          dragNodes: false,
-        },
-        physics: {
-          enabled: true,
-          hierarchicalRepulsion: {
-            centralGravity: 0.0,
-            springLength: 200,
-            springConstant: 0.01,
-            nodeDistance: 150,
-            damping: 0.09,
-          },
-        },
-        manipulation: {
-          enabled: false,
-        },
-        layout: {
-          improvedLayout: true,
-          hierarchical: {
-            enabled: true,
-            levelSeparation: 150,
-            nodeSpacing: 400,
-            treeSpacing: 200,
-            blockShifting: false,
-            edgeMinimization: false,
-            parentCentralization: true,
-            shakeTowards: "roots",
-            direction: "UD", // UD, DU, LR, RL
-            sortMethod: "directed", // hubsize, directed
-          },
-        },
-        nodes: {
-          shape: "box",
-          physics: false,
-          shapeProperties: {
-            interpolation: false, // 'true' for intensive zooming
-          },
-        },
-        edges: {
-          physics: false,
-        },
-      },
       container: "",
+      options: {},
     };
   },
 
@@ -99,6 +61,7 @@ export default {
             },
           });
         } */
+
         this.nodes.add({ id: node.eventId, label: node.eventType });
         /* this.graph.setNode(node.eventId, {
           label: node.eventType,
@@ -154,6 +117,78 @@ export default {
         }); */
       }
     },
+    setOptions() {
+      this.btnContainer = document.getElementById("settings");
+      this.options = {
+        /*  configure: {
+          enabled: true,
+          filter: "physics",
+          container: this.btnContainer,
+          showButton: true,
+        }, */
+        interaction: {
+          dragNodes: true,
+        },
+        physics: {
+          enabled: false,
+          hierarchicalRepulsion: {
+            nodeDistance: 140,
+          },
+          /* barnesHut: {
+            gravitationalConstant: -2000,
+            centralGravity: 0.1,
+            springLength: 95,
+            springConstant: 0.04,
+            damping: 0.09,
+          },
+          repulsion: {
+            centralGravity: 0.1,
+            springLength: 50,
+            springConstant: 0.05,
+            nodeDistance: 100,
+            damping: 0.09,
+          },
+          hierarchicalRepulsion: {
+            centralGravity: 0.5,
+            springLength: 150,
+            springConstant: 0.01,
+            nodeDistance: 0,
+            damping: 0.09,
+          }, */
+        },
+        manipulation: {
+          enabled: false,
+        },
+        layout: {
+          improvedLayout: true,
+          hierarchical: {
+            enabled: true,
+            levelSeparation: 50,
+            nodeSpacing: 200,
+            treeSpacing: 200,
+            blockShifting: true,
+            edgeMinimization: true,
+            parentCentralization: true,
+            shakeTowards: "roots",
+            direction: "UD", // UD, DU, LR, RL
+            sortMethod: "directed", // hubsize, directed
+          },
+        },
+        nodes: {
+          shape: "box",
+          physics: false,
+          /*  shapeProperties: {
+            interpolation: false, // 'true' for intensive zooming
+          }, */
+        },
+        edges: {
+          physics: false,
+          smooth: {
+            forceDirection: "none",
+          },
+        },
+      };
+    },
     createNodes() {
       var options = {};
       var i;
@@ -184,21 +219,29 @@ export default {
   },
 
   mounted() {
+    this.setOptions();
     this.container = document.getElementById("mynetwork");
     var options = {};
     this.nodes = new DataSet(options);
     this.edges = new DataSet(options);
 
+    console.log(this.btnContainer);
+
     this.buildTree();
 
+    const t0 = performance.now();
     let network = new Network(this.container, this.graph_data, this.options);
+    const t1 = performance.now();
+    console.log(`Call to new network took ${t1 - t0} milliseconds.`);
 
     var self = this;
+
+    console.log(this.edges);
 
     network.on("click", function (properties) {
       var ids = properties.nodes;
       var clickedNodes = self.nodes.get(ids);
-      console.log("clicked nodes:", clickedNodes[0].id);
+      console.log("clicked nodes:", clickedNodes[0]);
     });
   },
 };
@@ -206,11 +249,16 @@ export default {
 <style scoped>
 #mynetwork {
   width: 100%;
-  height: 80%;
+  height: 100%;
   position: absolute;
-  top: 50px;
-  left: 0px;
+  top: 63px;
+  right: 0px;
   text-align: left;
+}
+
+#settings {
+  height: 400px;
+  overflow-y: scroll;
 }
 
 body {
