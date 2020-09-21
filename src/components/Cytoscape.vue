@@ -1,5 +1,6 @@
 <template>
   <div id="view">
+    <button v-on:click="addNode">Add node test</button>
     <div id="cy"></div>
   </div>
 </template>
@@ -26,7 +27,7 @@ export default {
       nodes: [],
       edges: [],
       parentArray: [],
-      cy: {},
+      cy: null,
     };
   },
   methods: {
@@ -111,17 +112,34 @@ export default {
         },
       ]);
     }, */
-    view_init: function () {
-      let cy = cytoscape({
+    addNode() {
+      let dagreLayout = {
+        name: "dagre",
+      };
+      console.log("hello");
+      window.cy.add({
+        group: "nodes",
+        data: { id: 4670, name: "test" },
+      });
+      window.cy.add({
+        group: "edges",
+        data: { id: "y", source: 4669, target: 4670 },
+      });
+      window.cy.layout(dagreLayout).run();
+    },
+    async view_init() {
+      let cy = (window.cy = cytoscape({
         autoungrabify: true,
+        styleEnabled: true,
         container: document.getElementById("cy"),
+        headless: true,
         style: cytoscape
           .stylesheet()
           .selector("node")
           .css({
             height: 80,
             width: 200,
-            "min-zoomed-font-size": 100,
+            "min-zoomed-font-size": 30,
             "background-fit": "cover",
             "border-color": "#000",
             "border-width": 3,
@@ -144,33 +162,38 @@ export default {
         layout: {
           name: "dagre",
         },
-      });
+      }));
+
+      //Register click event
       cy.on("tap", "node", function (evt) {
         console.log(evt.target.id());
       });
+
+      return cy;
     },
   },
   computed: {},
   mounted() {
+    let container = document.getElementById("cy");
     this.buildTree();
-    const t0 = performance.now();
-    this.view_init();
-    const t1 = performance.now();
-    console.log(`Call to vieInit took ${t1 - t0} milliseconds.`);
+    this.view_init().then((graph) => {
+      graph.mount(container);
+    });
   },
 };
 </script>
 <style scoped>
+button {
+  width: 100px;
+  height: 20px;
+}
 #cy {
   width: 100%;
-  height: 80%;
+  height: 100%;
+  display: block;
   position: absolute;
-  top: 50px;
+  top: 90px;
   left: 0px;
   text-align: left;
-}
-
-body {
-  font: 14px helvetica neue, helvetica, arial, sans-serif;
 }
 </style>
