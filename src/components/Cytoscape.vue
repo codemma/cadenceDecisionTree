@@ -1,6 +1,6 @@
 <template>
-  <div id="view">
-    <button v-on:click="addNode">Add node test</button>
+  <div id="cytoscape">
+    <!--   <button v-on:click="addNode">Add node test</button> -->
     <div id="cy"></div>
   </div>
 </template>
@@ -33,6 +33,7 @@ export default {
   methods: {
     async buildTree() {
       this.workflow.forEach((node) => {
+        console.log(node.eventId);
         let { hoverText, childRunId, parentWorkflow } = getNodeInfo(
             node,
             this.workflow
@@ -43,7 +44,7 @@ export default {
         if (parentWorkflow) {
           store.commit("parentRoute", parentWorkflow.runId);
         }
-        this.nodes.push({ data: { id: node.eventId, name: node.eventType } });
+        this.nodes.push({ data: { id: node.eventId, name: node.eventId } });
       });
       //Set the direct and inferred relationships
       this.workflow.forEach((node) => {
@@ -133,27 +134,30 @@ export default {
         styleEnabled: true,
         container: document.getElementById("cy"),
         headless: true,
+        pixelRatio: 1,
+        hideEdgesOnViewport: true,
+        textureOnViewport: true,
         style: cytoscape
           .stylesheet()
           .selector("node")
           .css({
             height: 80,
             width: 200,
-            "min-zoomed-font-size": 30,
-            "background-fit": "cover",
+            "min-zoomed-font-size": 100,
+            /*  "background-fit": "cover",
             "border-color": "#000",
             "border-width": 3,
-            "border-opacity": 0.5,
+            "border-opacity": 0.5, */
             content: "data(name)",
             "text-valign": "center",
           })
           .selector("edge")
           .css({
-            width: 3,
-            "target-arrow-shape": "triangle",
-            "line-color": "#ffaaaa",
-            "target-arrow-color": "#ffaaaa",
-            "curve-style": "bezier",
+            width: 2,
+            /*    "target-arrow-shape": "triangle", */
+            "line-color": "#000000",
+            /*  "target-arrow-color": "#ffaaaa", */
+            "curve-style": "haystack",
           }),
         elements: {
           nodes: this.nodes,
@@ -169,7 +173,7 @@ export default {
         console.log(evt.target.id());
       });
 
-      cy.on("zoom", function (evt) {
+      /*   cy.on("zoom", function (evt) {
         console.log("zoom", cy.zoom());
         let ext = cy.extent();
         let nodesInView = cy.nodes().filter((n) => {
@@ -179,11 +183,19 @@ export default {
           );
         });
         console.log("in view", nodesInView);
-      });
+      }); */
 
-      cy.on("pan", function (evt) {
+      /* cy.on("pan", function (evt) {
         console.log("pan");
-      });
+        let ext = cy.extent();
+        let nodesInView = cy.nodes().filter((n) => {
+          let bb = n.boundingBox();
+          return (
+            bb.x1 > ext.x1 && bb.x2 < ext.x2 && bb.y1 > ext.y1 && bb.y2 < ext.y2
+          );
+        });
+        console.log("in view", nodesInView);
+      }); */
 
       return cy;
     },
@@ -192,9 +204,18 @@ export default {
   mounted() {
     let container = document.getElementById("cy");
     this.buildTree();
+    const t0 = performance.now();
     this.view_init().then((graph) => {
+      console.log("graph built");
       graph.mount(container);
     });
+    const t1 = performance.now();
+    console.log(`Call to view_init took ${t1 - t0} milliseconds.`);
+    //graph.mount(container);
+    /*    this.view_init().then((graph) => {
+      console.log("graph built");
+      // graph.mount(container);
+    }); */
   },
 };
 </script>
@@ -203,13 +224,14 @@ button {
   width: 100px;
   height: 20px;
 }
+#cytoscape {
+  width: 100%;
+  height: 100%;
+}
 #cy {
   width: 100%;
   height: 100%;
-  display: block;
-  position: absolute;
-  top: 90px;
-  left: 0px;
+
   text-align: left;
 }
 </style>
