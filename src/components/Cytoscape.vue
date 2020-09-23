@@ -35,7 +35,6 @@ export default {
     divideWorkflow() {
       let maxIndex = this.workflow.length;
       let firstHalf = this.workflow.slice(0, maxIndex / 2);
-      console.log("half", firstHalf);
     },
     async buildTree() {
       this.workflow.forEach((node) => {
@@ -108,7 +107,6 @@ export default {
         container: document.getElementById("cy"),
         headless: true,
         pixelRatio: 1,
-        zoom: 1,
         hideEdgesOnViewport: true,
         //textureOnViewport: true,
         style: cytoscape
@@ -183,11 +181,20 @@ export default {
     this.buildTree();
     const t0 = performance.now();
     this.view_init().then((graph) => {
-      console.log("graph built");
+      const t1 = performance.now();
+      console.log(`Call to view_init took ${t1 - t0} milliseconds.`);
+      //Get root node
+      var pos = cy.nodes("[id = " + 1 + "]").position();
+      graph.zoom({
+        // Zoom to the specified position of root node
+        level: 1,
+        position: pos,
+      });
+      const t2 = performance.now();
       graph.mount(container);
+      const t3 = performance.now();
+      console.log(`Call to graph mount took ${t3 - t2} milliseconds.`);
     });
-    const t1 = performance.now();
-    console.log(`Call to view_init took ${t1 - t0} milliseconds.`);
   },
 };
 </script>
