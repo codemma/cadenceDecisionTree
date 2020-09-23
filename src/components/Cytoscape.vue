@@ -8,8 +8,8 @@
 <script>
 import dagre from "cytoscape-dagre";
 import { getNodeInfo } from "../eventFunctionMap.ts";
-var cytoscape = require("cytoscape");
 import store from "../store";
+import cytoscape from "cytoscape";
 
 cytoscape.use(dagre);
 
@@ -31,9 +31,14 @@ export default {
     };
   },
   methods: {
+    /*  Function which will be used to divide the workflow in chunks to be rendered */
+    divideWorkflow() {
+      let maxIndex = this.workflow.length;
+      let firstHalf = this.workflow.slice(0, maxIndex / 2);
+      console.log("half", firstHalf);
+    },
     async buildTree() {
       this.workflow.forEach((node) => {
-        console.log(node.eventId);
         let { hoverText, childRunId, parentWorkflow } = getNodeInfo(
             node,
             this.workflow
@@ -66,19 +71,10 @@ export default {
       if (parent) {
         this.parentArray.push(parent);
         this.edges.push({ data: { source: parent, target: nodeId } });
-        /*  this.graph.setEdge(parent, nodeId, {
-          class: "edge-direct",
-          arrowheadClass: "arrowhead-direct",
-        }); */
       }
       if (inferredChild) {
         this.parentArray.push(nodeId);
         this.edges.push({ data: { source: nodeId, target: inferredChild } });
-        //this.edges.add({ from: nodeId, to: inferredChild });
-        /*  this.graph.setEdge(nodeId, inferredChild, {
-          class: "edge-inferred",
-          arrowheadClass: "arrowhead-inferred",
-        }); */
       }
     },
     setChron(node) {
@@ -88,36 +84,13 @@ export default {
         this.edges.push({
           data: { source: nodeId, target: chronologicalChild },
         });
-        /*  this.edges.add({ from: nodeId, to: chronologicalChild }); */
-        /*  this.graph.setEdge(nodeId, chronologicalChild, {
-          class: "edge-chronological",
-          arrowheadClass: "arrowhead-chronological",
-        }); */
       }
     },
-    /*  addNode: function () {
-      console.info("hello" + this.cy);
-      this.cy.add([
-        {
-          group: "nodes",
-          data: { id: "node" + this.count },
-          position: { x: 300, y: 200 },
-        },
-        {
-          group: "edges",
-          data: {
-            id: "edge" + this.count,
-            source: "node" + this.count,
-            target: "cat",
-          },
-        },
-      ]);
-    }, */
+    //Function to test adding node
     addNode() {
       let dagreLayout = {
         name: "dagre",
       };
-      console.log("hello");
       window.cy.add({
         group: "nodes",
         data: { id: 4670, name: "test" },
@@ -135,8 +108,9 @@ export default {
         container: document.getElementById("cy"),
         headless: true,
         pixelRatio: 1,
+        zoom: 1,
         hideEdgesOnViewport: true,
-        textureOnViewport: true,
+        //textureOnViewport: true,
         style: cytoscape
           .stylesheet()
           .selector("node")
@@ -173,6 +147,8 @@ export default {
         console.log(evt.target.id());
       });
 
+      //Register listener to zoom and panning
+
       /*   cy.on("zoom", function (evt) {
         console.log("zoom", cy.zoom());
         let ext = cy.extent();
@@ -202,6 +178,7 @@ export default {
   },
   computed: {},
   mounted() {
+    this.divideWorkflow();
     let container = document.getElementById("cy");
     this.buildTree();
     const t0 = performance.now();
@@ -211,11 +188,6 @@ export default {
     });
     const t1 = performance.now();
     console.log(`Call to view_init took ${t1 - t0} milliseconds.`);
-    //graph.mount(container);
-    /*    this.view_init().then((graph) => {
-      console.log("graph built");
-      // graph.mount(container);
-    }); */
   },
 };
 </script>
@@ -231,7 +203,6 @@ button {
 #cy {
   width: 100%;
   height: 100%;
-
   text-align: left;
 }
 </style>
