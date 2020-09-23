@@ -1,5 +1,8 @@
 <template>
   <div id="cytoscape">
+    Last node in view: {{lastNodeInView }}
+    <br />
+    Last node in Rendered: {{ lastNodeRendered}}
     <!--   <button v-on:click="addNode">Add node test</button> -->
     <div id="cy"></div>
   </div>
@@ -26,21 +29,43 @@ export default {
     return {
       nodes: [],
       edges: [],
+      lastNodeInView: "1",
+      lastNodeRendered: "",
+      slicedWorkflow: null,
+      workflowChunk: 0,
       parentArray: [],
       cy: null,
     };
   },
+  watch: {
+    lastNodeInView() {
+      console.log("hello", this.lastNodeInView);
+    },
+  },
   methods: {
     /*  Function which will be used to divide the workflow in chunks to be rendered */
     divideWorkflow() {
-      let maxIndex = this.workflow.length;
-      let firstHalf = this.workflow.slice(0, maxIndex / 2);
+      const chunkSize = 500;
+      const groups = this.workflow
+        .map((e, i) => {
+          return i % chunkSize === 0
+            ? this.workflow.slice(i, i + chunkSize)
+            : null;
+        })
+        .filter((e) => {
+          return e;
+        });
+      this.slicedWorkflow = groups[this.workflowChunk];
+      this.lastNodeRendered = this.slicedWorkflow[
+        this.slicedWorkflow.length - 1
+      ].eventId;
+      console.log(this.slicedWorkflow);
     },
     async buildTree() {
-      this.workflow.forEach((node) => {
+      this.slicedWorkflow.forEach((node) => {
         let { hoverText, childRunId, parentWorkflow } = getNodeInfo(
             node,
-            this.workflow
+            this.slicedWorkflow
           ),
           hovertext;
 
@@ -51,22 +76,21 @@ export default {
         this.nodes.push({ data: { id: node.eventId, name: node.eventId } });
       });
       //Set the direct and inferred relationships
-      this.workflow.forEach((node) => {
+      this.slicedWorkflow.forEach((node) => {
         this.setDirectAndInferred(node);
       });
 
       //Set the chronological relationships.
       //If the node is not referred to as a parent it should be connected back to the graph with a chron child
-      this.workflow.forEach((node) => {
+      this.slicedWorkflow.forEach((node) => {
         if (!this.parentArray.includes(node.eventId)) {
           this.setChron(node);
         }
       });
-      //this.renderGraph();
     },
     setDirectAndInferred(node) {
       let nodeId = node.eventId,
-        { parent, inferredChild } = getNodeInfo(node, this.workflow);
+        { parent, inferredChild } = getNodeInfo(node, this.slicedWorkflow);
       if (parent) {
         this.parentArray.push(parent);
         this.edges.push({ data: { source: parent, target: nodeId } });
@@ -78,7 +102,7 @@ export default {
     },
     setChron(node) {
       let nodeId = node.eventId,
-        { chronologicalChild } = getNodeInfo(node, this.workflow);
+        { chronologicalChild } = getNodeInfo(node, this.slicedWorkflow);
       if (chronologicalChild) {
         this.edges.push({
           data: { source: nodeId, target: chronologicalChild },
@@ -158,42 +182,44 @@ export default {
         });
         console.log("in view", nodesInView);
       }); */
-
-      /* cy.on("pan", function (evt) {
-        console.log("pan");
-        let ext = cy.extent();
-        let nodesInView = cy.nodes().filter((n) => {
-          let bb = n.boundingBox();
-          return (
-            bb.x1 > ext.x1 && bb.x2 < ext.x2 && bb.y1 > ext.y1 && bb.y2 < ext.y2
-          );
-        });
-        console.log("in view", nodesInView);
-      }); */
-
       return cy;
     },
   },
-  computed: {},
   mounted() {
     this.divideWorkflow();
     let container = document.getElementById("cy");
     this.buildTree();
     const t0 = performance.now();
-    this.view_init().then((graph) => {
+    this.view_init().then((cy) => {
       const t1 = performance.now();
       console.log(`Call to view_init took ${t1 - t0} milliseconds.`);
       //Get root node
       var pos = cy.nodes("[id = " + 1 + "]").position();
-      graph.zoom({
+      cy.center();
+      cy.zoom({
         // Zoom to the specified position of root node
         level: 1,
         position: pos,
       });
       const t2 = performance.now();
-      graph.mount(container);
+      cy.mount(container);
+      let self = this;
       const t3 = performance.now();
       console.log(`Call to graph mount took ${t3 - t2} milliseconds.`);
+      cy.on("pan", function (evt) {
+        let ext = cy.extent();
+        let nodesInView = cy.nodes().filter((n) => {
+          let bb = n.position();
+          return (
+            bb.x > ext.x1 && bb.x < ext.x2 && bb.y > ext.y1 && bb.y < ext.y2
+          );
+        });
+        if (nodesInView != null) {
+          let amountNodesInView = nodesInView.length;
+          self.lastNodeInView = nodesInView[amountNodesInView - 1].id();
+          console.log(amountNodesInView, self.lastNodeInView);
+        }
+      });
     });
   },
 };
@@ -209,7 +235,7 @@ button {
 }
 #cy {
   width: 100%;
-  height: 100%;
+  height: inherit;
   text-align: left;
 }
 </style>
