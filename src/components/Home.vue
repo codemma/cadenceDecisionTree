@@ -3,6 +3,14 @@
     <div id="nav">
       <router-link
         class="router-link"
+        :to="{ name: 'tree', params: { runId: '10k-workflow' }}"
+      >10k workflow</router-link>
+      <router-link
+        class="router-link"
+        :to="{ name: 'tree', params: { runId: '5k-workflow' }}"
+      >5k workflow</router-link>
+      <router-link
+        class="router-link"
         :to="{ name: 'tree', params: { runId: '957bad90-9c99-4afb-8ccc-0e550a439a60' }}"
       >HelloChild</router-link>
       <div class="explanation">workflow with child</div>
