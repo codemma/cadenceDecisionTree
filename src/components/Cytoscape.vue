@@ -1,8 +1,8 @@
 <template>
   <div id="cytoscape">
-    Last node in view: {{lastNodeInView }}
-    <br />
+    Last node in view: {{lastNodeInView }},
     Last node in Rendered: {{ lastNodeRendered}}
+    <br />
     <!--   <button v-on:click="addNode">Add node test</button> -->
     <div id="cy"></div>
   </div>
@@ -29,7 +29,7 @@ export default {
     return {
       nodes: [],
       edges: [],
-      lastNodeInView: "1",
+      lastNodeInView: "",
       lastNodeRendered: "",
       slicedWorkflow: null,
       workflowChunk: 0,
@@ -39,14 +39,17 @@ export default {
   },
   watch: {
     lastNodeInView() {
-      console.log("hello", this.lastNodeInView);
+      if (this.lastNodeRendered - 100 < this.lastNodeInView) {
+        console.log("close to edge");
+        // window.cy.destroy();
+      }
     },
   },
   methods: {
     /*  Function which will be used to divide the workflow in chunks to be rendered */
-    divideWorkflow() {
-      const chunkSize = 500;
-      const groups = this.workflow
+    chunkWorkflow() {
+      let chunkSize = 500;
+      let groups = this.workflow
         .map((e, i) => {
           return i % chunkSize === 0
             ? this.workflow.slice(i, i + chunkSize)
@@ -59,7 +62,6 @@ export default {
       this.lastNodeRendered = this.slicedWorkflow[
         this.slicedWorkflow.length - 1
       ].eventId;
-      console.log(this.slicedWorkflow);
     },
     async buildTree() {
       this.slicedWorkflow.forEach((node) => {
@@ -73,7 +75,7 @@ export default {
         if (parentWorkflow) {
           store.commit("parentRoute", parentWorkflow.runId);
         }
-        this.nodes.push({ data: { id: node.eventId, name: node.eventId } });
+        this.nodes.push({ data: { id: node.eventId, name: node.eventType } });
       });
       //Set the direct and inferred relationships
       this.slicedWorkflow.forEach((node) => {
@@ -124,36 +126,40 @@ export default {
       });
       window.cy.layout(dagreLayout).run();
     },
-    async view_init() {
+    async viewInit() {
       let cy = (window.cy = cytoscape({
         autoungrabify: true,
         styleEnabled: true,
         container: document.getElementById("cy"),
         headless: true,
-        pixelRatio: 1,
         hideEdgesOnViewport: true,
+        //Uncomment the two lines below for better performance
         //textureOnViewport: true,
+        //pixelRatio: 1,
         style: cytoscape
           .stylesheet()
           .selector("node")
           .css({
-            height: 80,
-            width: 200,
-            "min-zoomed-font-size": 100,
-            /*  "background-fit": "cover",
-            "border-color": "#000",
-            "border-width": 3,
-            "border-opacity": 0.5, */
-            content: "data(name)",
+            height: "label",
+            width: "label",
+            padding: "10px",
+            "background-color": "white",
+            "border-radius": 5,
+            "min-zoomed-font-size": 8,
+            shape: "round-rectangle",
+            "border-width": 1,
+            label: "data(name)",
             "text-valign": "center",
+            "text-halign": "center",
           })
           .selector("edge")
           .css({
-            width: 2,
-            /*    "target-arrow-shape": "triangle", */
-            "line-color": "#000000",
-            /*  "target-arrow-color": "#ffaaaa", */
-            "curve-style": "haystack",
+            "target-arrow-shape": "triangle",
+            "target-arrow-color": "black",
+            "source-arrow-color": "black",
+            "line-color": "#333",
+            width: 1.5,
+            "curve-style": "bezier", //'hay-stack' <- set to improve perfomance
           }),
         elements: {
           nodes: this.nodes,
@@ -161,38 +167,20 @@ export default {
         },
         layout: {
           name: "dagre",
+          nodeDimensionsIncludeLabels: true,
+          spacingFactor: 1.2, // to avoid node collision
+          nodeSep: 230,
+          edgeSep: 100,
+          rankSep: 70,
         },
       }));
-
       //Register click event
       cy.on("tap", "node", function (evt) {
         console.log(evt.target.id());
       });
-
-      //Register listener to zoom and panning
-
-      /*   cy.on("zoom", function (evt) {
-        console.log("zoom", cy.zoom());
-        let ext = cy.extent();
-        let nodesInView = cy.nodes().filter((n) => {
-          let bb = n.boundingBox();
-          return (
-            bb.x1 > ext.x1 && bb.x2 < ext.x2 && bb.y1 > ext.y1 && bb.y2 < ext.y2
-          );
-        });
-        console.log("in view", nodesInView);
-      }); */
       return cy;
     },
-  },
-  mounted() {
-    this.divideWorkflow();
-    let container = document.getElementById("cy");
-    this.buildTree();
-    const t0 = performance.now();
-    this.view_init().then((cy) => {
-      const t1 = performance.now();
-      console.log(`Call to view_init took ${t1 - t0} milliseconds.`);
+    mountGraph(cy) {
       //Get root node
       var pos = cy.nodes("[id = " + 1 + "]").position();
       cy.center();
@@ -201,11 +189,8 @@ export default {
         level: 1,
         position: pos,
       });
-      const t2 = performance.now();
-      cy.mount(container);
+
       let self = this;
-      const t3 = performance.now();
-      console.log(`Call to graph mount took ${t3 - t2} milliseconds.`);
       cy.on("pan", function (evt) {
         let ext = cy.extent();
         let nodesInView = cy.nodes().filter((n) => {
@@ -214,12 +199,27 @@ export default {
             bb.x > ext.x1 && bb.x < ext.x2 && bb.y > ext.y1 && bb.y < ext.y2
           );
         });
-        if (nodesInView != null) {
+        if (nodesInView.length != 0) {
           let amountNodesInView = nodesInView.length;
           self.lastNodeInView = nodesInView[amountNodesInView - 1].id();
-          console.log(amountNodesInView, self.lastNodeInView);
         }
       });
+
+      const t2 = performance.now();
+      let container = document.getElementById("cy");
+      cy.mount(container);
+      const t3 = performance.now();
+      console.log(`Call to graph mount took ${t3 - t2} milliseconds.`);
+    },
+  },
+  mounted() {
+    this.chunkWorkflow();
+    this.buildTree();
+    const t0 = performance.now();
+    this.viewInit().then((cy) => {
+      const t1 = performance.now();
+      console.log(`Call to view_init took ${t1 - t0} milliseconds.`);
+      this.mountGraph(cy);
     });
   },
 };
@@ -235,7 +235,7 @@ button {
 }
 #cy {
   width: 100%;
-  height: inherit;
+  height: 100%;
   text-align: left;
 }
 </style>
