@@ -1,7 +1,7 @@
 <template>
   <div id="cytoscape">
     Last node in view: {{lastNodeInView }},
-    Last node in Rendered: {{ lastNodeRendered}}
+    Last node rendered: {{ lastNodeRendered}}
     <br />
     <!--   <button v-on:click="addNode">Add node test</button> -->
     <div id="cy"></div>
