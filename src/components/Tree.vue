@@ -17,7 +17,13 @@
       <hr class="divider" />
       <div v-if="hasChildBtn" class="event-info-btn" v-on:click="route(childRouteId)">{{btnText}}</div>
       <hr v-if="hasChildBtn" class="divider" />
-      <div ref="eventInfo" class="event-info-content"></div>
+      <div class="list-container" v-for="( key, value) in selectedNodeInfo">
+        <div class="list-item">
+          <div class="list-item-header">{{key}}</div>
+          <div class="list-item-content">{{value}}</div>
+        </div>
+        <hr class="divider" />
+      </div>
     </div>
   </div>
 </template>
@@ -89,6 +95,9 @@ export default {
   computed: {
     parentRoute() {
       return this.$store.getters.parentRoute;
+    },
+    selectedNodeInfo() {
+      return this.$store.getters.selectedNodeInfo;
     },
     hasChildBtn() {
       return this.$store.getters.childBtn;
@@ -175,11 +184,25 @@ hr.divider {
   }
 }
 
-.event-information-list {
+.list-item {
+  margin: 16px 24px;
+
+  &-header {
+    font-weight: 600;
+    padding-bottom: 2px;
+  }
+
+  &-content {
+    color: #7b7b7b;
+    font-weight: 500;
+  }
+}
+
+.list-container {
   text-align: left;
 
-  > hr {
-    &:last-child {
+  &:last-child {
+    hr {
       display: none;
     }
   }
