@@ -8,6 +8,14 @@ const getDefaultState = () => {
     parentRouteId: '',
     childBtn: false,
     btnText: '',
+    selectedNodeInfo: {
+      id: 1,
+      input: 'test',
+      initiator: 'test',
+      newExecutionRunId: 'test',
+      workflowType: 'test',
+      taskList: 'test',
+    }
   }
 }
 // initial state
@@ -42,7 +50,8 @@ const store = new Vuex.Store({
     newExecutionId: state => state.newExecutionId,
     childBtn: state => state.childBtn,
     btnText: state => state.btnText,
-    parentRoute: state => state.parentRouteId
+    parentRoute: state => state.parentRouteId,
+    selectedNodeInfo: state => state.selectedNodeInfo,
   }
 })
 
