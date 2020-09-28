@@ -19,8 +19,8 @@
       <hr v-if="hasChildBtn" class="divider" />
       <div class="list-container" v-for="( key, value) in selectedNodeInfo">
         <div class="list-item">
-          <div class="list-item-header">{{key}}</div>
-          <div class="list-item-content">{{value}}</div>
+          <div class="list-item-header">{{value}}</div>
+          <div class="list-item-content">{{key}}</div>
         </div>
         <hr class="divider" />
       </div>
