@@ -63,6 +63,7 @@ let eventTypeMap: eventTypeMap = {
       parent: node.activityTaskFailedEventAttributes.startedEventId,
       chronologicalChild: chronologicalChild,
       inferredChild: inferredChild,
+      status: 'failed',
       clickInfo: {
         id: node.eventId,
         reason: attributesObj.reason,
@@ -113,6 +114,7 @@ let eventTypeMap: eventTypeMap = {
   'CancelTimerFailed': function (node: node) {
     const nodeInfo: nodeInfo = {
       parent: node.cancelTimerFailedEventAttributes.decisionTaskCompletedEventId,
+      status: 'failed',
     }
     return nodeInfo
   },
@@ -127,6 +129,7 @@ let eventTypeMap: eventTypeMap = {
       { inferredChild, chronologicalChild } = findChild(node, workflow);
     const nodeInfo: nodeInfo = {
       parent: attributesObj.startedEventId,
+      status: 'completed',
       inferredChild: inferredChild,
       chronologicalChild: chronologicalChild,
       clickInfo: {
@@ -145,6 +148,7 @@ let eventTypeMap: eventTypeMap = {
       parent: attributesObj.startedEventId,
       inferredChild: inferredChild,
       chronologicalChild: chronologicalChild,
+      status: 'failed',
       clickInfo: {
         id: node.eventId,
         reason: attributesObj.reason,
@@ -205,6 +209,7 @@ let eventTypeMap: eventTypeMap = {
   },
   'DecisionTaskFailed': function (node: node) {
     const nodeInfo: nodeInfo = {
+      status: 'failed',
       parent: node.decisionTaskFailedEventAttributes.startedEventId,
     }
     return nodeInfo
@@ -278,12 +283,14 @@ let eventTypeMap: eventTypeMap = {
   },
   'RequestCancelActivityTaskFailed': function (node: node) {
     const nodeInfo: nodeInfo = {
+      status: 'failed',
       parent: node.requestCancelActivityTaskFailedEventAttributes.decisionTaskCompletedEventId
     }
     return nodeInfo
   },
   'RequestCancelExternalWorkflowExecutionFailed': function (node: node) {
     const nodeInfo: nodeInfo = {
+      status: 'failed',
       parent: node.requestCancelExternalWorkflowExecutionFailed.decisionTaskCompletedEventId
     }
     return nodeInfo
@@ -296,6 +303,7 @@ let eventTypeMap: eventTypeMap = {
   },
   'SignalExternalWorkflowExecutionFailed': function (node: node) {
     const nodeInfo: nodeInfo = {
+      status: 'failed',
       parent: node.signalExternalWorkflowExecutionFailedEventAttributes.decisionTaskCompletedEventId
     }
     return nodeInfo
@@ -321,6 +329,7 @@ let eventTypeMap: eventTypeMap = {
   'StartChildWorkflowExecutionFailed': function (node: node) {
     let attributesObj = node.startChildWorkflowExecutionFailedEventAttributes
     const nodeInfo: nodeInfo = {
+      status: 'failed',
       parent: attributesObj.decisionTaskCompletedEventId,
     }
     return nodeInfo
@@ -406,6 +415,7 @@ let eventTypeMap: eventTypeMap = {
     let attributesObj = node.workflowExecutionCompletedEventAttributes
     const nodeInfo: nodeInfo = {
       parent: attributesObj.decisionTaskCompletedEventId,
+      status: 'completed',
       clickInfo: {
         id: node.eventId,
         result: attributesObj.result,
@@ -433,6 +443,7 @@ let eventTypeMap: eventTypeMap = {
     let attributesObj = node.workflowExecutionFailedEventAttributes
     const nodeInfo: nodeInfo = {
       parent: attributesObj.decisionTaskCompletedEventId,
+      status: 'failed',
       clickInfo: {
         reason: attributesObj.reason,
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId,
