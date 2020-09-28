@@ -1,5 +1,6 @@
 <template>
   <div id="cytoscape">
+    <Legend />
     Last node in view: {{lastNodeInView }},
     Last node rendered: {{ lastNodeRendered}}
     <br />
@@ -13,12 +14,15 @@ import dagre from "cytoscape-dagre";
 import { getNodeInfo } from "../eventFunctionMap.ts";
 import store from "../store";
 import cytoscape from "cytoscape";
+import Legend from "@/components/Legend.vue";
 
 cytoscape.use(dagre);
 
 export default {
   name: "Cytoscape",
-  components: {},
+  components: {
+    Legend,
+  },
   props: {
     workflow: {
       type: Array,
@@ -58,7 +62,7 @@ export default {
   methods: {
     //  Function which will be used to divide the workflow in chunks to be rendered
     chunkWorkflow() {
-      let chunkSize = 500;
+      let chunkSize = 300;
       let groups = this.workflow
         .map((e, i) => {
           return i % chunkSize === 0
@@ -74,10 +78,10 @@ export default {
       ].eventId;
     },
     async buildTree() {
-      this.workflow.forEach((node) => {
+      this.slicedWorkflow.forEach((node) => {
         let { clickInfo, childRunId, parentWorkflow } = getNodeInfo(
           node,
-          this.workflow
+          this.slicedWorkflow
         );
 
         if (!clickInfo) {
@@ -93,13 +97,13 @@ export default {
         });
       });
       //Set the direct and inferred relationships
-      this.workflow.forEach((node) => {
+      this.slicedWorkflow.forEach((node) => {
         this.setDirectAndInferred(node);
       });
 
       //Set the chronological relationships.
       //If the node is not referred to as a parent it should be connected back to the graph with a chron child
-      this.workflow.forEach((node) => {
+      this.slicedWorkflow.forEach((node) => {
         if (!this.parentArray.includes(node.eventId)) {
           this.setChron(node);
         }
@@ -107,7 +111,7 @@ export default {
     },
     setDirectAndInferred(node) {
       let nodeId = node.eventId,
-        { parent, inferredChild } = getNodeInfo(node, this.workflow);
+        { parent, inferredChild } = getNodeInfo(node, this.slicedWorkflow);
       if (parent) {
         this.parentArray.push(parent);
         this.edges.push({
@@ -123,7 +127,7 @@ export default {
     },
     setChron(node) {
       let nodeId = node.eventId,
-        { chronologicalChild } = getNodeInfo(node, this.workflow);
+        { chronologicalChild } = getNodeInfo(node, this.slicedWorkflow);
       if (chronologicalChild) {
         this.edges.push({
           data: {
@@ -172,7 +176,8 @@ export default {
             "border-radius": 5,
             "min-zoomed-font-size": 8,
             shape: "round-rectangle",
-            "border-width": 1,
+            "border-color": "#d1d1d1",
+            "border-width": 1.6,
             label: "data(name)",
             "text-valign": "center",
             "text-halign": "center",
@@ -293,7 +298,7 @@ export default {
     },
   },
   mounted() {
-    //this.chunkWorkflow();
+    this.chunkWorkflow();
     this.buildTree();
     const t0 = performance.now();
     this.viewInit().then((cy) => {
