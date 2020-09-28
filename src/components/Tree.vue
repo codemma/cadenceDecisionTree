@@ -70,7 +70,6 @@ export default {
     },
     resetData() {
       store.commit("resetState"); //We reset the state every time we load a new workflow
-      this.$refs.eventInfo.innerHTML = ""; //Empty the event-info container
       this.workflowLoading = false;
     },
     setWorkFlow() {

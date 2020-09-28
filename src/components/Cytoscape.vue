@@ -4,7 +4,7 @@
     Last node rendered: {{ lastNodeRendered}}
     <br />
     <!--   <button v-on:click="addNode">Add node test</button> -->
-    <div id="cy"></div>
+    <div ref="cy" id="cy"></div>
   </div>
 </template>
 
@@ -64,15 +64,14 @@ export default {
       ].eventId;
     },
     async buildTree() {
-      this.slicedWorkflow.forEach((node) => {
-        let { hoverText, childRunId, parentWorkflow } = getNodeInfo(
-            node,
-            this.slicedWorkflow
-          ),
-          hovertext;
+      this.workflow.forEach((node) => {
+        let { clickInfo, childRunId, parentWorkflow } = getNodeInfo(
+          node,
+          this.workflow
+        );
 
-        if (hoverText === undefined) {
-          hovertext = { todo: "Todo" };
+        if (!clickInfo) {
+          clickInfo = { todo: "Todo" };
         }
 
         //We have a child workflow, show parent btn
@@ -80,17 +79,17 @@ export default {
           store.commit("parentRoute", parentWorkflow.runId);
         }
         this.nodes.push({
-          data: { id: node.eventId, name: node.eventType, nodeInfo: hoverText },
+          data: { id: node.eventId, name: node.eventType, nodeInfo: clickInfo },
         });
       });
       //Set the direct and inferred relationships
-      this.slicedWorkflow.forEach((node) => {
+      this.workflow.forEach((node) => {
         this.setDirectAndInferred(node);
       });
 
       //Set the chronological relationships.
       //If the node is not referred to as a parent it should be connected back to the graph with a chron child
-      this.slicedWorkflow.forEach((node) => {
+      this.workflow.forEach((node) => {
         if (!this.parentArray.includes(node.eventId)) {
           this.setChron(node);
         }
@@ -98,7 +97,7 @@ export default {
     },
     setDirectAndInferred(node) {
       let nodeId = node.eventId,
-        { parent, inferredChild } = getNodeInfo(node, this.slicedWorkflow);
+        { parent, inferredChild } = getNodeInfo(node, this.workflow);
       if (parent) {
         this.parentArray.push(parent);
         this.edges.push({ data: { source: parent, target: nodeId } });
@@ -110,7 +109,7 @@ export default {
     },
     setChron(node) {
       let nodeId = node.eventId,
-        { chronologicalChild } = getNodeInfo(node, this.slicedWorkflow);
+        { chronologicalChild } = getNodeInfo(node, this.workflow);
       if (chronologicalChild) {
         this.edges.push({
           data: { source: nodeId, target: chronologicalChild },
@@ -158,11 +157,15 @@ export default {
             "text-valign": "center",
             "text-halign": "center",
           })
+          .selector(":selected")
+          .css({
+            "border-color": "#11939A",
+            "border-width": 2,
+          })
           .selector("edge")
           .css({
             "target-arrow-shape": "triangle",
             "target-arrow-color": "black",
-            "source-arrow-color": "black",
             "line-color": "#333",
             width: 1.5,
             "curve-style": "bezier", //'hay-stack' <- set to improve perfomance
@@ -180,14 +183,46 @@ export default {
           rankSep: 70,
         },
       }));
-      //Register click event
-      cy.on("tap", "node", function (evt) {
-        store.commit("displayNodeInformation", evt.target.data().nodeInfo);
-        console.log(evt.target.id());
-
-        //Access information on click
-        console.log(evt.target.data().nodeInfo);
+      let container = this.$refs.cy;
+      cy.on("mouseover", "node", function (e) {
+        container.style.cursor = "pointer";
       });
+      cy.on("mouseout", "node", function (e) {
+        container.style.cursor = "default";
+      });
+
+      //Register click event
+      cy.on("tap", function (evt) {
+        // target holds a reference to the originator
+        // of the event (core or element)
+        let evtTarget = evt.target;
+
+        //Tap on background
+        if (evtTarget === cy) {
+          store.commit("displayNodeInformation", {});
+          //Tap on a node
+        } else if (evtTarget.isNode()) {
+          store.commit("displayNodeInformation", evt.target.data().nodeInfo);
+
+          //Access the node information to display on click
+          let nodeInfo = evt.target.data().nodeInfo;
+
+          if (nodeInfo.childRunId) {
+            store.commit("childRoute", {
+              routeId: nodeInfo.childRunId,
+              btnText: "Show child workflow",
+            });
+          } else if (nodeInfo.newExecutionRunId) {
+            store.commit("childRoute", {
+              routeId: nodeInfo.newExecutionRunId,
+              btnText: "Show next execution",
+            });
+          } else {
+            store.commit("toggleChildBtn");
+          }
+        }
+      });
+
       return cy;
     },
     mountGraph(cy) {
@@ -223,7 +258,7 @@ export default {
     },
   },
   mounted() {
-    this.chunkWorkflow();
+    //this.chunkWorkflow();
     this.buildTree();
     const t0 = performance.now();
     this.viewInit().then((cy) => {

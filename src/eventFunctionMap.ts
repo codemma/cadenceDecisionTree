@@ -15,7 +15,7 @@ let eventTypeMap: eventTypeMap = {
     const nodeInfo: nodeInfo = {
       inferredChild: inferredChild,
       parentWorkflow: attributesObj.parentWorkflowExecution,
-      hoverText: {
+      clickInfo: {
         id: node.eventId,
         parentWorkflowDomain: attributesObj.parentWorkflowDomain,
         parentInitiatedEventId: attributesObj.parentInitiatedEventId,
@@ -46,7 +46,7 @@ let eventTypeMap: eventTypeMap = {
       parent: attributesObj.startedEventId,
       chronologicalChild: chronologicalChild,
       inferredChild: inferredChild,
-      hoverText: {
+      clickInfo: {
         id: node.eventId,
         startedEventId: attributesObj.startedEventId,
         scheduledEventId: attributesObj.scheduledEventId,
@@ -63,7 +63,7 @@ let eventTypeMap: eventTypeMap = {
       parent: node.activityTaskFailedEventAttributes.startedEventId,
       chronologicalChild: chronologicalChild,
       inferredChild: inferredChild,
-      hoverText: {
+      clickInfo: {
         id: node.eventId,
         reason: attributesObj.reason,
         details: attributesObj.details,
@@ -77,7 +77,7 @@ let eventTypeMap: eventTypeMap = {
     let attributesObj = node.activityTaskScheduledEventAttributes;
     const nodeInfo: nodeInfo = {
       parent: attributesObj.decisionTaskCompletedEventId,
-      hoverText: {
+      clickInfo: {
         id: node.eventId,
         input: attributesObj.input,
         activityType: attributesObj.activityType.name,
@@ -91,7 +91,7 @@ let eventTypeMap: eventTypeMap = {
     let attributesObj = node.activityTaskStartedEventAttributes
     const nodeInfo: nodeInfo = {
       parent: attributesObj.scheduledEventId,
-      hoverText: {
+      clickInfo: {
         id: node.eventId,
         requestId: attributesObj.requestId,
         attempt: attributesObj.attempt,
@@ -129,7 +129,7 @@ let eventTypeMap: eventTypeMap = {
       parent: attributesObj.startedEventId,
       inferredChild: inferredChild,
       chronologicalChild: chronologicalChild,
-      hoverText: {
+      clickInfo: {
         id: node.eventId,
         result: attributesObj.result,
         workflowType: attributesObj.workflowType.name,
@@ -145,7 +145,7 @@ let eventTypeMap: eventTypeMap = {
       parent: attributesObj.startedEventId,
       inferredChild: inferredChild,
       chronologicalChild: chronologicalChild,
-      hoverText: {
+      clickInfo: {
         id: node.eventId,
         reason: attributesObj.reason,
         domain: attributesObj.domain,
@@ -166,7 +166,7 @@ let eventTypeMap: eventTypeMap = {
       parent: attributesObj.initiatedEventId,
       inferredChild: inferredChild,
       chronologicalChild: chronologicalChild,
-      hoverText: {
+      clickInfo: {
         id: node.eventId,
         domain: attributesObj.domain,
         workflowType: attributesObj.workflowType.name,
@@ -195,7 +195,7 @@ let eventTypeMap: eventTypeMap = {
     const nodeInfo: nodeInfo = {
       parent: attributesObj.startedEventId,
       chronologicalChild: chronologicalChild,
-      hoverText: {
+      clickInfo: {
         id: node.eventId,
         scheduledEventId: attributesObj.scheduledEventId,
         startedEventId: attributesObj.startedEventId,
@@ -212,7 +212,7 @@ let eventTypeMap: eventTypeMap = {
   'DecisionTaskScheduled': function (node: node, workflow: workflow) {
     let attributesObj = node.decisionTaskScheduledEventAttributes
     const nodeInfo: nodeInfo = {
-      hoverText: {
+      clickInfo: {
         id: node.eventId,
         taskList: attributesObj.taskList.name,
         attempt: attributesObj.attempt,
@@ -224,7 +224,7 @@ let eventTypeMap: eventTypeMap = {
     let attributesObj = node.decisionTaskStartedEventAttributes
     const nodeInfo: nodeInfo = {
       parent: attributesObj.scheduledEventId,
-      hoverText: {
+      clickInfo: {
         id: node.eventId,
         scheduledEventId: attributesObj.scheduledEventId,
       },
@@ -253,7 +253,7 @@ let eventTypeMap: eventTypeMap = {
     const nodeInfo: nodeInfo = {
       parent: attributesObj.initiatedEventId,
       inferredChild: inferredChild,
-      hoverText: {
+      clickInfo: {
         id: node.eventId,
         initiatedEventId: attributesObj.initiatedEventId,
         domain: attributesObj.domain,
@@ -267,7 +267,7 @@ let eventTypeMap: eventTypeMap = {
     let attributesObj = node.markerRecordedEventAttributes
     const nodeInfo: nodeInfo = {
       parent: attributesObj.decisionTaskCompletedEventId,
-      hoverText: {
+      clickInfo: {
         id: node.eventId,
         markerName: attributesObj.markerName,
         details: attributesObj.details,
@@ -305,7 +305,7 @@ let eventTypeMap: eventTypeMap = {
     let workflowExecution = JSON.stringify(attributesObj.workflowExecution);
     const nodeInfo: nodeInfo = {
       parent: attributesObj.decisionTaskCompletedEventId,
-      hoverText: {
+      clickInfo: {
         id: node.eventId,
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId,
         domain: attributesObj.domain,
@@ -329,7 +329,7 @@ let eventTypeMap: eventTypeMap = {
     let attributesObj = node.startChildWorkflowExecutionInitiatedEventAttributes
     const nodeInfo: nodeInfo = {
       parent: node.startChildWorkflowExecutionInitiatedEventAttributes.decisionTaskCompletedEventId,
-      hoverText: {
+      clickInfo: {
         id: node.eventId,
         domain: attributesObj.domain,
         input: attributesObj.input,
@@ -354,7 +354,7 @@ let eventTypeMap: eventTypeMap = {
     const nodeInfo: nodeInfo = {
       parent: attributesObj.startedEventId,
       inferredChild: inferredChild,
-      hoverText: {
+      clickInfo: {
         id: node.eventId,
         timerId: attributesObj.timerId,
         startedEventId: attributesObj.startedEventId
@@ -366,7 +366,7 @@ let eventTypeMap: eventTypeMap = {
     let attributesObj = node.timerStartedEventAttributes
     const nodeInfo: nodeInfo = {
       parent: attributesObj.decisionTaskCompletedEventId,
-      hoverText: {
+      clickInfo: {
         id: node.eventId,
         timerId: attributesObj.timerId,
         startToFireTimeoutSeconds: attributesObj.startToFireTimeoutSeconds,
@@ -381,7 +381,7 @@ let eventTypeMap: eventTypeMap = {
     var searchAttr = JSON.stringify(attributesObj.searchAttributes.indexedFields);
     const nodeInfo: nodeInfo = {
       parent: attributesObj.decisionTaskCompletedEventId,
-      hoverText: {
+      clickInfo: {
         searchAttributes: searchAttr,
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId,
       }
@@ -406,7 +406,7 @@ let eventTypeMap: eventTypeMap = {
     let attributesObj = node.workflowExecutionCompletedEventAttributes
     const nodeInfo: nodeInfo = {
       parent: attributesObj.decisionTaskCompletedEventId,
-      hoverText: {
+      clickInfo: {
         id: node.eventId,
         result: attributesObj.result,
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId,
@@ -418,7 +418,7 @@ let eventTypeMap: eventTypeMap = {
     let attributesObj = node.workflowExecutionContinuedAsNewEventAttributes
     const nodeInfo: nodeInfo = {
       parent: attributesObj.decisionTaskCompletedEventId,
-      hoverText: {
+      clickInfo: {
         id: node.eventId,
         input: attributesObj.input,
         initiator: attributesObj.initiator,
@@ -433,7 +433,7 @@ let eventTypeMap: eventTypeMap = {
     let attributesObj = node.workflowExecutionFailedEventAttributes
     const nodeInfo: nodeInfo = {
       parent: attributesObj.decisionTaskCompletedEventId,
-      hoverText: {
+      clickInfo: {
         reason: attributesObj.reason,
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId,
         details: attributesObj.details,
@@ -446,7 +446,7 @@ let eventTypeMap: eventTypeMap = {
     let { inferredChild } = findInferredChild(node, workflow);
     const nodeInfo: nodeInfo = {
       inferredChild: inferredChild,
-      hoverText: {
+      clickInfo: {
         signalName: attributesObj.signalName,
         input: attributesObj.input,
         identity: attributesObj.identity,
