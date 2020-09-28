@@ -4,8 +4,9 @@ interface nodeInfo {
   chronologicalChild?: number;
   chronologicalParent?: number;
   inferredParents?: number[];
-  hoverText?: object;
+  clickInfo?: object;
   parentWorkflow?: object;
+  status?: string
 }
 
 interface workflow {

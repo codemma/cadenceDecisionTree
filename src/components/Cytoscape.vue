@@ -1,10 +1,11 @@
 <template>
   <div id="cytoscape">
+    <Legend />
     Last node in view: {{lastNodeInView }},
     Last node rendered: {{ lastNodeRendered}}
     <br />
     <!--   <button v-on:click="addNode">Add node test</button> -->
-    <div id="cy"></div>
+    <div ref="cy" id="cy"></div>
   </div>
 </template>
 
@@ -13,12 +14,15 @@ import dagre from "cytoscape-dagre";
 import { getNodeInfo } from "../eventFunctionMap.ts";
 import store from "../store";
 import cytoscape from "cytoscape";
+import Legend from "@/components/Legend.vue";
 
 cytoscape.use(dagre);
 
 export default {
   name: "Cytoscape",
-  components: {},
+  components: {
+    Legend,
+  },
   props: {
     workflow: {
       type: Array,
@@ -29,6 +33,16 @@ export default {
     return {
       nodes: [],
       edges: [],
+      completedNode: {
+        "border-color": "#26bd77",
+        "border-width": 1,
+        "background-color": "#dcffe6",
+      },
+      failedNode: {
+        "border-color": "#ff6c6c",
+        "border-width": 1,
+        "background-color": "#ffcccc",
+      },
       lastNodeInView: "",
       lastNodeRendered: "",
       slicedWorkflow: null,
@@ -46,9 +60,9 @@ export default {
     },
   },
   methods: {
-    /*  Function which will be used to divide the workflow in chunks to be rendered */
+    //  Function which will be used to divide the workflow in chunks to be rendered
     chunkWorkflow() {
-      let chunkSize = 500;
+      let chunkSize = 300;
       let groups = this.workflow
         .map((e, i) => {
           return i % chunkSize === 0
@@ -65,17 +79,27 @@ export default {
     },
     async buildTree() {
       this.slicedWorkflow.forEach((node) => {
-        let { hoverText, childRunId, parentWorkflow } = getNodeInfo(
-            node,
-            this.slicedWorkflow
-          ),
-          hovertext;
+        let { clickInfo, childRunId, parentWorkflow, status } = getNodeInfo(
+          node,
+          this.slicedWorkflow
+        );
+
+        if (!clickInfo) {
+          clickInfo = { todo: "Todo" };
+        }
 
         //We have a child workflow, show parent btn
         if (parentWorkflow) {
           store.commit("parentRoute", parentWorkflow.runId);
         }
-        this.nodes.push({ data: { id: node.eventId, name: node.eventType } });
+        this.nodes.push({
+          data: {
+            id: node.eventId,
+            name: node.eventType,
+            nodeInfo: clickInfo,
+            status: status,
+          },
+        });
       });
       //Set the direct and inferred relationships
       this.slicedWorkflow.forEach((node) => {
@@ -95,11 +119,15 @@ export default {
         { parent, inferredChild } = getNodeInfo(node, this.slicedWorkflow);
       if (parent) {
         this.parentArray.push(parent);
-        this.edges.push({ data: { source: parent, target: nodeId } });
+        this.edges.push({
+          data: { source: parent, target: nodeId, type: "direct" },
+        });
       }
       if (inferredChild) {
         this.parentArray.push(nodeId);
-        this.edges.push({ data: { source: nodeId, target: inferredChild } });
+        this.edges.push({
+          data: { source: nodeId, target: inferredChild, type: "inferred" },
+        });
       }
     },
     setChron(node) {
@@ -107,7 +135,11 @@ export default {
         { chronologicalChild } = getNodeInfo(node, this.slicedWorkflow);
       if (chronologicalChild) {
         this.edges.push({
-          data: { source: nodeId, target: chronologicalChild },
+          data: {
+            source: nodeId,
+            target: chronologicalChild,
+            type: "chronological",
+          },
         });
       }
     },
@@ -143,24 +175,56 @@ export default {
             height: "label",
             width: "label",
             padding: "10px",
+            "font-weight": "200",
+            "font-family": "Avenir, Helvetica, Arial, sans-serif",
             "background-color": "white",
             "border-radius": 5,
             "min-zoomed-font-size": 8,
             shape: "round-rectangle",
-            "border-width": 1,
+            "border-color": "#d1d1d1",
+            "border-width": 1.2,
             label: "data(name)",
             "text-valign": "center",
             "text-halign": "center",
           })
+          .selector("node[status = 'completed']")
+          .css(this.completedNode)
+          .selector("node[status = 'failed']")
+          .css(this.failedNode)
+          .selector("node:selected")
+          .css({
+            "border-color": "#11939A",
+            "border-width": 2,
+          })
+          .selector("node[status = 'failed']:selected")
+          .css({
+            "border-color": "#ff6c6c",
+            "border-width": 2.5,
+          })
+          .selector("node[status = 'completed']:selected")
+          .css({
+            "border-color": "#26bd77",
+            "border-width": 2.5,
+          })
           .selector("edge")
           .css({
             "target-arrow-shape": "triangle",
-            "target-arrow-color": "black",
-            "source-arrow-color": "black",
-            "line-color": "#333",
+            "target-arrow-color": "#2c3e50",
+            "line-color": "#2c3e50",
             width: 1.5,
             "curve-style": "bezier", //'hay-stack' <- set to improve perfomance
+          })
+          .selector("edge[type = 'inferred']")
+          .css({
+            "target-arrow-color": "#ECAB20",
+            "line-color": "#ECAB20",
+          })
+          .selector("edge[type = 'chronological']")
+          .css({
+            "target-arrow-color": "#5879DA",
+            "line-color": "#5879DA",
           }),
+
         elements: {
           nodes: this.nodes,
           edges: this.edges,
@@ -174,10 +238,46 @@ export default {
           rankSep: 70,
         },
       }));
-      //Register click event
-      cy.on("tap", "node", function (evt) {
-        console.log(evt.target.id());
+      let container = this.$refs.cy;
+      cy.on("mouseover", "node", function (e) {
+        container.style.cursor = "pointer";
       });
+      cy.on("mouseout", "node", function (e) {
+        container.style.cursor = "default";
+      });
+
+      //Register click event
+      cy.on("tap", function (evt) {
+        // target holds a reference to the originator
+        // of the event (core or element)
+        let evtTarget = evt.target;
+
+        //Tap on background
+        if (evtTarget === cy) {
+          store.commit("displayNodeInformation", {});
+          //Tap on a node
+        } else if (evtTarget.isNode()) {
+          store.commit("displayNodeInformation", evt.target.data().nodeInfo);
+
+          //Access the node information to display on click
+          let nodeInfo = evt.target.data().nodeInfo;
+
+          if (nodeInfo.childRunId) {
+            store.commit("childRoute", {
+              routeId: nodeInfo.childRunId,
+              btnText: "Show child workflow",
+            });
+          } else if (nodeInfo.newExecutionRunId) {
+            store.commit("childRoute", {
+              routeId: nodeInfo.newExecutionRunId,
+              btnText: "Show next execution",
+            });
+          } else {
+            store.commit("toggleChildBtn");
+          }
+        }
+      });
+
       return cy;
     },
     mountGraph(cy) {

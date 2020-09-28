@@ -8,7 +8,7 @@
     </div>
     <div v-if="showLegend">
       <transition-group appear name="fade">
-        <div v-for="connection in connections" :key="connection">
+        <div v-for="connection in connections" :key="connection.name">
           <div class="legend-example">
             <div class="arrow-container">
               <span :class="connection.name" class="pic arrow"></span>
@@ -56,6 +56,7 @@ export default {
   right: 20px;
   top: 80px;
   cursor: pointer;
+  z-index: 1000;
 
   &-example {
     display: flex;
