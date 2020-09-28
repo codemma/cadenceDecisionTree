@@ -29,6 +29,16 @@ export default {
     return {
       nodes: [],
       edges: [],
+      completedNode: {
+        "border-color": "#26bd77",
+        "border-width": 2,
+        "background-color": "#dcffe6",
+      },
+      failedNode: {
+        "border-color": "#ff6c6c",
+        "border-width": 2,
+        "background-color": "#ffcccc",
+      },
       lastNodeInView: "",
       lastNodeRendered: "",
       slicedWorkflow: null,
@@ -46,7 +56,7 @@ export default {
     },
   },
   methods: {
-    /*  Function which will be used to divide the workflow in chunks to be rendered */
+    //  Function which will be used to divide the workflow in chunks to be rendered
     chunkWorkflow() {
       let chunkSize = 500;
       let groups = this.workflow
@@ -100,11 +110,15 @@ export default {
         { parent, inferredChild } = getNodeInfo(node, this.workflow);
       if (parent) {
         this.parentArray.push(parent);
-        this.edges.push({ data: { source: parent, target: nodeId } });
+        this.edges.push({
+          data: { source: parent, target: nodeId, type: "direct" },
+        });
       }
       if (inferredChild) {
         this.parentArray.push(nodeId);
-        this.edges.push({ data: { source: nodeId, target: inferredChild } });
+        this.edges.push({
+          data: { source: nodeId, target: inferredChild, type: "inferred" },
+        });
       }
     },
     setChron(node) {
@@ -112,7 +126,11 @@ export default {
         { chronologicalChild } = getNodeInfo(node, this.workflow);
       if (chronologicalChild) {
         this.edges.push({
-          data: { source: nodeId, target: chronologicalChild },
+          data: {
+            source: nodeId,
+            target: chronologicalChild,
+            type: "chronological",
+          },
         });
       }
     },
@@ -148,6 +166,8 @@ export default {
             height: "label",
             width: "label",
             padding: "10px",
+            "font-weight": "200",
+            "font-family": "Avenir, Helvetica, Arial, sans-serif",
             "background-color": "white",
             "border-radius": 5,
             "min-zoomed-font-size": 8,
@@ -157,6 +177,10 @@ export default {
             "text-valign": "center",
             "text-halign": "center",
           })
+          .selector("node[name = 'WorkflowExecutionCompleted']")
+          .css(this.completedNode)
+          .selector("node[name = 'WorkflowExecutionFailed']")
+          .css(this.failedNode)
           .selector(":selected")
           .css({
             "border-color": "#11939A",
@@ -165,11 +189,22 @@ export default {
           .selector("edge")
           .css({
             "target-arrow-shape": "triangle",
-            "target-arrow-color": "black",
-            "line-color": "#333",
+            "target-arrow-color": "#2c3e50",
+            "line-color": "#2c3e50",
             width: 1.5,
             "curve-style": "bezier", //'hay-stack' <- set to improve perfomance
+          })
+          .selector("edge[type = 'inferred']")
+          .css({
+            "target-arrow-color": "#ECAB20",
+            "line-color": "#ECAB20",
+          })
+          .selector("edge[type = 'chronological']")
+          .css({
+            "target-arrow-color": "#5879DA",
+            "line-color": "#5879DA",
           }),
+
         elements: {
           nodes: this.nodes,
           edges: this.edges,
