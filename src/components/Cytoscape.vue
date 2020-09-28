@@ -12,6 +12,7 @@
 <script>
 import dagre from "cytoscape-dagre";
 import { getNodeInfo } from "../eventFunctionMap.ts";
+import graphStyles from "../styles/graphStyles";
 import store from "../store";
 import cytoscape from "cytoscape";
 import Legend from "@/components/Legend.vue";
@@ -33,16 +34,7 @@ export default {
     return {
       nodes: [],
       edges: [],
-      completedNode: {
-        "border-color": "#26bd77",
-        "border-width": 1,
-        "background-color": "#dcffe6",
-      },
-      failedNode: {
-        "border-color": "#ff6c6c",
-        "border-width": 1,
-        "background-color": "#ffcccc",
-      },
+      styles: graphStyles,
       lastNodeInView: "",
       lastNodeRendered: "",
       slicedWorkflow: null,
@@ -168,63 +160,7 @@ export default {
         //Uncomment the two lines below for better performance
         //textureOnViewport: true,
         //pixelRatio: 1,
-        style: cytoscape
-          .stylesheet()
-          .selector("node")
-          .css({
-            height: "label",
-            width: "label",
-            padding: "10px",
-            "font-weight": "200",
-            "font-family": "Avenir, Helvetica, Arial, sans-serif",
-            "background-color": "white",
-            "border-radius": 5,
-            "min-zoomed-font-size": 8,
-            shape: "round-rectangle",
-            "border-color": "#d1d1d1",
-            "border-width": 1.2,
-            label: "data(name)",
-            "text-valign": "center",
-            "text-halign": "center",
-          })
-          .selector("node[status = 'completed']")
-          .css(this.completedNode)
-          .selector("node[status = 'failed']")
-          .css(this.failedNode)
-          .selector("node:selected")
-          .css({
-            "border-color": "#11939A",
-            "border-width": 2,
-          })
-          .selector("node[status = 'failed']:selected")
-          .css({
-            "border-color": "#ff6c6c",
-            "border-width": 2.5,
-          })
-          .selector("node[status = 'completed']:selected")
-          .css({
-            "border-color": "#26bd77",
-            "border-width": 2.5,
-          })
-          .selector("edge")
-          .css({
-            "target-arrow-shape": "triangle",
-            "target-arrow-color": "#2c3e50",
-            "line-color": "#2c3e50",
-            width: 1.5,
-            "curve-style": "bezier", //'hay-stack' <- set to improve perfomance
-          })
-          .selector("edge[type = 'inferred']")
-          .css({
-            "target-arrow-color": "#ECAB20",
-            "line-color": "#ECAB20",
-          })
-          .selector("edge[type = 'chronological']")
-          .css({
-            "target-arrow-color": "#5879DA",
-            "line-color": "#5879DA",
-          }),
-
+        style: this.styles,
         elements: {
           nodes: this.nodes,
           edges: this.edges,
