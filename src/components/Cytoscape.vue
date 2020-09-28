@@ -71,11 +71,17 @@ export default {
           ),
           hovertext;
 
+        if (hoverText === undefined) {
+          hovertext = { todo: "Todo" };
+        }
+
         //We have a child workflow, show parent btn
         if (parentWorkflow) {
           store.commit("parentRoute", parentWorkflow.runId);
         }
-        this.nodes.push({ data: { id: node.eventId, name: node.eventType } });
+        this.nodes.push({
+          data: { id: node.eventId, name: node.eventType, nodeInfo: hoverText },
+        });
       });
       //Set the direct and inferred relationships
       this.slicedWorkflow.forEach((node) => {
@@ -176,7 +182,11 @@ export default {
       }));
       //Register click event
       cy.on("tap", "node", function (evt) {
+        store.commit("displayNodeInformation", evt.target.data().nodeInfo);
         console.log(evt.target.id());
+
+        //Access information on click
+        console.log(evt.target.data().nodeInfo);
       });
       return cy;
     },
