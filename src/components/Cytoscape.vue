@@ -79,7 +79,7 @@ export default {
     },
     async buildTree() {
       this.slicedWorkflow.forEach((node) => {
-        let { clickInfo, childRunId, parentWorkflow } = getNodeInfo(
+        let { clickInfo, childRunId, parentWorkflow, status } = getNodeInfo(
           node,
           this.slicedWorkflow
         );
@@ -93,7 +93,12 @@ export default {
           store.commit("parentRoute", parentWorkflow.runId);
         }
         this.nodes.push({
-          data: { id: node.eventId, name: node.eventType, nodeInfo: clickInfo },
+          data: {
+            id: node.eventId,
+            name: node.eventType,
+            nodeInfo: clickInfo,
+            status: status,
+          },
         });
       });
       //Set the direct and inferred relationships
@@ -182,9 +187,9 @@ export default {
             "text-valign": "center",
             "text-halign": "center",
           })
-          .selector("node[name = 'WorkflowExecutionCompleted']")
+          .selector("node[status = 'completed']")
           .css(this.completedNode)
-          .selector("node[name = 'WorkflowExecutionFailed']")
+          .selector("node[status = 'failed']")
           .css(this.failedNode)
           .selector(":selected")
           .css({
