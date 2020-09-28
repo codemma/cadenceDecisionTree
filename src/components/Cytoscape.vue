@@ -35,12 +35,12 @@ export default {
       edges: [],
       completedNode: {
         "border-color": "#26bd77",
-        "border-width": 2,
+        "border-width": 1,
         "background-color": "#dcffe6",
       },
       failedNode: {
         "border-color": "#ff6c6c",
-        "border-width": 2,
+        "border-width": 1,
         "background-color": "#ffcccc",
       },
       lastNodeInView: "",
@@ -182,7 +182,7 @@ export default {
             "min-zoomed-font-size": 8,
             shape: "round-rectangle",
             "border-color": "#d1d1d1",
-            "border-width": 1.6,
+            "border-width": 1.2,
             label: "data(name)",
             "text-valign": "center",
             "text-halign": "center",
@@ -191,10 +191,20 @@ export default {
           .css(this.completedNode)
           .selector("node[status = 'failed']")
           .css(this.failedNode)
-          .selector(":selected")
+          .selector("node:selected")
           .css({
             "border-color": "#11939A",
             "border-width": 2,
+          })
+          .selector("node[status = 'failed']:selected")
+          .css({
+            "border-color": "#ff6c6c",
+            "border-width": 2.5,
+          })
+          .selector("node[status = 'completed']:selected")
+          .css({
+            "border-color": "#26bd77",
+            "border-width": 2.5,
           })
           .selector("edge")
           .css({
