@@ -3,11 +3,12 @@ import Vuex from 'vuex'
 
 const getDefaultState = () => {
   return {
-    childRouteId: '',
-    newExecutionId: '',
-    parentRouteId: '',
+    childRouteId: null,
+    newExecutionId: null,
+    parentRouteId: null,
     childBtn: false,
-    btnText: '',
+    btnText: null,
+    selectedNode: null,
     selectedNodeInfo: {},
     renderedNodes: [{
       data: {
@@ -19,7 +20,14 @@ const getDefaultState = () => {
     {
       data: {
         id: 8,
-        name: 'Test2',
+        name: 'Test 8',
+        timeStamp: '99050533'
+      },
+    },
+    {
+      data: {
+        id: 100,
+        name: 'Test 100',
         timeStamp: '99050533'
       },
     }]
@@ -51,6 +59,9 @@ const store = new Vuex.Store({
     displayNodeInformation(state, info) {
       state.selectedNodeInfo = info
     },
+    setSelectedNode(state, node) {
+      state.selectedNode = node
+    },
     resetState(state) {
       Object.assign(state, getDefaultState())
     }
@@ -62,6 +73,7 @@ const store = new Vuex.Store({
     btnText: state => state.btnText,
     parentRoute: state => state.parentRouteId,
     selectedNodeInfo: state => state.selectedNodeInfo,
+    selectedNode: state => state.selectedNode,
     renderedNodes: state => state.renderedNodes,
   }
 })
