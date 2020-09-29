@@ -5,10 +5,10 @@
         <div class="section-header-text">Node list</div>
       </div>
       <hr class="divider" />
-      <div class="list-container" v-for="item in renderedNodes">
-        <div class="list-item">
-          <div class="list-item-header">{{item.data.id}}</div>
-          <div class="list-item-content">{{item.data.name}}</div>
+      <div class="list-container" v-for="node in renderedNodes" :key="node.id">
+        <div class="list-item" v-on:click="selectNode(node)">
+          <div class="list-item-header">{{node.data.id}}</div>
+          <div class="list-item-content">{{node.data.name}}</div>
         </div>
         <hr class="divider" />
       </div>
@@ -78,6 +78,9 @@ export default {
     this.setWorkFlow();
   },
   methods: {
+    selectNode(node) {
+      store.commit("setSelectedNode", node.data.id);
+    },
     route(runId) {
       router.push({ name: "tree", params: { runId: runId } });
     },
