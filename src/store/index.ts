@@ -10,27 +10,7 @@ const getDefaultState = () => {
     btnText: null,
     selectedNode: null,
     selectedNodeInfo: {},
-    renderedNodes: [{
-      data: {
-        id: 3,
-        name: 'Test',
-        timeStamp: '99050533'
-      },
-    },
-    {
-      data: {
-        id: 8,
-        name: 'Test 8',
-        timeStamp: '99050533'
-      },
-    },
-    {
-      data: {
-        id: 100,
-        name: 'Test 100',
-        timeStamp: '99050533'
-      },
-    }]
+    renderedNodes: []
   }
 }
 // initial state
@@ -61,6 +41,9 @@ const store = new Vuex.Store({
     },
     setSelectedNode(state, node) {
       state.selectedNode = node
+    },
+    setRenderedNodes(state, nodes) {
+      state.renderedNodes = nodes
     },
     resetState(state) {
       Object.assign(state, getDefaultState())
