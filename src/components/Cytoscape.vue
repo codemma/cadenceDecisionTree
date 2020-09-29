@@ -45,23 +45,30 @@ export default {
   },
   watch: {
     lastNodeInView() {
+      //Function for enabling rendering on panning - TODO
       if (this.lastNodeRendered - 100 < this.lastNodeInView) {
         console.log("close to edge");
-        // window.cy.destroy();
       }
     },
     selectedNode(id) {
+      //Deselect all previously selected nodes
+      cy.$(":selected").deselect();
+
       let node = cy.elements("node#" + id),
         zoom = 1.1,
-        xDiff = cy.width() / 2 - 300,
         bb = node.boundingBox(),
         w = cy.width(),
         h = cy.height(),
         pan = {
-          x: (w - zoom * (bb.x1 + bb.x2)) / 2 + xDiff,
+          x: (w - zoom * (bb.x1 + bb.x2)) / 2,
           y: (h - zoom * (bb.y1 + bb.y2)) / 2,
         };
 
+      //Mark current node as selected - display its informatiom
+      node.select();
+      store.commit("displayNodeInformation", node.data().nodeInfo);
+
+      //Pan the graph to view node
       cy.animate({
         zoom: 1.1,
         pan: pan,
@@ -69,7 +76,7 @@ export default {
     },
   },
   methods: {
-    //  Function which will be used to divide the workflow in chunks to be rendered
+    //  TODO: Function which will be used to divide the workflow in chunks to be rendered
     chunkWorkflow() {
       let chunkSize = 300;
       let groups = this.workflow
@@ -211,10 +218,10 @@ export default {
           store.commit("displayNodeInformation", {});
           //Tap on a node
         } else if (evtTarget.isNode()) {
-          store.commit("displayNodeInformation", evt.target.data().nodeInfo);
-
           //Access the node information to display on click
           let nodeInfo = evt.target.data().nodeInfo;
+
+          store.commit("displayNodeInformation", nodeInfo);
 
           if (nodeInfo.childRunId) {
             store.commit("childRoute", {
@@ -273,7 +280,10 @@ export default {
   },
   mounted() {
     this.chunkWorkflow();
-    this.buildTree();
+    this.buildTree().then(() => {
+      //Set the current nodes which are rendered of the graph in the store
+      store.commit("setRenderedNodes", this.nodes);
+    });
     const t0 = performance.now();
     this.viewInit().then((cy) => {
       const t1 = performance.now();
