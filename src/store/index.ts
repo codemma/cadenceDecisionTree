@@ -8,7 +8,21 @@ const getDefaultState = () => {
     parentRouteId: '',
     childBtn: false,
     btnText: '',
-    selectedNodeInfo: {}
+    selectedNodeInfo: {},
+    renderedNodes: [{
+      data: {
+        id: 3,
+        name: 'Test',
+        timeStamp: '99050533'
+      },
+    },
+    {
+      data: {
+        id: 8,
+        name: 'Test2',
+        timeStamp: '99050533'
+      },
+    }]
   }
 }
 // initial state
@@ -48,6 +62,7 @@ const store = new Vuex.Store({
     btnText: state => state.btnText,
     parentRoute: state => state.parentRouteId,
     selectedNodeInfo: state => state.selectedNodeInfo,
+    renderedNodes: state => state.renderedNodes,
   }
 })
 
