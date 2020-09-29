@@ -1,8 +1,9 @@
 <template>
   <div id="cytoscape">
     <Legend />
-    Last node in view: {{lastNodeInView }},
-    Last node rendered: {{ lastNodeRendered}}
+    {{selectedNode}}
+    <!--   Last node in view: {{lastNodeInView }},
+    Last node rendered: {{ lastNodeRendered}}-->
     <br />
     <!--   <button v-on:click="addNode">Add node test</button> -->
     <div ref="cy" id="cy"></div>
@@ -40,7 +41,6 @@ export default {
       slicedWorkflow: null,
       workflowChunk: 0,
       parentArray: [],
-      cy: null,
     };
   },
   watch: {
@@ -49,6 +49,23 @@ export default {
         console.log("close to edge");
         // window.cy.destroy();
       }
+    },
+    selectedNode(id) {
+      let node = cy.elements("node#" + id),
+        zoom = 1.1,
+        xDiff = cy.width() / 2 - 300,
+        bb = node.boundingBox(),
+        w = cy.width(),
+        h = cy.height(),
+        pan = {
+          x: (w - zoom * (bb.x1 + bb.x2)) / 2 + xDiff,
+          y: (h - zoom * (bb.y1 + bb.y2)) / 2,
+        };
+
+      cy.animate({
+        zoom: 1.1,
+        pan: pan,
+      });
     },
   },
   methods: {
@@ -151,6 +168,7 @@ export default {
       window.cy.layout(dagreLayout).run();
     },
     async viewInit() {
+      let self = this;
       let cy = (window.cy = cytoscape({
         autoungrabify: true,
         styleEnabled: true,
@@ -246,6 +264,11 @@ export default {
       cy.mount(container);
       const t3 = performance.now();
       console.log(`Call to graph mount took ${t3 - t2} milliseconds.`);
+    },
+  },
+  computed: {
+    selectedNode() {
+      return this.$store.getters.selectedNode;
     },
   },
   mounted() {
