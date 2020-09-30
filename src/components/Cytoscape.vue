@@ -1,8 +1,9 @@
 <template>
   <div id="cytoscape">
     <Legend />
-    Last node in view: {{lastNodeInView }},
-    Last node rendered: {{ lastNodeRendered}}
+    {{selectedNode}}
+    <!--   Last node in view: {{lastNodeInView }},
+    Last node rendered: {{ lastNodeRendered}}-->
     <br />
     <!--   <button v-on:click="addNode">Add node test</button> -->
     <div ref="cy" id="cy"></div>
@@ -12,6 +13,7 @@
 <script>
 import dagre from "cytoscape-dagre";
 import { getNodeInfo } from "../eventFunctionMap.ts";
+import graphStyles from "../styles/graphStyles";
 import store from "../store";
 import cytoscape from "cytoscape";
 import Legend from "@/components/Legend.vue";
@@ -33,34 +35,48 @@ export default {
     return {
       nodes: [],
       edges: [],
-      completedNode: {
-        "border-color": "#26bd77",
-        "border-width": 1,
-        "background-color": "#dcffe6",
-      },
-      failedNode: {
-        "border-color": "#ff6c6c",
-        "border-width": 1,
-        "background-color": "#ffcccc",
-      },
+      styles: graphStyles,
       lastNodeInView: "",
       lastNodeRendered: "",
       slicedWorkflow: null,
       workflowChunk: 0,
       parentArray: [],
-      cy: null,
     };
   },
   watch: {
     lastNodeInView() {
+      //Function for enabling rendering on panning - TODO
       if (this.lastNodeRendered - 100 < this.lastNodeInView) {
         console.log("close to edge");
-        // window.cy.destroy();
       }
+    },
+    selectedNode(id) {
+      //Deselect all previously selected nodes
+      cy.$(":selected").deselect();
+
+      let node = cy.elements("node#" + id),
+        zoom = 1.1,
+        bb = node.boundingBox(),
+        w = cy.width(),
+        h = cy.height(),
+        pan = {
+          x: (w - zoom * (bb.x1 + bb.x2)) / 2,
+          y: (h - zoom * (bb.y1 + bb.y2)) / 2,
+        };
+
+      //Mark current node as selected - display its informatiom
+      node.select();
+      store.commit("displayNodeInformation", node.data().nodeInfo);
+
+      //Pan the graph to view node
+      cy.animate({
+        zoom: 1.1,
+        pan: pan,
+      });
     },
   },
   methods: {
-    //  Function which will be used to divide the workflow in chunks to be rendered
+    //  TODO: Function which will be used to divide the workflow in chunks to be rendered
     chunkWorkflow() {
       let chunkSize = 300;
       let groups = this.workflow
@@ -159,6 +175,7 @@ export default {
       window.cy.layout(dagreLayout).run();
     },
     async viewInit() {
+      let self = this;
       let cy = (window.cy = cytoscape({
         autoungrabify: true,
         styleEnabled: true,
@@ -168,63 +185,7 @@ export default {
         //Uncomment the two lines below for better performance
         //textureOnViewport: true,
         //pixelRatio: 1,
-        style: cytoscape
-          .stylesheet()
-          .selector("node")
-          .css({
-            height: "label",
-            width: "label",
-            padding: "10px",
-            "font-weight": "200",
-            "font-family": "Avenir, Helvetica, Arial, sans-serif",
-            "background-color": "white",
-            "border-radius": 5,
-            "min-zoomed-font-size": 8,
-            shape: "round-rectangle",
-            "border-color": "#d1d1d1",
-            "border-width": 1.2,
-            label: "data(name)",
-            "text-valign": "center",
-            "text-halign": "center",
-          })
-          .selector("node[status = 'completed']")
-          .css(this.completedNode)
-          .selector("node[status = 'failed']")
-          .css(this.failedNode)
-          .selector("node:selected")
-          .css({
-            "border-color": "#11939A",
-            "border-width": 2,
-          })
-          .selector("node[status = 'failed']:selected")
-          .css({
-            "border-color": "#ff6c6c",
-            "border-width": 2.5,
-          })
-          .selector("node[status = 'completed']:selected")
-          .css({
-            "border-color": "#26bd77",
-            "border-width": 2.5,
-          })
-          .selector("edge")
-          .css({
-            "target-arrow-shape": "triangle",
-            "target-arrow-color": "#2c3e50",
-            "line-color": "#2c3e50",
-            width: 1.5,
-            "curve-style": "bezier", //'hay-stack' <- set to improve perfomance
-          })
-          .selector("edge[type = 'inferred']")
-          .css({
-            "target-arrow-color": "#ECAB20",
-            "line-color": "#ECAB20",
-          })
-          .selector("edge[type = 'chronological']")
-          .css({
-            "target-arrow-color": "#5879DA",
-            "line-color": "#5879DA",
-          }),
-
+        style: this.styles,
         elements: {
           nodes: this.nodes,
           edges: this.edges,
@@ -257,10 +218,10 @@ export default {
           store.commit("displayNodeInformation", {});
           //Tap on a node
         } else if (evtTarget.isNode()) {
-          store.commit("displayNodeInformation", evt.target.data().nodeInfo);
-
           //Access the node information to display on click
           let nodeInfo = evt.target.data().nodeInfo;
+
+          store.commit("displayNodeInformation", nodeInfo);
 
           if (nodeInfo.childRunId) {
             store.commit("childRoute", {
@@ -312,9 +273,17 @@ export default {
       console.log(`Call to graph mount took ${t3 - t2} milliseconds.`);
     },
   },
+  computed: {
+    selectedNode() {
+      return this.$store.getters.selectedNode;
+    },
+  },
   mounted() {
     this.chunkWorkflow();
-    this.buildTree();
+    this.buildTree().then(() => {
+      //Set the current nodes which are rendered of the graph in the store
+      store.commit("setRenderedNodes", this.nodes);
+    });
     const t0 = performance.now();
     this.viewInit().then((cy) => {
       const t1 = performance.now();

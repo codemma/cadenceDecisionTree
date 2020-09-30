@@ -445,6 +445,7 @@ let eventTypeMap: eventTypeMap = {
       parent: attributesObj.decisionTaskCompletedEventId,
       status: 'failed',
       clickInfo: {
+        id: node.eventId,
         reason: attributesObj.reason,
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId,
         details: attributesObj.details,
@@ -458,6 +459,7 @@ let eventTypeMap: eventTypeMap = {
     const nodeInfo: nodeInfo = {
       inferredChild: inferredChild,
       clickInfo: {
+        id: node.eventId,
         signalName: attributesObj.signalName,
         input: attributesObj.input,
         identity: attributesObj.identity,

@@ -3,12 +3,14 @@ import Vuex from 'vuex'
 
 const getDefaultState = () => {
   return {
-    childRouteId: '',
-    newExecutionId: '',
-    parentRouteId: '',
+    childRouteId: null,
+    newExecutionId: null,
+    parentRouteId: null,
     childBtn: false,
-    btnText: '',
-    selectedNodeInfo: {}
+    btnText: null,
+    selectedNode: null,
+    selectedNodeInfo: {},
+    renderedNodes: []
   }
 }
 // initial state
@@ -37,6 +39,12 @@ const store = new Vuex.Store({
     displayNodeInformation(state, info) {
       state.selectedNodeInfo = info
     },
+    setSelectedNode(state, node) {
+      state.selectedNode = node
+    },
+    setRenderedNodes(state, nodes) {
+      state.renderedNodes = nodes
+    },
     resetState(state) {
       Object.assign(state, getDefaultState())
     }
@@ -48,6 +56,8 @@ const store = new Vuex.Store({
     btnText: state => state.btnText,
     parentRoute: state => state.parentRouteId,
     selectedNodeInfo: state => state.selectedNodeInfo,
+    selectedNode: state => state.selectedNode,
+    renderedNodes: state => state.renderedNodes,
   }
 })
 

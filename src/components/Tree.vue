@@ -1,5 +1,18 @@
 <template>
   <div class="tree-graph">
+    <div class="node-list">
+      <div class="section-header">
+        <div class="section-header-text">Node list</div>
+      </div>
+      <hr class="divider" />
+      <div class="list-container" v-for="node in renderedNodes" :key="node.id">
+        <div class="list-item" v-on:click="selectNode(node)">
+          <div class="list-item-header">{{node.data.id}}</div>
+          <div class="list-item-content">{{node.data.name}}</div>
+        </div>
+        <hr class="divider" />
+      </div>
+    </div>
     <div id="canvas">
       <div class="section-header">
         <router-link class="btn" :to="{ name: 'home' }">Home</router-link>
@@ -65,6 +78,9 @@ export default {
     this.setWorkFlow();
   },
   methods: {
+    selectNode(node) {
+      store.commit("setSelectedNode", node.data.id);
+    },
     route(runId) {
       router.push({ name: "tree", params: { runId: runId } });
     },
@@ -98,6 +114,9 @@ export default {
     selectedNodeInfo() {
       return this.$store.getters.selectedNodeInfo;
     },
+    renderedNodes() {
+      return this.$store.getters.renderedNodes;
+    },
     hasChildBtn() {
       return this.$store.getters.childBtn;
     },
@@ -117,6 +136,17 @@ export default {
   height: 100%;
   display: flex;
   padding: 24px;
+}
+
+.node-list {
+  flex: 1;
+  background-color: white;
+  box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
+  border-radius: 2px;
+  border: 1px solid #eaeaea;
+  overflow-wrap: break-word;
+  overflow-y: scroll;
+  margin-right: 24px;
 }
 
 #graph {
