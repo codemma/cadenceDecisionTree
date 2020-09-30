@@ -7,8 +7,8 @@
       <hr class="divider" />
       <div class="list-container" v-for="node in renderedNodes" :key="node.id">
         <div class="list-item" v-on:click="selectNode(node)">
-          <div class="list-item-header">{{node.data.id}}</div>
-          <div class="list-item-content">{{node.data.name}}</div>
+          <div class="list-item-header">{{node.data.id}} {{node.data.name}}</div>
+          <div class="list-item-content">{{node.data.nodeInfo.timestamp}}</div>
         </div>
         <hr class="divider" />
       </div>

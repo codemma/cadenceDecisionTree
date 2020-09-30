@@ -17,6 +17,7 @@ let eventTypeMap: eventTypeMap = {
       parentWorkflow: attributesObj.parentWorkflowExecution,
       clickInfo: {
         id: node.eventId,
+        timestamp: node.timestamp,
         parentWorkflowDomain: attributesObj.parentWorkflowDomain,
         parentInitiatedEventId: attributesObj.parentInitiatedEventId,
         parentWorkflowExecution: parentWorkflowExecution,
@@ -48,6 +49,7 @@ let eventTypeMap: eventTypeMap = {
       inferredChild: inferredChild,
       clickInfo: {
         id: node.eventId,
+        timestamp: node.timestamp,
         startedEventId: attributesObj.startedEventId,
         scheduledEventId: attributesObj.scheduledEventId,
         result: attributesObj.result
@@ -66,6 +68,7 @@ let eventTypeMap: eventTypeMap = {
       status: 'failed',
       clickInfo: {
         id: node.eventId,
+        timestamp: node.timestamp,
         reason: attributesObj.reason,
         details: attributesObj.details,
         scheduledEventId: attributesObj.scheduledEventId,
@@ -80,6 +83,7 @@ let eventTypeMap: eventTypeMap = {
       parent: attributesObj.decisionTaskCompletedEventId,
       clickInfo: {
         id: node.eventId,
+        timestamp: node.timestamp,
         input: attributesObj.input,
         activityType: attributesObj.activityType.name,
         taskList: attributesObj.taskList.name,
@@ -94,6 +98,7 @@ let eventTypeMap: eventTypeMap = {
       parent: attributesObj.scheduledEventId,
       clickInfo: {
         id: node.eventId,
+        timestamp: node.timestamp,
         requestId: attributesObj.requestId,
         attempt: attributesObj.attempt,
         lastFailureReason: attributesObj.lastFailureReason,
@@ -134,6 +139,7 @@ let eventTypeMap: eventTypeMap = {
       chronologicalChild: chronologicalChild,
       clickInfo: {
         id: node.eventId,
+        timestamp: node.timestamp,
         result: attributesObj.result,
         workflowType: attributesObj.workflowType.name,
         childRunId: attributesObj.workflowExecution.runId,
@@ -151,6 +157,7 @@ let eventTypeMap: eventTypeMap = {
       status: 'failed',
       clickInfo: {
         id: node.eventId,
+        timestamp: node.timestamp,
         reason: attributesObj.reason,
         domain: attributesObj.domain,
         workflowType: attributesObj.workflowType.name,
@@ -172,6 +179,7 @@ let eventTypeMap: eventTypeMap = {
       chronologicalChild: chronologicalChild,
       clickInfo: {
         id: node.eventId,
+        timestamp: node.timestamp,
         domain: attributesObj.domain,
         workflowType: attributesObj.workflowType.name,
         initiatedEventId: attributesObj.initiatedEventId,
@@ -201,6 +209,7 @@ let eventTypeMap: eventTypeMap = {
       chronologicalChild: chronologicalChild,
       clickInfo: {
         id: node.eventId,
+        timestamp: node.timestamp,
         scheduledEventId: attributesObj.scheduledEventId,
         startedEventId: attributesObj.startedEventId,
       },
@@ -219,6 +228,7 @@ let eventTypeMap: eventTypeMap = {
     const nodeInfo: nodeInfo = {
       clickInfo: {
         id: node.eventId,
+        timestamp: node.timestamp,
         taskList: attributesObj.taskList.name,
         attempt: attributesObj.attempt,
       },
@@ -231,6 +241,7 @@ let eventTypeMap: eventTypeMap = {
       parent: attributesObj.scheduledEventId,
       clickInfo: {
         id: node.eventId,
+        timestamp: node.timestamp,
         scheduledEventId: attributesObj.scheduledEventId,
       },
     }
@@ -260,6 +271,7 @@ let eventTypeMap: eventTypeMap = {
       inferredChild: inferredChild,
       clickInfo: {
         id: node.eventId,
+        timestamp: node.timestamp,
         initiatedEventId: attributesObj.initiatedEventId,
         domain: attributesObj.domain,
         workflowExecution: workflowExecution,
@@ -274,6 +286,7 @@ let eventTypeMap: eventTypeMap = {
       parent: attributesObj.decisionTaskCompletedEventId,
       clickInfo: {
         id: node.eventId,
+        timestamp: node.timestamp,
         markerName: attributesObj.markerName,
         details: attributesObj.details,
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId
@@ -315,6 +328,7 @@ let eventTypeMap: eventTypeMap = {
       parent: attributesObj.decisionTaskCompletedEventId,
       clickInfo: {
         id: node.eventId,
+        timestamp: node.timestamp,
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId,
         domain: attributesObj.domain,
         input: attributesObj.input,
@@ -340,6 +354,7 @@ let eventTypeMap: eventTypeMap = {
       parent: node.startChildWorkflowExecutionInitiatedEventAttributes.decisionTaskCompletedEventId,
       clickInfo: {
         id: node.eventId,
+        timestamp: node.timestamp,
         domain: attributesObj.domain,
         input: attributesObj.input,
         workflowId: attributesObj.workflowId,
@@ -365,6 +380,7 @@ let eventTypeMap: eventTypeMap = {
       inferredChild: inferredChild,
       clickInfo: {
         id: node.eventId,
+        timestamp: node.timestamp,
         timerId: attributesObj.timerId,
         startedEventId: attributesObj.startedEventId
       }
@@ -377,6 +393,7 @@ let eventTypeMap: eventTypeMap = {
       parent: attributesObj.decisionTaskCompletedEventId,
       clickInfo: {
         id: node.eventId,
+        timestamp: node.timestamp,
         timerId: attributesObj.timerId,
         startToFireTimeoutSeconds: attributesObj.startToFireTimeoutSeconds,
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId
@@ -391,6 +408,8 @@ let eventTypeMap: eventTypeMap = {
     const nodeInfo: nodeInfo = {
       parent: attributesObj.decisionTaskCompletedEventId,
       clickInfo: {
+        id: node.eventId,
+        timestamp: node.timestamp,
         searchAttributes: searchAttr,
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId,
       }
@@ -418,6 +437,7 @@ let eventTypeMap: eventTypeMap = {
       status: 'completed',
       clickInfo: {
         id: node.eventId,
+        timestamp: node.timestamp,
         result: attributesObj.result,
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId,
       }
@@ -430,6 +450,7 @@ let eventTypeMap: eventTypeMap = {
       parent: attributesObj.decisionTaskCompletedEventId,
       clickInfo: {
         id: node.eventId,
+        timestamp: node.timestamp,
         input: attributesObj.input,
         initiator: attributesObj.initiator,
         newExecutionRunId: attributesObj.newExecutionRunId,
@@ -446,6 +467,7 @@ let eventTypeMap: eventTypeMap = {
       status: 'failed',
       clickInfo: {
         id: node.eventId,
+        timestamp: node.timestamp,
         reason: attributesObj.reason,
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId,
         details: attributesObj.details,
@@ -460,6 +482,7 @@ let eventTypeMap: eventTypeMap = {
       inferredChild: inferredChild,
       clickInfo: {
         id: node.eventId,
+        timestamp: node.timestamp,
         signalName: attributesObj.signalName,
         input: attributesObj.input,
         identity: attributesObj.identity,
