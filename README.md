@@ -16,7 +16,7 @@ npm run build
 ```
 
 
-### Compiles and minifies for production, pushed to gh-pages and deploys
+### Pushes to gh-pages and deploys to https://codemma.github.io/cadenceDecisionTree/
 ```
 ./deploy.sh   or    bash deploy.sh 
 ```
