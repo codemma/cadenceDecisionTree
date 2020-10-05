@@ -1,3 +1,5 @@
 module.exports = {
-  publicPath: '/cadenceDecisionTree/'
+  publicPath: process.env.NODE_ENV === 'production'
+    ? '/cadenceDecisionTree/'
+    : '/'
 }
