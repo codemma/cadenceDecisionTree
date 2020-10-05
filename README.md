@@ -15,5 +15,11 @@ npm run serve
 npm run build
 ```
 
+
+### Compiles and minifies for production, pushed to gh-pages and deploys
+```
+./deploy.sh   or    bash deploy.sh 
+```
+
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
