@@ -1,25 +1,56 @@
 <template>
   <div class="tree-graph">
-    <div class="node-list">
-      <div @click="show = !show" class="section-header">
-        <div class="section-header-text">Node list</div>
-      </div>
-      <hr class="divider" />
-      <div
-        v-show="show"
-        class="list-container"
-        v-for="node in renderedNodes"
-        :key="node.id"
-      >
-        <div class="list-item" v-on:click="selectNode(node)">
-          <div class="list-item-header">
+    <div class="graph-info">
+      <div class="node-list">
+        <div @click="show = !show" class="section-header">
+          <div class="section-header-text">Node list</div>
+        </div>
+        <hr class="divider" />
+        <div
+          v-show="show"
+          class="list-container"
+          v-for="node in renderedNodes"
+          :key="node.id"
+        >
+          <div class="list-item" v-on:click="selectNode(node)">
+            <div class="list-item-header">id: {{ node.data.id }}</div>
+            <div class="list-item-content"></div>
+            <div class="list-item-header">{{ node.data.name }}</div>
+
+            <!--   <div class="list-item-header">
             {{ node.data.id }} {{ node.data.name }}
           </div>
           <div class="list-item-content">
             {{ node.data.nodeInfo.timestamp }}
+          </div> -->
           </div>
+          <hr class="divider" />
+        </div>
+      </div>
+      <div class="event-info">
+        <div @click="showInfo = !showInfo" class="section-header">
+          <div class="section-header-text">Event information</div>
         </div>
         <hr class="divider" />
+        <div
+          v-if="hasChildBtn"
+          class="event-info-btn"
+          v-on:click="route(childRouteId)"
+        >
+          {{ btnText }}
+        </div>
+        <hr v-if="hasChildBtn" class="divider" />
+        <div
+          v-show="showInfo"
+          class="list-container"
+          v-for="(key, value) in selectedNodeInfo"
+        >
+          <div class="list-item">
+            <div class="list-item-header">{{ value }}</div>
+            <div class="list-item-content">{{ key }}</div>
+          </div>
+          <hr class="divider" />
+        </div>
       </div>
     </div>
     <div id="canvas">
@@ -33,27 +64,6 @@
       <hr class="divider" />
       <div v-if="!workflowLoading" id="loading"></div>
       <WorkflowGraph v-if="workflowLoading" :workflow="workflow" />
-    </div>
-    <div class="event-info">
-      <div class="section-header">
-        <div class="section-header-text">Event information</div>
-      </div>
-      <hr class="divider" />
-      <div
-        v-if="hasChildBtn"
-        class="event-info-btn"
-        v-on:click="route(childRouteId)"
-      >
-        {{ btnText }}
-      </div>
-      <hr v-if="hasChildBtn" class="divider" />
-      <div class="list-container" v-for="(key, value) in selectedNodeInfo">
-        <div class="list-item">
-          <div class="list-item-header">{{ value }}</div>
-          <div class="list-item-content">{{ key }}</div>
-        </div>
-        <hr class="divider" />
-      </div>
     </div>
   </div>
 </template>
@@ -75,6 +85,7 @@ export default {
   data() {
     return {
       show: false,
+      showInfo: false,
       workflow: null,
       workflowLoading: false,
       clickedId: null,
@@ -97,6 +108,8 @@ export default {
   },
   methods: {
     selectNode(node) {
+      this.showInfo = true;
+      this.show = false;
       store.commit("setSelectedNode", node.data.id);
     },
     route(runId) {
@@ -149,6 +162,12 @@ export default {
 </script>
 
 <style lang="stylus">
+.graph-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
 .collapse {
   display: none;
 
@@ -176,9 +195,8 @@ export default {
 }
 
 .node-list {
-  flex: 1;
   height: fit-content;
-  max-height: 100%;
+  max-height: calc(100% - 62px);
   background-color: white;
   box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
   border-radius: 2px;
@@ -233,13 +251,15 @@ hr.divider {
 
 .event-info {
   flex: 1;
+  height: fit-content;
+  max-height: 100%;
   background-color: white;
   box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
   border-radius: 2px;
   border: 1px solid #eaeaea;
   overflow-wrap: break-word;
   overflow-y: scroll;
-  margin-left: 24px;
+  margin-right: 24px;
 
   &-btn {
     margin: 16px 20px;
