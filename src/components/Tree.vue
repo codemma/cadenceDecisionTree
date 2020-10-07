@@ -2,7 +2,6 @@
   <div class="tree-graph">
     <div id="canvas">
       <div class="section-header">
-        <router-link class="btn" :to="{ name: 'home' }">Home</router-link>
         <div class="btn" v-on:click="route(parentRoute)" v-if="parentRoute">
           Go to parent
         </div>
