@@ -88,12 +88,16 @@ export default {
 
         this.graph.setNode(node.eventId, {
           label:
-            "<p>" + node.eventType + "</p>" + "<p>" + node.eventId + "</p>",
+            "<p class='main-heading'>" +
+            node.eventType +
+            "</p>" +
+            "<p class='sub-heading'>" +
+            node.eventId +
+            "</p>",
           labelType: "html",
           class: node.eventType,
           eventInfo: clickInfo,
           id: node.eventId,
-          hovertext: clickInfo,
           id: "event-" + node.eventId,
         });
       });
@@ -224,22 +228,6 @@ export default {
           } else {
             store.commit("toggleChildBtn");
           }
-
-          /* let event = self.graph.node(id).eventInfo;
-
-          if (event.childRunId) {
-            store.commit("childRoute", {
-              routeId: event.childRunId,
-              btnText: "Show child workflow",
-            });
-          } else if (event.newExecutionRunId) {
-            store.commit("childRoute", {
-              routeId: event.newExecutionRunId,
-              btnText: "Show next execution",
-            });
-          } else {
-            store.commit("toggleChildBtn");
-          } */
         });
 
       //Fix to put arrowheads over nodes
