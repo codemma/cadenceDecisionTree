@@ -180,6 +180,11 @@ export default {
       var svg = d3.select("#graph").attr("height", "100%");
       var inner = svg.select("g");
 
+      svg.on("mousedown", function (event) {
+        d3.selectAll("g.node").classed("selected", false);
+        console.log("click" + d3.event.srcElement);
+      });
+
       this.drawChart(svg);
 
       // Add an event listener that run the function when dimension change
