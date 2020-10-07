@@ -68,36 +68,32 @@ export default {
         });
     },
     buildTree() {
-      var nodeTemplate = Handlebars.compile($("#node-template").html());
+      //var nodeTemplate = Handlebars.compile($("#node-template").html());
 
       //Create nodes to render with Dagre D3
       this.slicedWorkflow.forEach((node) => {
-        let { hoverText, childRunId, parentWorkflow } = getNodeInfo(
-            node,
-            this.slicedWorkflow
-          ),
-          hovertext;
+        let { clickInfo, childRunId, parentWorkflow, status } = getNodeInfo(
+          node,
+          this.slicedWorkflow
+        );
+
+        if (!clickInfo) {
+          clickInfo = { todo: "Todo" };
+        }
 
         //We have a child workflow, show parent btn
         if (parentWorkflow) {
           store.commit("parentRoute", parentWorkflow.runId);
         }
 
-        if (hoverText !== undefined) {
-          hovertext = nodeTemplate({ hoverText: hoverText });
-        } else {
-          hovertext = nodeTemplate({
-            hoverText: {
-              test: "TODO",
-            },
-          });
-        }
         this.graph.setNode(node.eventId, {
-          label: node.eventType,
+          label:
+            "<p>" + node.eventType + "</p>" + "<p>" + node.eventId + "</p>",
+          labelType: "html",
           class: node.eventType,
-          eventInfo: hoverText,
+          eventInfo: clickInfo,
           id: node.eventId,
-          hovertext: hovertext,
+          hovertext: clickInfo,
           id: "event-" + node.eventId,
         });
       });
@@ -182,7 +178,7 @@ export default {
 
       svg.on("mousedown", function (event) {
         d3.selectAll("g.node").classed("selected", false);
-        console.log("click" + d3.event.srcElement);
+        store.commit("displayNodeInformation", "");
       });
 
       this.drawChart(svg);
@@ -211,7 +207,25 @@ export default {
           d3.event.stopPropagation();
           self.toggleSelectedNode(id, this);
 
-          let event = self.graph.node(id).eventInfo;
+          let nodeInfo = self.graph.node(id).eventInfo;
+
+          store.commit("displayNodeInformation", nodeInfo);
+
+          if (nodeInfo.childRunId) {
+            store.commit("childRoute", {
+              routeId: nodeInfo.childRunId,
+              btnText: "Show child workflow",
+            });
+          } else if (nodeInfo.newExecutionRunId) {
+            store.commit("childRoute", {
+              routeId: nodeInfo.newExecutionRunId,
+              btnText: "Show next execution",
+            });
+          } else {
+            store.commit("toggleChildBtn");
+          }
+
+          /* let event = self.graph.node(id).eventInfo;
 
           if (event.childRunId) {
             store.commit("childRoute", {
@@ -225,7 +239,7 @@ export default {
             });
           } else {
             store.commit("toggleChildBtn");
-          }
+          } */
         });
 
       //Fix to put arrowheads over nodes
