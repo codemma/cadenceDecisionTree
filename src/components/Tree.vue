@@ -1,58 +1,5 @@
 <template>
   <div class="tree-graph">
-    <div class="graph-info">
-      <div class="node-list">
-        <div @click="show = !show" class="section-header">
-          <div class="section-header-text">Node list</div>
-        </div>
-        <hr class="divider" />
-        <div
-          v-show="show"
-          class="list-container"
-          v-for="node in renderedNodes"
-          :key="node.id"
-        >
-          <div class="list-item" v-on:click="selectNode(node)">
-            <div class="list-item-header">id: {{ node.data.id }}</div>
-            <div class="list-item-content"></div>
-            <div class="list-item-header">{{ node.data.name }}</div>
-
-            <!--   <div class="list-item-header">
-            {{ node.data.id }} {{ node.data.name }}
-          </div>
-          <div class="list-item-content">
-            {{ node.data.nodeInfo.timestamp }}
-          </div> -->
-          </div>
-          <hr class="divider" />
-        </div>
-      </div>
-      <div class="event-info">
-        <div @click="showInfo = !showInfo" class="section-header">
-          <div class="section-header-text">Event information</div>
-        </div>
-        <hr class="divider" />
-        <div
-          v-if="hasChildBtn"
-          class="event-info-btn"
-          v-on:click="route(childRouteId)"
-        >
-          {{ btnText }}
-        </div>
-        <hr v-if="hasChildBtn" class="divider" />
-        <div
-          v-show="showInfo"
-          class="list-container"
-          v-for="(key, value) in selectedNodeInfo"
-        >
-          <div class="list-item">
-            <div class="list-item-header">{{ value }}</div>
-            <div class="list-item-content">{{ key }}</div>
-          </div>
-          <hr class="divider" />
-        </div>
-      </div>
-    </div>
     <div id="canvas">
       <div class="section-header">
         <router-link class="btn" :to="{ name: 'home' }">Home</router-link>
@@ -64,6 +11,29 @@
       <hr class="divider" />
       <div v-if="!workflowLoading" id="loading"></div>
       <WorkflowGraph v-if="workflowLoading" :workflow="workflow" />
+    </div>
+    <div class="graph-info">
+      <div class="event-info">
+        <div class="section-header">
+          <div class="section-header-text">Event information</div>
+        </div>
+        <hr class="divider" />
+        <div
+          v-if="hasChildBtn"
+          class="event-info-btn"
+          v-on:click="route(childRouteId)"
+        >
+          {{ btnText }}
+        </div>
+        <hr v-if="hasChildBtn" class="divider" />
+        <div class="list-container" v-for="(key, value) in selectedNodeInfo">
+          <div class="list-item">
+            <div class="list-item-header">{{ value }}</div>
+            <div class="list-item-content">{{ key }}</div>
+          </div>
+          <hr class="divider" />
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -191,7 +161,6 @@ export default {
   width: 100%;
   height: 100%;
   display: flex;
-  padding: 24px;
 }
 
 .node-list {
@@ -213,7 +182,6 @@ export default {
 #canvas {
   flex: 3;
   background-color: white;
-  box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
   border: 1px solid #eaeaea;
   overflow: hidden;
   position: relative;
@@ -254,12 +222,11 @@ hr.divider {
   height: fit-content;
   max-height: 100%;
   background-color: white;
-  box-shadow: 0px 0px 9px 0px rgba(232, 232, 232, 1);
   border-radius: 2px;
   border: 1px solid #eaeaea;
   overflow-wrap: break-word;
   overflow-y: scroll;
-  margin-right: 24px;
+  margin-left: 10px;
 
   &-btn {
     margin: 16px 20px;

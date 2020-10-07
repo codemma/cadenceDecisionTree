@@ -20,7 +20,6 @@ export default {};
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  background-color: #f6f6f9;
   height: 100vh;
 }
 
