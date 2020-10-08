@@ -1,7 +1,7 @@
 <template>
   <div id="cytoscape">
     <Legend />
-    {{selectedNode}}
+    {{ selectedNode }}
     <!--   Last node in view: {{lastNodeInView }},
     Last node rendered: {{ lastNodeRendered}}-->
     <br />
@@ -12,7 +12,7 @@
 
 <script>
 import dagre from "cytoscape-dagre";
-import { getNodeInfo } from "../eventFunctionMap.ts";
+import { getEventInfo } from "../eventFunctionMap.ts";
 import graphStyles from "../styles/graphStyles";
 import store from "../store";
 import cytoscape from "cytoscape";
@@ -94,9 +94,9 @@ export default {
       ].eventId;
     },
     async buildTree() {
-      this.slicedWorkflow.forEach((node) => {
-        let { clickInfo, childRunId, parentWorkflow, status } = getNodeInfo(
-          node,
+      this.slicedWorkflow.forEach((event) => {
+        let { clickInfo, childRunId, parentWorkflow, status } = getEventInfo(
+          event,
           this.slicedWorkflow
         );
 
@@ -110,8 +110,8 @@ export default {
         }
         this.nodes.push({
           data: {
-            id: node.eventId,
-            name: node.eventType,
+            id: event.eventId,
+            name: event.eventType,
             nodeInfo: clickInfo,
             status: status,
           },
@@ -132,7 +132,7 @@ export default {
     },
     setDirectAndInferred(node) {
       let nodeId = node.eventId,
-        { parent, inferredChild } = getNodeInfo(node, this.slicedWorkflow);
+        { parent, inferredChild } = getEventInfo(node, this.slicedWorkflow);
       if (parent) {
         this.parentArray.push(parent);
         this.edges.push({
@@ -148,7 +148,7 @@ export default {
     },
     setChron(node) {
       let nodeId = node.eventId,
-        { chronologicalChild } = getNodeInfo(node, this.slicedWorkflow);
+        { chronologicalChild } = getEventInfo(node, this.slicedWorkflow);
       if (chronologicalChild) {
         this.edges.push({
           data: {

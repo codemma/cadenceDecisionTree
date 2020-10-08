@@ -1,4 +1,4 @@
-interface nodeInfo {
+interface eventInfo {
   parent?: number;
   inferredChild?: number;
   chronologicalChild?: number;
@@ -10,19 +10,19 @@ interface nodeInfo {
 }
 
 interface workflow {
-  [index: number]: node
+  [index: number]: event
 }
 
 interface eventTypeMap {
   [key: string]: any;
 }
 
-interface node {
+interface event {
   eventType: string;
   eventId: number;
   [key: string]: any;
 }
 
-interface workflow extends Array<node> { }
+interface workflow extends Array<event> { }
 
-export { nodeInfo, node, workflow, eventTypeMap };
+export { eventInfo, event, workflow, eventTypeMap };
