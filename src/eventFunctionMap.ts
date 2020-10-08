@@ -17,8 +17,8 @@ let eventTypeMap: eventTypeMap = {
       parentWorkflow: attributesObj.parentWorkflowExecution,
       clickInfo: {
         id: event.eventId,
+        name: attributesObj.workflowType.name,
         timestamp: timestampToTime(event.timestamp),
-        workflowType: attributesObj.workflowType.name,
         input: attributesObj.input,
         parentWorkflowDomain: attributesObj.parentWorkflowDomain,
         parentInitiatedEventId: attributesObj.parentInitiatedEventId,
@@ -83,9 +83,9 @@ let eventTypeMap: eventTypeMap = {
       parent: attributesObj.decisionTaskCompletedEventId,
       clickInfo: {
         id: event.eventId,
+        name: attributesObj.activityType.name,
         timestamp: event.timestamp,
         input: attributesObj.input,
-        activityType: attributesObj.activityType.name,
         taskList: attributesObj.taskList.name,
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId,
       },
@@ -139,9 +139,9 @@ let eventTypeMap: eventTypeMap = {
       chronologicalChild: chronologicalChild,
       clickInfo: {
         id: event.eventId,
+        name: attributesObj.workflowType.name,
         timestamp: timestampToTime(event.timestamp),
         result: attributesObj.result,
-        workflowType: attributesObj.workflowType.name,
         childRunId: attributesObj.workflowExecution.runId,
       },
     }
@@ -157,10 +157,10 @@ let eventTypeMap: eventTypeMap = {
       status: 'failed',
       clickInfo: {
         id: event.eventId,
+        name: attributesObj.workflowType.name,
         timestamp: timestampToTime(event.timestamp),
         reason: attributesObj.reason,
         domain: attributesObj.domain,
-        workflowType: attributesObj.workflowType.name,
         initiatedEventId: attributesObj.initiatedEventId,
         startedEventId: attributesObj.startedEventId,
         childRunId: attributesObj.workflowExecution.runId,
@@ -179,9 +179,9 @@ let eventTypeMap: eventTypeMap = {
       chronologicalChild: chronologicalChild,
       clickInfo: {
         id: event.eventId,
+        name: attributesObj.workflowType.name,
         timestamp: timestampToTime(event.timestamp),
         domain: attributesObj.domain,
-        workflowType: attributesObj.workflowType.name,
         initiatedEventId: attributesObj.initiatedEventId,
         workflowId: attributesObj.workflowExecution.workflowId,
         childRunId: attributesObj.workflowExecution.runId
@@ -354,10 +354,10 @@ let eventTypeMap: eventTypeMap = {
       parent: event.startChildWorkflowExecutionInitiatedEventAttributes.decisionTaskCompletedEventId,
       clickInfo: {
         id: event.eventId,
+        name: attributesObj.workflowType.name,
         timestamp: timestampToTime(event.timestamp),
         domain: attributesObj.domain,
         input: attributesObj.input,
-        workflowType: attributesObj.workflowType.name,
         workflowId: attributesObj.workflowId,
         taskList: attributesObj.taskList,
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId
@@ -450,11 +450,11 @@ let eventTypeMap: eventTypeMap = {
       parent: attributesObj.decisionTaskCompletedEventId,
       clickInfo: {
         id: event.eventId,
+        name: attributesObj.workflowType.name,
         timestamp: timestampToTime(event.timestamp),
         input: attributesObj.input,
         initiator: attributesObj.initiator,
         newExecutionRunId: attributesObj.newExecutionRunId,
-        workflowType: attributesObj.workflowType.name,
         taskList: attributesObj.taskList.name,
       }
     }
