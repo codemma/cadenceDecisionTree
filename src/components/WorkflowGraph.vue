@@ -30,7 +30,6 @@ export default {
     return {
       graph: {},
       parentArray: [],
-      clickedId: null,
     };
   },
   mounted() {
@@ -133,28 +132,42 @@ export default {
         });
       }
     },
-    // A function that finishes to draw the chart for a specific device size.
-    drawChart(svg) {
+    // A function that finishes to draw the graph for a specific device size.
+    drawGraph(svg) {
       // get the current width of the div where the graph appear, and attribute it to svg
       let currentWidth = parseInt(d3.select("#canvas").style("width"), 10);
       svg.attr("width", currentWidth);
     },
 
     toggleSelectedNode(id, context) {
-      if (d3.select(context).classed("selected")) {
-        d3.select(context).classed("selected", false);
+      let eventInfo = this.graph.node(id).eventInfo;
+      store.commit("toggleChildBtn");
 
+      //Set which button to display
+      if (eventInfo.childRunId) {
+        store.commit("childRoute", {
+          routeId: eventInfo.childRunId,
+          btnText: "Show child workflow",
+        });
+      } else if (eventInfo.newExecutionRunId) {
+        store.commit("childRoute", {
+          routeId: eventInfo.newExecutionRunId,
+          btnText: "Show next execution",
+        });
+      }
+
+      if (d3.select(context).classed("selected")) {
+        //Deselect already selected node
+        d3.select("#event-" + id).classed("selected", false);
         //Remove content from information box
-        d3.select(".event-info-content").html("");
-        self.clickedId = null;
+        store.commit("toggleChildBtn", "displayNodeInformation", {});
       } else {
-        //Deselect previous node
-        d3.select("#event-" + self.clickedId).classed("selected", false);
+        //Deselect all nodes
+        d3.selectAll("g.node").classed("selected", false);
         //Select current
         d3.select("#event-" + id).classed("selected", true);
-        self.clickedId = id;
-        //Add the hover content to the info box
-        d3.select(".event-info-content").html(context.dataset.hovertext);
+        //Add the content to the info container
+        store.commit("displayNodeInformation", eventInfo);
       }
     },
     renderGraph() {
@@ -170,15 +183,15 @@ export default {
       var svg = d3.select("#graph").attr("height", "100%");
       var inner = svg.select("g");
 
+      //Listen to click on background to remove content from info container
       svg.on("mousedown", function (event) {
         d3.selectAll("g.node").classed("selected", false);
-        store.commit("displayNodeInformation", "");
+        store.commit("toggleChildBtn", "displayNodeInformation", {});
       });
 
-      this.drawChart(svg);
-
       // Add an event listener that run the function when dimension change
-      window.addEventListener("resize", this.drawChart(svg));
+      this.drawGraph(svg);
+      window.addEventListener("resize", this.drawGraph(svg));
 
       // Set up zoom support
       var zoom = d3.zoom().on("zoom", function () {
@@ -200,24 +213,6 @@ export default {
         .on("mousedown", function (id) {
           d3.event.stopPropagation();
           self.toggleSelectedNode(id, this);
-
-          let nodeInfo = self.graph.node(id).eventInfo;
-
-          store.commit("displayNodeInformation", nodeInfo);
-
-          if (nodeInfo.childRunId) {
-            store.commit("childRoute", {
-              routeId: nodeInfo.childRunId,
-              btnText: "Show child workflow",
-            });
-          } else if (nodeInfo.newExecutionRunId) {
-            store.commit("childRoute", {
-              routeId: nodeInfo.newExecutionRunId,
-              btnText: "Show next execution",
-            });
-          } else {
-            store.commit("toggleChildBtn");
-          }
         });
 
       //Fix to put arrowheads over nodes
