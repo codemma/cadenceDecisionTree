@@ -186,7 +186,8 @@ export default {
       //Listen to click on background to remove content from info container
       svg.on("mousedown", function (event) {
         d3.selectAll("g.node").classed("selected", false);
-        store.commit("toggleChildBtn", "displayNodeInformation", {});
+        store.commit("displayNodeInformation", {});
+        store.commit("toggleChildBtn");
       });
 
       // Add an event listener that run the function when dimension change
