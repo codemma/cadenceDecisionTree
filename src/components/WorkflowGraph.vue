@@ -67,12 +67,27 @@ export default {
           return {}; //Neccessary to display arrows between nodes
         });
     },
+    createLabel(eventType, name) {
+      let label;
+      if (name !== undefined) {
+        label =
+          "<p class='label-heading'>" +
+          eventType +
+          "</p>" +
+          "<p class='label-text'>" +
+          name;
+        ("</p>");
+      } else {
+        label = "<p class='label-heading'>" + eventType + "</p>";
+      }
+      return label;
+    },
     buildTree() {
       //var nodeTemplate = Handlebars.compile($("#node-template").html());
 
       //Create nodes to render with Dagre D3
       this.slicedWorkflow.forEach((event) => {
-        let { clickInfo, childRunId, parentWorkflow,  } = getEventInfo(
+        let { clickInfo, childRunId, parentWorkflow } = getEventInfo(
           event,
           this.slicedWorkflow
         );
@@ -85,13 +100,7 @@ export default {
           store.commit("parentRoute", parentWorkflow.runId);
         }
 
-        let label =
-          "<p class='main-heading'>" +
-          event.eventType +
-          "</p>" +
-          "<p class='sub-heading'>" +
-          event.eventId +
-          "</p>";
+        let label = this.createLabel(event.eventType, clickInfo.name);
 
         this.graph.setNode(event.eventId, {
           label: label,
@@ -254,6 +263,16 @@ export default {
 </script>
 
 <style lang="stylus">
+.label-heading {
+  font-size: 20px;
+}
+
+.label-text {
+  margin-top: 10px;
+  font-weight: 600;
+  font-size: 18px;
+}
+
 .list-item {
   margin: 16px 24px;
 
