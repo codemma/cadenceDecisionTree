@@ -1,163 +1,163 @@
-import { nodeInfo, node, workflow, eventTypeMap } from "./nodeInterface";
+import { eventInfo, event, workflow, eventTypeMap } from "./eventInterface";
 
-function getNodeInfo(node: node, workflow: workflow) {
-  return eventTypeMap[node.eventType](node, workflow)
+function getEventInfo(event: event, workflow: workflow) {
+  return eventTypeMap[event.eventType](event, workflow)
 }
 
 let eventTypeMap: eventTypeMap = {
-  'WorkflowExecutionStarted': function (node: node, workflow: workflow) {
-    let attributesObj = node.workflowExecutionStartedEventAttributes,
-      { inferredChild } = findChild(node, workflow),
+  'WorkflowExecutionStarted': function (event: event, workflow: workflow) {
+    let attributesObj = event.workflowExecutionStartedEventAttributes,
+      { inferredChild } = findChild(event, workflow),
       taskList = JSON.stringify(attributesObj.taskList),
       parentWorkflowExecution = JSON.stringify(attributesObj.parentWorkflowExecution);
 
 
-    const nodeInfo: nodeInfo = {
+    const eventInfo: eventInfo = {
       inferredChild: inferredChild,
       parentWorkflow: attributesObj.parentWorkflowExecution,
       clickInfo: {
-        id: node.eventId,
-        timestamp: timestampToTime(node.timestamp),
+        id: event.eventId,
+        timestamp: timestampToTime(event.timestamp),
+        workflowType: attributesObj.workflowType.name,
+        input: attributesObj.input,
         parentWorkflowDomain: attributesObj.parentWorkflowDomain,
         parentInitiatedEventId: attributesObj.parentInitiatedEventId,
         parentWorkflowExecution: parentWorkflowExecution,
         taskList: taskList,
-        workflowType: attributesObj.workflowType.name,
-        input: attributesObj.input,
       },
     }
-    return nodeInfo
+    return eventInfo
   },
-  'ActivityTaskCanceled': function (node: node) {
-    const nodeInfo: nodeInfo = {
-      parent: node.activityTaskCanceledEventAttributes.startedEventId,
+  'ActivityTaskCanceled': function (event: event) {
+    const eventInfo: eventInfo = {
+      parent: event.activityTaskCanceledEventAttributes.startedEventId,
     }
-    return nodeInfo
+    return eventInfo
   },
-  'ActivityTaskCancelRequested': function (node: node) {
-    const nodeInfo: nodeInfo = {
-      parent: node.activityTaskCancelRequestedEventAttributes.decisionTaskCompletedEventId,
+  'ActivityTaskCancelRequested': function (event: event) {
+    const eventInfo: eventInfo = {
+      parent: event.activityTaskCancelRequestedEventAttributes.decisionTaskCompletedEventId,
     }
-    return nodeInfo
+    return eventInfo
   },
-  'ActivityTaskCompleted': function (node: node, workflow: workflow) {
-    let attributesObj = node.activityTaskCompletedEventAttributes,
-      { inferredChild, chronologicalChild } = findChild(node, workflow);
-    const nodeInfo: nodeInfo = {
+  'ActivityTaskCompleted': function (event: event, workflow: workflow) {
+    let attributesObj = event.activityTaskCompletedEventAttributes,
+      { inferredChild, chronologicalChild } = findChild(event, workflow);
+    const eventInfo: eventInfo = {
       parent: attributesObj.startedEventId,
       chronologicalChild: chronologicalChild,
       inferredChild: inferredChild,
       clickInfo: {
-        id: node.eventId,
-        timestamp: timestampToTime(node.timestamp),
+        id: event.eventId,
+        timestamp: timestampToTime(event.timestamp),
         startedEventId: attributesObj.startedEventId,
         scheduledEventId: attributesObj.scheduledEventId,
         result: attributesObj.result
       },
     }
-    return nodeInfo
+    return eventInfo
   },
 
-  'ActivityTaskFailed': function (node: node, workflow: workflow) {
-    let attributesObj = node.activityTaskFailedEventAttributes,
-      { inferredChild, chronologicalChild } = findChild(node, workflow);
-    const nodeInfo: nodeInfo = {
-      parent: node.activityTaskFailedEventAttributes.startedEventId,
+  'ActivityTaskFailed': function (event: event, workflow: workflow) {
+    let attributesObj = event.activityTaskFailedEventAttributes,
+      { inferredChild, chronologicalChild } = findChild(event, workflow);
+    const eventInfo: eventInfo = {
+      parent: event.activityTaskFailedEventAttributes.startedEventId,
       chronologicalChild: chronologicalChild,
       inferredChild: inferredChild,
       status: 'failed',
       clickInfo: {
-        id: node.eventId,
-        timestamp: timestampToTime(node.timestamp),
+        id: event.eventId,
+        timestamp: timestampToTime(event.timestamp),
         reason: attributesObj.reason,
         details: attributesObj.details,
         scheduledEventId: attributesObj.scheduledEventId,
         startedEventId: attributesObj.startedEventId,
       },
     }
-    return nodeInfo
+    return eventInfo
   },
-  'ActivityTaskScheduled': function (node: node) {
-    let attributesObj = node.activityTaskScheduledEventAttributes;
-    const nodeInfo: nodeInfo = {
+  'ActivityTaskScheduled': function (event: event) {
+    let attributesObj = event.activityTaskScheduledEventAttributes;
+    const eventInfo: eventInfo = {
       parent: attributesObj.decisionTaskCompletedEventId,
       clickInfo: {
-        id: node.eventId,
-        timestamp: node.timestamp,
+        id: event.eventId,
+        timestamp: event.timestamp,
         input: attributesObj.input,
         activityType: attributesObj.activityType.name,
         taskList: attributesObj.taskList.name,
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId,
       },
     }
-    return nodeInfo
+    return eventInfo
   },
-  'ActivityTaskStarted': function (node: node) {
-    let attributesObj = node.activityTaskStartedEventAttributes
-    const nodeInfo: nodeInfo = {
+  'ActivityTaskStarted': function (event: event) {
+    let attributesObj = event.activityTaskStartedEventAttributes
+    const eventInfo: eventInfo = {
       parent: attributesObj.scheduledEventId,
       clickInfo: {
-        id: node.eventId,
-        timestamp: timestampToTime(node.timestamp),
+        id: event.eventId,
+        timestamp: timestampToTime(event.timestamp),
         requestId: attributesObj.requestId,
         attempt: attributesObj.attempt,
         lastFailureReason: attributesObj.lastFailureReason,
         scheduledEventId: attributesObj.scheduledEventId,
       },
     }
-    return nodeInfo
+    return eventInfo
   },
-  'ActivityTaskTimedOut': function (node: node, workflow: workflow) {
-    let { inferredChild, chronologicalChild } = findChild(node, workflow);
-    const nodeInfo: nodeInfo = {
-      parent: node.activityTaskTimedOutEventAttributes.startedEventId,
+  'ActivityTaskTimedOut': function (event: event, workflow: workflow) {
+    let { inferredChild, chronologicalChild } = findChild(event, workflow);
+    const eventInfo: eventInfo = {
+      parent: event.activityTaskTimedOutEventAttributes.startedEventId,
       chronologicalChild: chronologicalChild,
       inferredChild: inferredChild
     }
-    return nodeInfo
+    return eventInfo
   },
-  'CancelTimerFailed': function (node: node) {
-    const nodeInfo: nodeInfo = {
-      parent: node.cancelTimerFailedEventAttributes.decisionTaskCompletedEventId,
+  'CancelTimerFailed': function (event: event) {
+    const eventInfo: eventInfo = {
+      parent: event.cancelTimerFailedEventAttributes.decisionTaskCompletedEventId,
       status: 'failed',
     }
-    return nodeInfo
+    return eventInfo
   },
-  'ChildWorkflowExecutionCanceled': function (node: node) {
-    const nodeInfo: nodeInfo = {
-      parent: node.childWorkflowExecutionCanceledEventAttributes.startedEventId
+  'ChildWorkflowExecutionCanceled': function (event: event) {
+    const eventInfo: eventInfo = {
+      parent: event.childWorkflowExecutionCanceledEventAttributes.startedEventId
     }
-    return nodeInfo
+    return eventInfo
   },
-  'ChildWorkflowExecutionCompleted': function (node: node, workflow: workflow) {
-    let attributesObj = node.childWorkflowExecutionCompletedEventAttributes,
-      { inferredChild, chronologicalChild } = findChild(node, workflow);
-    const nodeInfo: nodeInfo = {
+  'ChildWorkflowExecutionCompleted': function (event: event, workflow: workflow) {
+    let attributesObj = event.childWorkflowExecutionCompletedEventAttributes,
+      { inferredChild, chronologicalChild } = findChild(event, workflow);
+    const eventInfo: eventInfo = {
       parent: attributesObj.startedEventId,
       status: 'completed',
       inferredChild: inferredChild,
       chronologicalChild: chronologicalChild,
       clickInfo: {
-        id: node.eventId,
-        timestamp: timestampToTime(node.timestamp),
+        id: event.eventId,
+        timestamp: timestampToTime(event.timestamp),
         result: attributesObj.result,
         workflowType: attributesObj.workflowType.name,
         childRunId: attributesObj.workflowExecution.runId,
       },
     }
-    return nodeInfo
+    return eventInfo
   },
-  'ChildWorkflowExecutionFailed': function (node: node, workflow: workflow) {
-    let attributesObj = node.childWorkflowExecutionFailedEventAttributes,
-      { inferredChild, chronologicalChild } = findChild(node, workflow);
-    const nodeInfo: nodeInfo = {
+  'ChildWorkflowExecutionFailed': function (event: event, workflow: workflow) {
+    let attributesObj = event.childWorkflowExecutionFailedEventAttributes,
+      { inferredChild, chronologicalChild } = findChild(event, workflow);
+    const eventInfo: eventInfo = {
       parent: attributesObj.startedEventId,
       inferredChild: inferredChild,
       chronologicalChild: chronologicalChild,
       status: 'failed',
       clickInfo: {
-        id: node.eventId,
-        timestamp: timestampToTime(node.timestamp),
+        id: event.eventId,
+        timestamp: timestampToTime(event.timestamp),
         reason: attributesObj.reason,
         domain: attributesObj.domain,
         workflowType: attributesObj.workflowType.name,
@@ -168,18 +168,18 @@ let eventTypeMap: eventTypeMap = {
       },
 
     }
-    return nodeInfo
+    return eventInfo
   },
-  'ChildWorkflowExecutionStarted': function (node: node, workflow: workflow) {
-    let attributesObj = node.childWorkflowExecutionStartedEventAttributes,
-      { inferredChild, chronologicalChild } = findChild(node, workflow);
-    const nodeInfo: nodeInfo = {
+  'ChildWorkflowExecutionStarted': function (event: event, workflow: workflow) {
+    let attributesObj = event.childWorkflowExecutionStartedEventAttributes,
+      { inferredChild, chronologicalChild } = findChild(event, workflow);
+    const eventInfo: eventInfo = {
       parent: attributesObj.initiatedEventId,
       inferredChild: inferredChild,
       chronologicalChild: chronologicalChild,
       clickInfo: {
-        id: node.eventId,
-        timestamp: timestampToTime(node.timestamp),
+        id: event.eventId,
+        timestamp: timestampToTime(event.timestamp),
         domain: attributesObj.domain,
         workflowType: attributesObj.workflowType.name,
         initiatedEventId: attributesObj.initiatedEventId,
@@ -187,148 +187,148 @@ let eventTypeMap: eventTypeMap = {
         childRunId: attributesObj.workflowExecution.runId
       }
     }
-    return nodeInfo
+    return eventInfo
   },
-  'ChildWorkflowExecutionTerminated': function (node: node) {
-    const nodeInfo: nodeInfo = {
-      parent: node.childWorkflowExecutionTerminatedEventAttributes.startedEventId
+  'ChildWorkflowExecutionTerminated': function (event: event) {
+    const eventInfo: eventInfo = {
+      parent: event.childWorkflowExecutionTerminatedEventAttributes.startedEventId
     }
-    return nodeInfo
+    return eventInfo
   },
-  'ChildWorkflowExecutionTimedOut': function (node: node) {
-    const nodeInfo: nodeInfo = {
-      parent: node.childWorkflowExecutionTimedOutEventAttributes.startedEventId
+  'ChildWorkflowExecutionTimedOut': function (event: event) {
+    const eventInfo: eventInfo = {
+      parent: event.childWorkflowExecutionTimedOutEventAttributes.startedEventId
     }
-    return nodeInfo
+    return eventInfo
   },
-  'DecisionTaskCompleted': function (node: node, workflow: workflow) {
-    let attributesObj = node.decisionTaskCompletedEventAttributes
-    let { chronologicalChild } = findChild(node, workflow);
-    const nodeInfo: nodeInfo = {
+  'DecisionTaskCompleted': function (event: event, workflow: workflow) {
+    let attributesObj = event.decisionTaskCompletedEventAttributes
+    let { chronologicalChild } = findChild(event, workflow);
+    const eventInfo: eventInfo = {
       parent: attributesObj.startedEventId,
       chronologicalChild: chronologicalChild,
       clickInfo: {
-        id: node.eventId,
-        timestamp: timestampToTime(node.timestamp),
+        id: event.eventId,
+        timestamp: timestampToTime(event.timestamp),
         scheduledEventId: attributesObj.scheduledEventId,
         startedEventId: attributesObj.startedEventId,
       },
     }
-    return nodeInfo
+    return eventInfo
   },
-  'DecisionTaskFailed': function (node: node) {
-    const nodeInfo: nodeInfo = {
+  'DecisionTaskFailed': function (event: event) {
+    const eventInfo: eventInfo = {
       status: 'failed',
-      parent: node.decisionTaskFailedEventAttributes.startedEventId,
+      parent: event.decisionTaskFailedEventAttributes.startedEventId,
     }
-    return nodeInfo
+    return eventInfo
   },
-  'DecisionTaskScheduled': function (node: node, workflow: workflow) {
-    let attributesObj = node.decisionTaskScheduledEventAttributes
-    const nodeInfo: nodeInfo = {
+  'DecisionTaskScheduled': function (event: event, workflow: workflow) {
+    let attributesObj = event.decisionTaskScheduledEventAttributes
+    const eventInfo: eventInfo = {
       clickInfo: {
-        id: node.eventId,
-        timestamp: timestampToTime(node.timestamp),
+        id: event.eventId,
+        timestamp: timestampToTime(event.timestamp),
         taskList: attributesObj.taskList.name,
         attempt: attributesObj.attempt,
       },
     }
-    return nodeInfo
+    return eventInfo
   },
-  'DecisionTaskStarted': function (node: node) {
-    let attributesObj = node.decisionTaskStartedEventAttributes
-    const nodeInfo: nodeInfo = {
+  'DecisionTaskStarted': function (event: event) {
+    let attributesObj = event.decisionTaskStartedEventAttributes
+    const eventInfo: eventInfo = {
       parent: attributesObj.scheduledEventId,
       clickInfo: {
-        id: node.eventId,
-        timestamp: timestampToTime(node.timestamp),
+        id: event.eventId,
+        timestamp: timestampToTime(event.timestamp),
         scheduledEventId: attributesObj.scheduledEventId,
       },
     }
-    return nodeInfo
+    return eventInfo
   },
-  'DecisionTaskTimedOut': function (node: node) {
-    const nodeInfo: nodeInfo = {
-      parent: node.decisionTaskTimedOutEventAttributes.scheduledEventId
+  'DecisionTaskTimedOut': function (event: event) {
+    const eventInfo: eventInfo = {
+      parent: event.decisionTaskTimedOutEventAttributes.scheduledEventId
     }
-    return nodeInfo
+    return eventInfo
   },
-  'ExternalWorkflowExecutionCancelRequested': function (node: node, workflow: workflow) {
-    let { inferredChild, chronologicalChild } = findChild(node, workflow);
-    const nodeInfo: nodeInfo = {
-      parent: node.externalWorkflowExecutionCancelRequestedEventAttributes.initiatedEventId,
+  'ExternalWorkflowExecutionCancelRequested': function (event: event, workflow: workflow) {
+    let { inferredChild, chronologicalChild } = findChild(event, workflow);
+    const eventInfo: eventInfo = {
+      parent: event.externalWorkflowExecutionCancelRequestedEventAttributes.initiatedEventId,
       inferredChild: inferredChild,
       chronologicalChild: chronologicalChild
     }
-    return nodeInfo
+    return eventInfo
   },
-  'ExternalWorkflowExecutionSignaled': function (node: node, workflow: workflow) {
-    let attributesObj = node.externalWorkflowExecutionSignaledEventAttributes,
-      { inferredChild } = findChild(node, workflow);
+  'ExternalWorkflowExecutionSignaled': function (event: event, workflow: workflow) {
+    let attributesObj = event.externalWorkflowExecutionSignaledEventAttributes,
+      { inferredChild } = findChild(event, workflow);
     let workflowExecution = JSON.stringify(attributesObj.workflowExecution);
-    const nodeInfo: nodeInfo = {
+    const eventInfo: eventInfo = {
       parent: attributesObj.initiatedEventId,
       inferredChild: inferredChild,
       clickInfo: {
-        id: node.eventId,
-        timestamp: timestampToTime(node.timestamp),
+        id: event.eventId,
+        timestamp: timestampToTime(event.timestamp),
         initiatedEventId: attributesObj.initiatedEventId,
         domain: attributesObj.domain,
         workflowExecution: workflowExecution,
         control: attributesObj.control
       },
     }
-    return nodeInfo
+    return eventInfo
   },
-  'MarkerRecorded': function (node: node) {
-    let attributesObj = node.markerRecordedEventAttributes
-    const nodeInfo: nodeInfo = {
+  'MarkerRecorded': function (event: event) {
+    let attributesObj = event.markerRecordedEventAttributes
+    const eventInfo: eventInfo = {
       parent: attributesObj.decisionTaskCompletedEventId,
       clickInfo: {
-        id: node.eventId,
-        timestamp: timestampToTime(node.timestamp),
+        id: event.eventId,
+        timestamp: timestampToTime(event.timestamp),
         markerName: attributesObj.markerName,
         details: attributesObj.details,
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId
       },
     }
-    return nodeInfo
+    return eventInfo
   },
-  'RequestCancelActivityTaskFailed': function (node: node) {
-    const nodeInfo: nodeInfo = {
+  'RequestCancelActivityTaskFailed': function (event: event) {
+    const eventInfo: eventInfo = {
       status: 'failed',
-      parent: node.requestCancelActivityTaskFailedEventAttributes.decisionTaskCompletedEventId
+      parent: event.requestCancelActivityTaskFailedEventAttributes.decisionTaskCompletedEventId
     }
-    return nodeInfo
+    return eventInfo
   },
-  'RequestCancelExternalWorkflowExecutionFailed': function (node: node) {
-    const nodeInfo: nodeInfo = {
+  'RequestCancelExternalWorkflowExecutionFailed': function (event: event) {
+    const eventInfo: eventInfo = {
       status: 'failed',
-      parent: node.requestCancelExternalWorkflowExecutionFailed.decisionTaskCompletedEventId
+      parent: event.requestCancelExternalWorkflowExecutionFailed.decisionTaskCompletedEventId
     }
-    return nodeInfo
+    return eventInfo
   },
-  'RequestCancelExternalWorkflowExecutionInitiated': function (node: node) {
-    const nodeInfo: nodeInfo = {
-      parent: node.requestCancelExternalWorkflowExecutionInitiatedEventAttributes.decisionTaskCompletedEventId
+  'RequestCancelExternalWorkflowExecutionInitiated': function (event: event) {
+    const eventInfo: eventInfo = {
+      parent: event.requestCancelExternalWorkflowExecutionInitiatedEventAttributes.decisionTaskCompletedEventId
     }
-    return nodeInfo
+    return eventInfo
   },
-  'SignalExternalWorkflowExecutionFailed': function (node: node) {
-    const nodeInfo: nodeInfo = {
+  'SignalExternalWorkflowExecutionFailed': function (event: event) {
+    const eventInfo: eventInfo = {
       status: 'failed',
-      parent: node.signalExternalWorkflowExecutionFailedEventAttributes.decisionTaskCompletedEventId
+      parent: event.signalExternalWorkflowExecutionFailedEventAttributes.decisionTaskCompletedEventId
     }
-    return nodeInfo
+    return eventInfo
   },
-  'SignalExternalWorkflowExecutionInitiated': function (node: node) {
-    let attributesObj = node.signalExternalWorkflowExecutionInitiatedEventAttributes
+  'SignalExternalWorkflowExecutionInitiated': function (event: event) {
+    let attributesObj = event.signalExternalWorkflowExecutionInitiatedEventAttributes
     let workflowExecution = JSON.stringify(attributesObj.workflowExecution);
-    const nodeInfo: nodeInfo = {
+    const eventInfo: eventInfo = {
       parent: attributesObj.decisionTaskCompletedEventId,
       clickInfo: {
-        id: node.eventId,
-        timestamp: timestampToTime(node.timestamp),
+        id: event.eventId,
+        timestamp: timestampToTime(event.timestamp),
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId,
         domain: attributesObj.domain,
         input: attributesObj.input,
@@ -338,119 +338,119 @@ let eventTypeMap: eventTypeMap = {
         workflowExecution: workflowExecution,
       }
     }
-    return nodeInfo
+    return eventInfo
   },
-  'StartChildWorkflowExecutionFailed': function (node: node) {
-    let attributesObj = node.startChildWorkflowExecutionFailedEventAttributes
-    const nodeInfo: nodeInfo = {
+  'StartChildWorkflowExecutionFailed': function (event: event) {
+    let attributesObj = event.startChildWorkflowExecutionFailedEventAttributes
+    const eventInfo: eventInfo = {
       status: 'failed',
       parent: attributesObj.decisionTaskCompletedEventId,
     }
-    return nodeInfo
+    return eventInfo
   },
-  'StartChildWorkflowExecutionInitiated': function (node: node) {
-    let attributesObj = node.startChildWorkflowExecutionInitiatedEventAttributes
-    const nodeInfo: nodeInfo = {
-      parent: node.startChildWorkflowExecutionInitiatedEventAttributes.decisionTaskCompletedEventId,
+  'StartChildWorkflowExecutionInitiated': function (event: event) {
+    let attributesObj = event.startChildWorkflowExecutionInitiatedEventAttributes
+    const eventInfo: eventInfo = {
+      parent: event.startChildWorkflowExecutionInitiatedEventAttributes.decisionTaskCompletedEventId,
       clickInfo: {
-        id: node.eventId,
-        timestamp: timestampToTime(node.timestamp),
+        id: event.eventId,
+        timestamp: timestampToTime(event.timestamp),
         domain: attributesObj.domain,
         input: attributesObj.input,
-        workflowId: attributesObj.workflowId,
         workflowType: attributesObj.workflowType.name,
+        workflowId: attributesObj.workflowId,
         taskList: attributesObj.taskList,
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId
       }
     }
-    return nodeInfo
+    return eventInfo
   },
-  'TimerCanceled': function (node: node) {
+  'TimerCanceled': function (event: event) {
     //TODO
-    const nodeInfo: nodeInfo = {
-      parent: node.timerCanceledEventAttributes.startedEventId
+    const eventInfo: eventInfo = {
+      parent: event.timerCanceledEventAttributes.startedEventId
     }
-    return nodeInfo
+    return eventInfo
   },
-  'TimerFired': function (node: node, workflow: workflow) {
-    let attributesObj = node.timerFiredEventAttributes,
-      { inferredChild } = findChild(node, workflow);
-    const nodeInfo: nodeInfo = {
+  'TimerFired': function (event: event, workflow: workflow) {
+    let attributesObj = event.timerFiredEventAttributes,
+      { inferredChild } = findChild(event, workflow);
+    const eventInfo: eventInfo = {
       parent: attributesObj.startedEventId,
       inferredChild: inferredChild,
       clickInfo: {
-        id: node.eventId,
-        timestamp: timestampToTime(node.timestamp),
+        id: event.eventId,
+        timestamp: timestampToTime(event.timestamp),
         timerId: attributesObj.timerId,
         startedEventId: attributesObj.startedEventId
       }
     }
-    return nodeInfo
+    return eventInfo
   },
-  'TimerStarted': function (node: node) {
-    let attributesObj = node.timerStartedEventAttributes
-    const nodeInfo: nodeInfo = {
+  'TimerStarted': function (event: event) {
+    let attributesObj = event.timerStartedEventAttributes
+    const eventInfo: eventInfo = {
       parent: attributesObj.decisionTaskCompletedEventId,
       clickInfo: {
-        id: node.eventId,
-        timestamp: timestampToTime(node.timestamp),
+        id: event.eventId,
+        timestamp: timestampToTime(event.timestamp),
         timerId: attributesObj.timerId,
         startToFireTimeoutSeconds: attributesObj.startToFireTimeoutSeconds,
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId
       }
     }
-    return nodeInfo
+    return eventInfo
   },
-  'UpsertWorkflowSearchAttributes': function (node: node) {
+  'UpsertWorkflowSearchAttributes': function (event: event) {
     //TODO: not sure about what is important to display here
-    let attributesObj = node.upsertWorkflowSearchAttributesEventAttributes
+    let attributesObj = event.upsertWorkflowSearchAttributesEventAttributes
     var searchAttr = JSON.stringify(attributesObj.searchAttributes.indexedFields);
-    const nodeInfo: nodeInfo = {
+    const eventInfo: eventInfo = {
       parent: attributesObj.decisionTaskCompletedEventId,
       clickInfo: {
-        id: node.eventId,
-        timestamp: timestampToTime(node.timestamp),
+        id: event.eventId,
+        timestamp: timestampToTime(event.timestamp),
         searchAttributes: searchAttr,
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId,
       }
     }
-    return nodeInfo
+    return eventInfo
   },
-  'WorkflowExecutionCanceled': function (node: node) {
-    const nodeInfo: nodeInfo = {
-      parent: node.workflowExecutionCanceledEventAttributes.decisionTaskCompletedEventId,
+  'WorkflowExecutionCanceled': function (event: event) {
+    const eventInfo: eventInfo = {
+      parent: event.workflowExecutionCanceledEventAttributes.decisionTaskCompletedEventId,
     }
-    return nodeInfo
+    return eventInfo
   },
-  'WorkflowExecutionCancelRequested': function (node: node, workflow: workflow) {
-    let { inferredChild, chronologicalChild } = findChild(node, workflow);
-    //This node has no parent nor child
-    const nodeInfo: nodeInfo = {
+  'WorkflowExecutionCancelRequested': function (event: event, workflow: workflow) {
+    let { inferredChild, chronologicalChild } = findChild(event, workflow);
+    //This event has no parent nor child
+    const eventInfo: eventInfo = {
       inferredChild: inferredChild
     }
-    return nodeInfo
+    return eventInfo
   },
-  'WorkflowExecutionCompleted': function (node: node) {
-    let attributesObj = node.workflowExecutionCompletedEventAttributes
-    const nodeInfo: nodeInfo = {
+  'WorkflowExecutionCompleted': function (event: event) {
+    let attributesObj = event.workflowExecutionCompletedEventAttributes
+    const eventInfo: eventInfo = {
       parent: attributesObj.decisionTaskCompletedEventId,
       status: 'completed',
       clickInfo: {
-        id: node.eventId,
-        timestamp: timestampToTime(node.timestamp),
+        id: event.eventId,
+        timestamp: timestampToTime(event.timestamp),
         result: attributesObj.result,
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId,
       }
     }
-    return nodeInfo
+    return eventInfo
   },
-  'WorkflowExecutionContinuedAsNew': function (node: node) {
-    let attributesObj = node.workflowExecutionContinuedAsNewEventAttributes
-    const nodeInfo: nodeInfo = {
+  'WorkflowExecutionContinuedAsNew': function (event: event) {
+    let attributesObj = event.workflowExecutionContinuedAsNewEventAttributes
+    const eventInfo: eventInfo = {
       parent: attributesObj.decisionTaskCompletedEventId,
       clickInfo: {
-        id: node.eventId,
-        timestamp: timestampToTime(node.timestamp),
+        id: event.eventId,
+        timestamp: timestampToTime(event.timestamp),
         input: attributesObj.input,
         initiator: attributesObj.initiator,
         newExecutionRunId: attributesObj.newExecutionRunId,
@@ -458,51 +458,51 @@ let eventTypeMap: eventTypeMap = {
         taskList: attributesObj.taskList.name,
       }
     }
-    return nodeInfo
+    return eventInfo
   },
-  'WorkflowExecutionFailed': function (node: node) {
-    let attributesObj = node.workflowExecutionFailedEventAttributes
-    const nodeInfo: nodeInfo = {
+  'WorkflowExecutionFailed': function (event: event) {
+    let attributesObj = event.workflowExecutionFailedEventAttributes
+    const eventInfo: eventInfo = {
       parent: attributesObj.decisionTaskCompletedEventId,
       status: 'failed',
       clickInfo: {
-        id: node.eventId,
-        timestamp: timestampToTime(node.timestamp),
+        id: event.eventId,
+        timestamp: timestampToTime(event.timestamp),
         reason: attributesObj.reason,
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId,
         details: attributesObj.details,
       }
     }
-    return nodeInfo
+    return eventInfo
   },
-  'WorkflowExecutionSignaled': function (node: node, workflow: workflow) {
-    let attributesObj = node.workflowExecutionSignaledEventAttributes
-    let { inferredChild } = findInferredChild(node, workflow);
-    const nodeInfo: nodeInfo = {
+  'WorkflowExecutionSignaled': function (event: event, workflow: workflow) {
+    let attributesObj = event.workflowExecutionSignaledEventAttributes
+    let { inferredChild } = findInferredChild(event, workflow);
+    const eventInfo: eventInfo = {
       inferredChild: inferredChild,
       clickInfo: {
-        id: node.eventId,
-        timestamp: timestampToTime(node.timestamp),
+        id: event.eventId,
+        timestamp: timestampToTime(event.timestamp),
         signalName: attributesObj.signalName,
         input: attributesObj.input,
         identity: attributesObj.identity,
       }
     }
-    return nodeInfo
+    return eventInfo
   },
-  'WorkflowExecutionTerminated': function (node: node) {
+  'WorkflowExecutionTerminated': function (event: event) {
     //TODO - not sure how to implement.
-    const nodeInfo: nodeInfo = {
-      parent: node.eventId - 1
+    const eventInfo: eventInfo = {
+      parent: event.eventId - 1
     }
-    return nodeInfo
+    return eventInfo
   },
-  'WorkflowExecutionTimedOut': function (node: node) {
+  'WorkflowExecutionTimedOut': function (event: event) {
     //TODO - not sure how to implement.
-    const nodeInfo: nodeInfo = {
-      parent: node.eventId - 1
+    const eventInfo: eventInfo = {
+      parent: event.eventId - 1
     }
-    return nodeInfo
+    return eventInfo
   },
 }
 
@@ -522,61 +522,61 @@ function timestampToTime(timestamp: number) {
   return formattedTime;
 }
 
-function findInferredChild(node: node, workflow: workflow): nodeInfo {
+function findInferredChild(event: event, workflow: workflow): eventInfo {
   let
-    slicedWorkflow = workflow.slice(node.eventId),
-    nodeInformation: nodeInfo = {},
-    targetNode: node;
+    slicedWorkflow = workflow.slice(event.eventId),
+    eventInfo: eventInfo = {},
+    targetevent: event;
 
-  for (targetNode of slicedWorkflow) {
-    switch (targetNode.eventType) {
+  for (targetevent of slicedWorkflow) {
+    switch (targetevent.eventType) {
       case 'WorkflowExecutionSignaled':
       case 'WorkflowExecutionCancelRequested':
         break
       case 'DecisionTaskScheduled':
-        nodeInformation = {
-          inferredChild: targetNode.eventId
+        eventInfo = {
+          inferredChild: targetevent.eventId
         }
-        return nodeInformation
+        return eventInfo
     }
   }
-  return nodeInformation
+  return eventInfo
 }
 
 
 //Looks for a chronological or inferred child
 //It is inferred if a DecisionTaskScheduled, otherwise its chronological
 //External signals are not children and therefore they are skipped
-function findChild(node: node, workflow: workflow): nodeInfo {
+function findChild(event: event, workflow: workflow): eventInfo {
   let
-    slicedWorkflow = workflow.slice(node.eventId),
-    nodeInformation: nodeInfo = {},
-    targetNode: node;
+    slicedWorkflow = workflow.slice(event.eventId),
+    eventInfo: eventInfo = {},
+    targetevent: event;
 
   if (slicedWorkflow[0].eventType === 'DecisionTaskScheduled') {
-    nodeInformation = {
+    eventInfo = {
       inferredChild: slicedWorkflow[0].eventId
     }
-    return nodeInformation
+    return eventInfo
   }
 
   else {
-    for (targetNode of slicedWorkflow) {
-      switch (targetNode.eventType) {
+    for (targetevent of slicedWorkflow) {
+      switch (targetevent.eventType) {
         case 'WorkflowExecutionSignaled':
         case 'WorkflowExecutionCancelRequested':
           break
         default:
-          nodeInformation = {
-            chronologicalChild: targetNode.eventId
+          eventInfo = {
+            chronologicalChild: targetevent.eventId
           }
-          return nodeInformation
+          return eventInfo
       }
     }
 
   }
-  return nodeInformation
+  return eventInfo
 }
 
 // Exporting variables and functions
-export { getNodeInfo };
+export { getEventInfo };
