@@ -19,11 +19,11 @@ let eventTypeMap: eventTypeMap = {
         id: event.eventId,
         timestamp: timestampToTime(event.timestamp),
         workflowType: attributesObj.workflowType.name,
+        input: attributesObj.input,
         parentWorkflowDomain: attributesObj.parentWorkflowDomain,
         parentInitiatedEventId: attributesObj.parentInitiatedEventId,
         parentWorkflowExecution: parentWorkflowExecution,
         taskList: taskList,
-        input: attributesObj.input,
       },
     }
     return eventInfo
@@ -357,8 +357,8 @@ let eventTypeMap: eventTypeMap = {
         timestamp: timestampToTime(event.timestamp),
         domain: attributesObj.domain,
         input: attributesObj.input,
-        workflowId: attributesObj.workflowId,
         workflowType: attributesObj.workflowType.name,
+        workflowId: attributesObj.workflowId,
         taskList: attributesObj.taskList,
         decisionTaskCompletedEventId: attributesObj.decisionTaskCompletedEventId
       }
