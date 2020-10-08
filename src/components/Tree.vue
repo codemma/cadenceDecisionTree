@@ -40,7 +40,7 @@
 <script>
 import router from "../router";
 import store from "../store";
-import WorkflowGraph from "@/components/Cytoscape.vue";
+import WorkflowGraph from "@/components/WorkflowGraph.vue";
 export default {
   props: {
     runId: {

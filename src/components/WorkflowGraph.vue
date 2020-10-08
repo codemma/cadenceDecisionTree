@@ -10,7 +10,7 @@
 <script>
 import * as d3 from "d3";
 import dagreD3 from "dagre-d3";
-import { getNodeInfo } from "../eventFunctionMap.ts";
+import { getEventInfo } from "../eventFunctionMap.ts";
 import router from "../router";
 import Handlebars from "handlebars";
 import store from "../store";
@@ -30,33 +30,13 @@ export default {
     return {
       graph: {},
       parentArray: [],
-      clickedId: null,
-      slicedWorkflow: null,
-      workflowChunk: 0,
     };
   },
   mounted() {
     this.createGraph();
   },
   methods: {
-    chunkWorkflow() {
-      let chunkSize = 300;
-      let groups = this.workflow
-        .map((e, i) => {
-          return i % chunkSize === 0
-            ? this.workflow.slice(i, i + chunkSize)
-            : null;
-        })
-        .filter((e) => {
-          return e;
-        });
-      this.slicedWorkflow = groups[this.workflowChunk];
-      this.lastNodeRendered = this.slicedWorkflow[
-        this.slicedWorkflow.length - 1
-      ].eventId;
-    },
     createGraph() {
-      this.chunkWorkflow();
       this.setGraph();
       this.buildTree();
     },
@@ -67,104 +47,127 @@ export default {
           return {}; //Neccessary to display arrows between nodes
         });
     },
+    createLabel(eventType, name) {
+      let label;
+      if (name !== undefined) {
+        label =
+          "<p class='label-heading'>" +
+          eventType +
+          "</p>" +
+          "<p class='label-text'>" +
+          name;
+        ("</p>");
+      } else {
+        label = "<p class='label-heading'>" + eventType + "</p>";
+      }
+      return label;
+    },
     buildTree() {
-      var nodeTemplate = Handlebars.compile($("#node-template").html());
+      //var nodeTemplate = Handlebars.compile($("#node-template").html());
 
       //Create nodes to render with Dagre D3
-      this.slicedWorkflow.forEach((node) => {
-        let { hoverText, childRunId, parentWorkflow } = getNodeInfo(
-            node,
-            this.slicedWorkflow
-          ),
-          hovertext;
+      this.workflow.forEach((event) => {
+        let { clickInfo, childRunId, parentWorkflow } = getEventInfo(
+          event,
+          this.workflow
+        );
+        if (!clickInfo) {
+          clickInfo = { todo: "Todo" };
+        }
 
         //We have a child workflow, show parent btn
         if (parentWorkflow) {
           store.commit("parentRoute", parentWorkflow.runId);
         }
 
-        if (hoverText !== undefined) {
-          hovertext = nodeTemplate({ hoverText: hoverText });
-        } else {
-          hovertext = nodeTemplate({
-            hoverText: {
-              test: "TODO",
-            },
-          });
-        }
-        this.graph.setNode(node.eventId, {
-          label: node.eventType,
-          class: node.eventType,
-          eventInfo: hoverText,
-          id: node.eventId,
-          hovertext: hovertext,
-          id: "event-" + node.eventId,
+        let label = this.createLabel(event.eventType, clickInfo.name);
+
+        this.graph.setNode(event.eventId, {
+          label: label,
+          labelType: "html",
+          class: event.eventType,
+          eventInfo: clickInfo,
+          id: "event-" + event.eventId,
         });
       });
       //Set the direct and inferred relationships
-      this.slicedWorkflow.forEach((node) => {
-        this.setDirectAndInferred(node);
+      this.workflow.forEach((event) => {
+        this.setDirectAndInferred(event);
       });
 
       //Set the chronological relationships.
       //If the node is not referred to as a parent it should be connected back to the graph with a chron child
-      this.slicedWorkflow.forEach((node) => {
-        if (!this.parentArray.includes(node.eventId)) {
-          this.setChron(node);
+      this.workflow.forEach((event) => {
+        if (!this.parentArray.includes(event.eventId)) {
+          this.setChron(event);
         }
       });
       this.renderGraph();
     },
-    setDirectAndInferred(node) {
-      let nodeId = node.eventId,
-        { parent, inferredChild } = getNodeInfo(node, this.slicedWorkflow);
+    setDirectAndInferred(event) {
+      let eventId = event.eventId,
+        { parent, inferredChild } = getEventInfo(event, this.workflow);
       if (parent) {
         this.parentArray.push(parent);
-        this.graph.setEdge(parent, nodeId, {
+        this.graph.setEdge(parent, eventId, {
           class: "edge-direct",
           arrowheadClass: "arrowhead-direct",
         });
       }
       if (inferredChild) {
-        this.parentArray.push(nodeId);
-        this.graph.setEdge(nodeId, inferredChild, {
+        this.parentArray.push(eventId);
+        this.graph.setEdge(eventId, inferredChild, {
           class: "edge-inferred",
           arrowheadClass: "arrowhead-inferred",
         });
       }
     },
-    setChron(node) {
-      let nodeId = node.eventId,
-        { chronologicalChild } = getNodeInfo(node, this.slicedWorkflow);
+    setChron(event) {
+      let eventId = event.eventId,
+        { chronologicalChild } = getEventInfo(event, this.workflow);
       if (chronologicalChild) {
-        this.graph.setEdge(nodeId, chronologicalChild, {
+        this.graph.setEdge(eventId, chronologicalChild, {
           class: "edge-chronological",
           arrowheadClass: "arrowhead-chronological",
         });
       }
     },
-    // A function that finishes to draw the chart for a specific device size.
-    drawChart(svg) {
+    // A function that finishes to draw the graph for a specific device size.
+    drawGraph(svg) {
       // get the current width of the div where the graph appear, and attribute it to svg
       let currentWidth = parseInt(d3.select("#canvas").style("width"), 10);
       svg.attr("width", currentWidth);
     },
 
     toggleSelectedNode(id, context) {
-      if (d3.select(context).classed("selected")) {
-        d3.select(context).classed("selected", false);
+      let eventInfo = this.graph.node(id).eventInfo;
+      store.commit("toggleChildBtn");
 
+      //Set which button to display
+      if (eventInfo.childRunId) {
+        store.commit("childRoute", {
+          routeId: eventInfo.childRunId,
+          btnText: "Show child workflow",
+        });
+      } else if (eventInfo.newExecutionRunId) {
+        store.commit("childRoute", {
+          routeId: eventInfo.newExecutionRunId,
+          btnText: "Show next execution",
+        });
+      }
+
+      if (d3.select(context).classed("selected")) {
+        //Deselect already selected node
+        d3.select("#event-" + id).classed("selected", false);
         //Remove content from information box
-        d3.select(".event-info-content").html("");
-        self.clickedId = null;
+        store.commit("toggleChildBtn", "displayNodeInformation", {});
       } else {
-        //Deselect previous node
-        d3.select("#event-" + self.clickedId).classed("selected", false);
+        //Deselect all nodes
+        d3.selectAll("g.node").classed("selected", false);
         //Select current
         d3.select("#event-" + id).classed("selected", true);
-        self.clickedId = id;
-        //Add the hover content to the info box
-        d3.select(".event-info-content").html(context.dataset.hovertext);
+        //Add the content to the info container
+        store.commit("displayNodeInformation", eventInfo);
       }
     },
     renderGraph() {
@@ -180,10 +183,15 @@ export default {
       var svg = d3.select("#graph").attr("height", "100%");
       var inner = svg.select("g");
 
-      this.drawChart(svg);
+      //Listen to click on background to remove content from info container
+      svg.on("mousedown", function (event) {
+        d3.selectAll("g.node").classed("selected", false);
+        store.commit("toggleChildBtn", "displayNodeInformation", {});
+      });
 
       // Add an event listener that run the function when dimension change
-      window.addEventListener("resize", this.drawChart(svg));
+      this.drawGraph(svg);
+      window.addEventListener("resize", this.drawGraph(svg));
 
       // Set up zoom support
       var zoom = d3.zoom().on("zoom", function () {
@@ -205,22 +213,6 @@ export default {
         .on("mousedown", function (id) {
           d3.event.stopPropagation();
           self.toggleSelectedNode(id, this);
-
-          let event = self.graph.node(id).eventInfo;
-
-          if (event.childRunId) {
-            store.commit("childRoute", {
-              routeId: event.childRunId,
-              btnText: "Show child workflow",
-            });
-          } else if (event.newExecutionRunId) {
-            store.commit("childRoute", {
-              routeId: event.newExecutionRunId,
-              btnText: "Show next execution",
-            });
-          } else {
-            store.commit("toggleChildBtn");
-          }
         });
 
       //Fix to put arrowheads over nodes
@@ -247,6 +239,16 @@ export default {
 </script>
 
 <style lang="stylus">
+.label-heading {
+  font-size: 20px;
+}
+
+.label-text {
+  margin-top: 10px;
+  font-weight: 600;
+  font-size: 18px;
+}
+
 .list-item {
   margin: 16px 24px;
 
