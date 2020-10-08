@@ -18,11 +18,11 @@ let eventTypeMap: eventTypeMap = {
       clickInfo: {
         id: event.eventId,
         timestamp: timestampToTime(event.timestamp),
+        workflowType: attributesObj.workflowType.name,
         parentWorkflowDomain: attributesObj.parentWorkflowDomain,
         parentInitiatedEventId: attributesObj.parentInitiatedEventId,
         parentWorkflowExecution: parentWorkflowExecution,
         taskList: taskList,
-        workflowType: attributesObj.workflowType.name,
         input: attributesObj.input,
       },
     }
