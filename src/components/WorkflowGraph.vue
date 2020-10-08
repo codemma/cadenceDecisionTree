@@ -72,11 +72,10 @@ export default {
 
       //Create nodes to render with Dagre D3
       this.slicedWorkflow.forEach((event) => {
-        let { clickInfo, childRunId, parentWorkflow, status } = getEventInfo(
+        let { clickInfo, childRunId, parentWorkflow,  } = getEventInfo(
           event,
           this.slicedWorkflow
         );
-
         if (!clickInfo) {
           clickInfo = { todo: "Todo" };
         }
@@ -86,18 +85,19 @@ export default {
           store.commit("parentRoute", parentWorkflow.runId);
         }
 
+        let label =
+          "<p class='main-heading'>" +
+          event.eventType +
+          "</p>" +
+          "<p class='sub-heading'>" +
+          event.eventId +
+          "</p>";
+
         this.graph.setNode(event.eventId, {
-          label:
-            "<p class='main-heading'>" +
-            event.eventType +
-            "</p>" +
-            "<p class='sub-heading'>" +
-            event.eventId +
-            "</p>",
+          label: label,
           labelType: "html",
           class: event.eventType,
           eventInfo: clickInfo,
-          id: event.eventId,
           id: "event-" + event.eventId,
         });
       });
