@@ -10,7 +10,7 @@
 <script>
 import * as d3 from "d3";
 import dagreD3 from "dagre-d3";
-import { getNodeInfo } from "../eventFunctionMap.ts";
+import { getEventInfo } from "../eventFunctionMap.ts";
 import router from "../router";
 import Handlebars from "handlebars";
 import store from "../store";
@@ -71,9 +71,9 @@ export default {
       //var nodeTemplate = Handlebars.compile($("#node-template").html());
 
       //Create nodes to render with Dagre D3
-      this.slicedWorkflow.forEach((node) => {
-        let { clickInfo, childRunId, parentWorkflow, status } = getNodeInfo(
-          node,
+      this.slicedWorkflow.forEach((event) => {
+        let { clickInfo, childRunId, parentWorkflow, status } = getEventInfo(
+          event,
           this.slicedWorkflow
         );
 
@@ -86,58 +86,58 @@ export default {
           store.commit("parentRoute", parentWorkflow.runId);
         }
 
-        this.graph.setNode(node.eventId, {
+        this.graph.setNode(event.eventId, {
           label:
             "<p class='main-heading'>" +
-            node.eventType +
+            event.eventType +
             "</p>" +
             "<p class='sub-heading'>" +
-            node.eventId +
+            event.eventId +
             "</p>",
           labelType: "html",
-          class: node.eventType,
+          class: event.eventType,
           eventInfo: clickInfo,
-          id: node.eventId,
-          id: "event-" + node.eventId,
+          id: event.eventId,
+          id: "event-" + event.eventId,
         });
       });
       //Set the direct and inferred relationships
-      this.slicedWorkflow.forEach((node) => {
-        this.setDirectAndInferred(node);
+      this.slicedWorkflow.forEach((event) => {
+        this.setDirectAndInferred(event);
       });
 
       //Set the chronological relationships.
       //If the node is not referred to as a parent it should be connected back to the graph with a chron child
-      this.slicedWorkflow.forEach((node) => {
-        if (!this.parentArray.includes(node.eventId)) {
-          this.setChron(node);
+      this.slicedWorkflow.forEach((event) => {
+        if (!this.parentArray.includes(event.eventId)) {
+          this.setChron(event);
         }
       });
       this.renderGraph();
     },
-    setDirectAndInferred(node) {
-      let nodeId = node.eventId,
-        { parent, inferredChild } = getNodeInfo(node, this.slicedWorkflow);
+    setDirectAndInferred(event) {
+      let eventId = event.eventId,
+        { parent, inferredChild } = getEventInfo(event, this.slicedWorkflow);
       if (parent) {
         this.parentArray.push(parent);
-        this.graph.setEdge(parent, nodeId, {
+        this.graph.setEdge(parent, eventId, {
           class: "edge-direct",
           arrowheadClass: "arrowhead-direct",
         });
       }
       if (inferredChild) {
-        this.parentArray.push(nodeId);
-        this.graph.setEdge(nodeId, inferredChild, {
+        this.parentArray.push(eventId);
+        this.graph.setEdge(eventId, inferredChild, {
           class: "edge-inferred",
           arrowheadClass: "arrowhead-inferred",
         });
       }
     },
-    setChron(node) {
-      let nodeId = node.eventId,
-        { chronologicalChild } = getNodeInfo(node, this.slicedWorkflow);
+    setChron(event) {
+      let eventId = event.eventId,
+        { chronologicalChild } = getEventInfo(event, this.slicedWorkflow);
       if (chronologicalChild) {
-        this.graph.setEdge(nodeId, chronologicalChild, {
+        this.graph.setEdge(eventId, chronologicalChild, {
           class: "edge-chronological",
           arrowheadClass: "arrowhead-chronological",
         });
