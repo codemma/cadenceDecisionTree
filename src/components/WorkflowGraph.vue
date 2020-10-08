@@ -31,32 +31,13 @@ export default {
       graph: {},
       parentArray: [],
       clickedId: null,
-      slicedWorkflow: null,
-      workflowChunk: 0,
     };
   },
   mounted() {
     this.createGraph();
   },
   methods: {
-    chunkWorkflow() {
-      let chunkSize = 300;
-      let groups = this.workflow
-        .map((e, i) => {
-          return i % chunkSize === 0
-            ? this.workflow.slice(i, i + chunkSize)
-            : null;
-        })
-        .filter((e) => {
-          return e;
-        });
-      this.slicedWorkflow = groups[this.workflowChunk];
-      this.lastNodeRendered = this.slicedWorkflow[
-        this.slicedWorkflow.length - 1
-      ].eventId;
-    },
     createGraph() {
-      this.chunkWorkflow();
       this.setGraph();
       this.buildTree();
     },
@@ -86,10 +67,10 @@ export default {
       //var nodeTemplate = Handlebars.compile($("#node-template").html());
 
       //Create nodes to render with Dagre D3
-      this.slicedWorkflow.forEach((event) => {
+      this.workflow.forEach((event) => {
         let { clickInfo, childRunId, parentWorkflow } = getEventInfo(
           event,
-          this.slicedWorkflow
+          this.workflow
         );
         if (!clickInfo) {
           clickInfo = { todo: "Todo" };
@@ -111,13 +92,13 @@ export default {
         });
       });
       //Set the direct and inferred relationships
-      this.slicedWorkflow.forEach((event) => {
+      this.workflow.forEach((event) => {
         this.setDirectAndInferred(event);
       });
 
       //Set the chronological relationships.
       //If the node is not referred to as a parent it should be connected back to the graph with a chron child
-      this.slicedWorkflow.forEach((event) => {
+      this.workflow.forEach((event) => {
         if (!this.parentArray.includes(event.eventId)) {
           this.setChron(event);
         }
@@ -126,7 +107,7 @@ export default {
     },
     setDirectAndInferred(event) {
       let eventId = event.eventId,
-        { parent, inferredChild } = getEventInfo(event, this.slicedWorkflow);
+        { parent, inferredChild } = getEventInfo(event, this.workflow);
       if (parent) {
         this.parentArray.push(parent);
         this.graph.setEdge(parent, eventId, {
@@ -144,7 +125,7 @@ export default {
     },
     setChron(event) {
       let eventId = event.eventId,
-        { chronologicalChild } = getEventInfo(event, this.slicedWorkflow);
+        { chronologicalChild } = getEventInfo(event, this.workflow);
       if (chronologicalChild) {
         this.graph.setEdge(eventId, chronologicalChild, {
           class: "edge-chronological",
