@@ -1,16 +1,16 @@
 import Vue from 'vue'
 import VueRouter, { RouteConfig } from 'vue-router'
-import Tree from '../components/Tree.vue'
+import GraphContainer from '../components/GraphContainer.vue'
 import Home from '../components/Home.vue'
 
 Vue.use(VueRouter)
 
 const routes: Array<RouteConfig> = [
   {
-    path: '/tree/:runId',
-    name: 'tree',
+    path: '/graphcontainer/:runId',
+    name: 'graphcontainer',
     props: true,
-    component: Tree
+    component: GraphContainer
   },
   {
     path: '/',
