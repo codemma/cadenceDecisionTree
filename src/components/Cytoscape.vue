@@ -1,11 +1,6 @@
 <template>
   <div id="cytoscape">
     <Legend />
-    {{ selectedNode }}
-    <!--   Last node in view: {{lastNodeInView }},
-    Last node rendered: {{ lastNodeRendered}}-->
-    <br />
-    <!--   <button v-on:click="addNode">Add node test</button> -->
     <div ref="cy" id="cy"></div>
   </div>
 </template>
