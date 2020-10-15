@@ -1,0 +1,12 @@
+<!DOCTYPE html><html lang=en><head><meta charset=utf-8><meta http-equiv=X-UA-Compatible content="IE=edge"><meta name=viewport content="width=device-width,initial-scale=1"><link rel=icon href=/cadenceDecisionTree/favicon.ico><title>cadencegraph</title><link href=/cadenceDecisionTree/css/app.d45d01fd.css rel=preload as=style><link href=/cadenceDecisionTree/js/app.0669ce15.js rel=preload as=script><link href=/cadenceDecisionTree/js/chunk-vendors.a6737900.js rel=preload as=script><link href=/cadenceDecisionTree/css/app.d45d01fd.css rel=stylesheet></head><body><noscript><strong>We're sorry but cadencegraph doesn't work properly without JavaScript enabled. Please enable it to continue.</strong></noscript><script type=text/x-template id=node-template><div class="event-information-list">
+      <!-- this refers to the value. If we have no value: don't create a list item for it-->
+      {{#each hoverText}}
+      {{#if this}}
+      <div class="list-item">
+        <div class="list-item-header">{{@key}}</div>
+        <div class="list-item-content">{{this}}</div>
+      </div>
+      <hr class="divider"/>
+      {{/if}}
+       {{/each}}
+    </div></script><div id=app></div><script src=/cadenceDecisionTree/js/chunk-vendors.a6737900.js></script><script src=/cadenceDecisionTree/js/app.0669ce15.js></script></body></html>
