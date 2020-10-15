@@ -7,7 +7,7 @@ Vue.use(VueRouter)
 
 const routes: Array<RouteConfig> = [
   {
-    path: '/graphcontainer/:runId',
+    path: '/graph/:runId',
     name: 'graphcontainer',
     props: true,
     component: GraphContainer
