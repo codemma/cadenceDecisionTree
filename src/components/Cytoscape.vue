@@ -171,29 +171,70 @@ export default {
     },
     async viewInit() {
       let self = this;
+
+      // Generage large graph with N * K nodes
+      const R = 150000; // largest circle radius
+      const K = 200; // number of nested circles
+      const N = 50; // nodes per circle
+      const nodes = [];
+      const edges = [];
+      const nId = (k, n) => `node-${k % K}-${n % N}`
+      for (let k = 1; k <= K; k++) {
+        const r = k * R / K;
+        for (let i = 0; i < N; i++) {
+          const id =
+          nodes.push({
+            data: {
+              id: nId(k, i),
+              name: nId(k, i),
+              nodeInfo: 'info',
+              status: 'status',
+              width: 100,
+            },
+            position: {
+              x: Math.cos(i * 2 * Math.PI / N) * r,
+              y: Math.sin(i * 2 * Math.PI / N) * r,
+            }
+          })
+          edges.push({
+            data: {
+              source: nId(k, i),
+              target: nId(k, i + 1),
+              type: "direct"
+            },
+          })
+        }
+      }
+
+      const t2 = performance.now();
       let cy = (window.cy = cytoscape({
         autoungrabify: true,
         styleEnabled: true,
         container: document.getElementById("cy"),
-        headless: true,
+        // headless: true,
         hideEdgesOnViewport: true,
         //Uncomment the two lines below for better performance
-        //textureOnViewport: true,
-        //pixelRatio: 1,
+        textureOnViewport: true,
+        pixelRatio: 1,
         style: this.styles,
         elements: {
-          nodes: this.nodes,
-          edges: this.edges,
+          nodes: nodes,
+          edges: edges,
         },
         layout: {
-          name: "dagre",
-          nodeDimensionsIncludeLabels: true,
-          spacingFactor: 1.2, // to avoid node collision
-          nodeSep: 230,
-          edgeSep: 100,
-          rankSep: 70,
+          name: "preset", // make cytoscape use pre-calculated node coordicates from `position` field
         },
       }));
+
+      // console.log({nodes: this.nodes, edges: this.edges});
+      // console.log('NODES', cy.nodes().map(n => n.position()));
+      const t3 = performance.now();
+      console.log(`new CYTO took ${t3 - t2} milliseconds.`);
+      const Xs = cy.nodes().map(n => n.position().x);
+      const Ys = cy.nodes().map(n => n.position().y);
+      console.log('RECT X', Math.min(...Xs), Math.max(...Xs));
+      console.log('RECT Y', Math.min(...Ys), Math.max(...Ys));
+
       let container = this.$refs.cy;
       cy.on("mouseover", "node", function (e) {
         container.style.cursor = "pointer";
@@ -248,6 +289,7 @@ export default {
 
       let self = this;
       cy.on("pan", function (evt) {
+        const t0 = performance.now();
         let ext = cy.extent();
         let nodesInView = cy.nodes().filter((n) => {
           let bb = n.position();
@@ -259,6 +301,8 @@ export default {
           let amountNodesInView = nodesInView.length;
           self.lastNodeInView = nodesInView[amountNodesInView - 1].id();
         }
+        console.log('lastNodeInView: ', nodesInView.length);
+        console.log(`cy.on("pan") took ${performance.now() - t0} milliseconds.`);
       });
 
       const t2 = performance.now();
