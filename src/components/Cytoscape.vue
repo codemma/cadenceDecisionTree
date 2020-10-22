@@ -73,7 +73,7 @@ export default {
   methods: {
     //  TODO: Function which will be used to divide the workflow in chunks to be rendered
     chunkWorkflow() {
-      let chunkSize = 300;
+      let chunkSize = 500;
       let groups = this.workflow
         .map((e, i) => {
           return i % chunkSize === 0
