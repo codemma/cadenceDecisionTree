@@ -15,6 +15,24 @@
         class="router-link"
         :to="{
           name: 'graphcontainer',
+          params: { runId: '10k-test' },
+        }"
+        >10k test</router-link
+      >
+      <div class="explanation">10k test</div>
+      <router-link
+        class="router-link"
+        :to="{
+          name: 'graphcontainer',
+          params: { runId: '5k-test' },
+        }"
+        >5k test</router-link
+      >
+      <div class="explanation">5k test</div>
+      <router-link
+        class="router-link"
+        :to="{
+          name: 'graphcontainer',
           params: { runId: '524629a5-f63e-47b0-a7b1-5e74304d9da3' },
         }"
         >HelloActivity</router-link
