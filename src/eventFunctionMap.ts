@@ -247,9 +247,13 @@ let eventTypeMap: eventTypeMap = {
     }
     return eventInfo
   },
-  'DecisionTaskTimedOut': function (event: event) {
+  'DecisionTaskTimedOut': function (event: event, workflow: workflow) {
+    let { chronologicalChild, inferredChild } = findChild(event, workflow);
+    console.log(event.eventId, chronologicalChild)
     const eventInfo: eventInfo = {
-      parent: event.decisionTaskTimedOutEventAttributes.scheduledEventId
+      parent: event.decisionTaskTimedOutEventAttributes.scheduledEventId,
+      chronologicalChild: chronologicalChild,
+      inferredChild: inferredChild
     }
     return eventInfo
   },
@@ -280,10 +284,12 @@ let eventTypeMap: eventTypeMap = {
     }
     return eventInfo
   },
-  'MarkerRecorded': function (event: event) {
-    let attributesObj = event.markerRecordedEventAttributes
+  'MarkerRecorded': function (event: event, workflow: workflow) {
+    let attributesObj = event.markerRecordedEventAttributes,
+      { chronologicalChild } = findChild(event, workflow);
     const eventInfo: eventInfo = {
       parent: attributesObj.decisionTaskCompletedEventId,
+      chronologicalChild: chronologicalChild,
       clickInfo: {
         id: event.eventId,
         timestamp: timestampToTime(event.timestamp),
@@ -387,10 +393,12 @@ let eventTypeMap: eventTypeMap = {
     }
     return eventInfo
   },
-  'TimerStarted': function (event: event) {
-    let attributesObj = event.timerStartedEventAttributes
+  'TimerStarted': function (event: event, workflow: workflow) {
+    let attributesObj = event.timerStartedEventAttributes,
+      { chronologicalChild } = findChild(event, workflow);
     const eventInfo: eventInfo = {
       parent: attributesObj.decisionTaskCompletedEventId,
+      chronologicalChild: chronologicalChild,
       clickInfo: {
         id: event.eventId,
         timestamp: timestampToTime(event.timestamp),
@@ -477,7 +485,7 @@ let eventTypeMap: eventTypeMap = {
   },
   'WorkflowExecutionSignaled': function (event: event, workflow: workflow) {
     let attributesObj = event.workflowExecutionSignaledEventAttributes
-    let { inferredChild } = findInferredChild(event, workflow);
+    let { inferredChild } = findChild(event, workflow);
     const eventInfo: eventInfo = {
       inferredChild: inferredChild,
       clickInfo: {
@@ -522,42 +530,39 @@ function timestampToTime(timestamp: number) {
   return formattedTime;
 }
 
-function findInferredChild(event: event, workflow: workflow): eventInfo {
-  let
-    slicedWorkflow = workflow.slice(event.eventId),
-    eventInfo: eventInfo = {},
-    targetevent: event;
-
-  for (targetevent of slicedWorkflow) {
-    switch (targetevent.eventType) {
-      case 'WorkflowExecutionSignaled':
-      case 'WorkflowExecutionCancelRequested':
-        break
-      case 'DecisionTaskScheduled':
-        eventInfo = {
-          inferredChild: targetevent.eventId
-        }
-        return eventInfo
-    }
-  }
-  return eventInfo
-}
-
-
 //Looks for a chronological or inferred child
 //It is inferred if a DecisionTaskScheduled, otherwise its chronological
 //External signals are not children and therefore they are skipped
 function findChild(event: event, workflow: workflow): eventInfo {
+  // console.log('eventMap', event.eventId, event.eventType)
   let
     slicedWorkflow = workflow.slice(event.eventId),
     eventInfo: eventInfo = {},
     targetevent: event;
+
+  //We are at the end of the workflow, no children!
+  if (!slicedWorkflow.length) return eventInfo
 
   if (slicedWorkflow[0].eventType === 'DecisionTaskScheduled') {
     eventInfo = {
       inferredChild: slicedWorkflow[0].eventId
     }
     return eventInfo
+  }
+
+  else if (event.eventType === 'WorkflowExecutionSignaled') {
+    for (targetevent of slicedWorkflow) {
+      switch (targetevent.eventType) {
+        case 'WorkflowExecutionSignaled':
+        case 'WorkflowExecutionCancelRequested':
+          break
+        case 'DecisionTaskScheduled':
+          eventInfo = {
+            inferredChild: targetevent.eventId
+          }
+          return eventInfo
+      }
+    }
   }
 
   else {
